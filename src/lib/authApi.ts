@@ -60,3 +60,7 @@ export function authResetRequest(email: string) {
 export function authResetConfirm(token: string, password: string) {
   return post('auth-reset-confirm', { token, password })
 }
+
+export function profileSave(profile: object) {
+  return post('profile-save', { profile })
+}

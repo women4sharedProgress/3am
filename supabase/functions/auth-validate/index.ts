@@ -25,7 +25,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: account, error } = await supabase
     .from('accounts')
-    .select('id, username, session_token, session_expires_at, role, tier')
+    .select('id, username, session_token, session_expires_at, role, tier, district_info')
     .eq('session_token', token)
     .maybeSingle()
 
@@ -42,7 +42,7 @@ Deno.serve(async (req: Request) => {
     .eq('id', account.id)
 
   return new Response(
-    JSON.stringify({ ok: true, username: account.username, role: account.role, tier: account.tier }),
+    JSON.stringify({ ok: true, username: account.username, role: account.role, tier: account.tier, district_info: account.district_info ?? null }),
     {
       status: 200,
       headers: {

@@ -30,7 +30,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: account, error } = await supabase
     .from('accounts')
-    .select('id, passcode_hash, password_hash, role, tier, failed_passcode_attempts, passcode_locked')
+    .select('id, passcode_hash, password_hash, role, tier, failed_passcode_attempts, passcode_locked, district_info')
     .eq('username', body.username)
     .maybeSingle()
 
@@ -86,7 +86,7 @@ Deno.serve(async (req: Request) => {
   const cookie   = remember ? makeSessionCookie(token) : makeSessionCookieShort(token)
 
   return new Response(
-    JSON.stringify({ ok: true, role: account.role, tier: account.tier }),
+    JSON.stringify({ ok: true, role: account.role, tier: account.tier, district_info: account.district_info ?? null }),
     {
       status: 200,
       headers: { ...CORS, 'Content-Type': 'application/json', 'Set-Cookie': cookie },

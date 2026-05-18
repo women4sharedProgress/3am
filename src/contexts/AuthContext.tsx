@@ -30,6 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then(res => {
         if (res.ok) {
           localStorage.setItem('wsp-current-user', res.username)
+          if (res.district_info) {
+            localStorage.setItem(`wsp-profile-${res.username}`, JSON.stringify(res.district_info))
+          }
           setUser({ username: res.username, role: res.role, tier: res.tier })
         }
         setReady(true)
@@ -49,6 +52,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const res = await authSignin(username, credential, mode, remember)
     if (!res.ok) return res
     localStorage.setItem('wsp-current-user', username)
+    if (res.district_info) {
+      localStorage.setItem(`wsp-profile-${username}`, JSON.stringify(res.district_info))
+    }
     setUser({ username, role: res.role, tier: res.tier })
     return { ok: true as const }
   }, [])

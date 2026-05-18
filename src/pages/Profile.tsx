@@ -6,6 +6,7 @@ import { userKey } from '../lib/userKey'
 import { getMichiganCounty } from '../lib/michiganCounties'
 import { getStateConfig } from '../lib/stateDistrictConfig'
 import { supabase } from '../lib/supabase'
+import { profileSave } from '../lib/authApi'
 
 const US_STATES = [
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA',
@@ -294,8 +295,9 @@ export default function Profile() {
   const [lookupSubmitting, setLookupSubmitting] = useState(false)
   const [lookupVerifiedIds, setLookupVerifiedIds] = useState<Set<string>>(new Set())
   const [lookupMessage, setLookupMessage]       = useState('')
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const msgTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const saveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dbSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const msgTimer    = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
@@ -321,7 +323,12 @@ export default function Profile() {
     setSaved(true)
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => setSaved(false), 2000)
-  }, [data])
+    // Debounced DB sync — only fires if user is logged in, 3s after last change
+    if (user) {
+      if (dbSyncTimer.current) clearTimeout(dbSyncTimer.current)
+      dbSyncTimer.current = setTimeout(() => { profileSave(data).catch(() => {}) }, 3000)
+    }
+  }, [data, user])
 
   // On mount: if a ZIP is already saved, fetch community data for it.
   useEffect(() => {
