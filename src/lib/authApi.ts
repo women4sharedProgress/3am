@@ -1,13 +1,9 @@
 // In dev, VITE_FUNCTIONS_BASE='' routes through the Vite proxy (/functions/v1 → Supabase).
 // In production, VITE_FUNCTIONS_BASE=https://yourproject.supabase.co (or custom domain).
 const BASE = (import.meta.env.VITE_FUNCTIONS_BASE ?? import.meta.env.VITE_SUPABASE_URL) + '/functions/v1'
-const PUBLISHABLE = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 
 function headers() {
-  return {
-    'Content-Type':  'application/json',
-    'Authorization': `Bearer ${PUBLISHABLE}`,
-  }
+  return { 'Content-Type': 'application/json' }
 }
 
 async function post(path: string, body: object) {
