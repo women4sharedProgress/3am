@@ -2,29 +2,259 @@
  * Daily Refresh Edge Function
  * Runs at 3 AM US Eastern (8:00 UTC EST / 7:00 UTC EDT).
  *
- * 1. Bills refresh — touches updated_at for all MI/US bills (stub; replace with LegiScan/Congress.gov later).
- * 2. Representatives refresh — fetches all current members from Congress.gov,
- *    then upserts into the representatives table. State filtering is done in code
- *    (the API's stateCode param is unreliable).
+ * 1. Federal bills — fetches from Congress.gov, applies two-layer data model.
+ * 2. Michigan bills — stub; replace when LEGISCAN_API_KEY is set.
+ * 3. Representatives — fetches all current members from Congress.gov.
  *
  * Secrets (set via `supabase secrets set KEY=value`):
- *   CONGRESS_API_KEY   — Congress.gov API key
- *   SUPABASE_URL       — injected automatically
- *   SUPABASE_SERVICE_ROLE_KEY — service-role key (set manually if not present as SUPABASE_SERVICE_ROLE_KEY)
- *
- * Deploy:  supabase functions deploy daily-refresh
+ *   CONGRESS_API_KEY          — Congress.gov API key
+ *   LEGISCAN_API_KEY          — LegiScan API key (optional; MI bills skip if absent)
+ *   SUPABASE_URL              — injected automatically
+ *   SUPABASE_SERVICE_ROLE_KEY — injected automatically
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const supabaseUrl   = Deno.env.get('SUPABASE_URL')!
-const secretKey     = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-  ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const secretKey   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
-const CONGRESS_API_KEY  = Deno.env.get('CONGRESS_API_KEY')!
+const CONGRESS_API_KEY  = Deno.env.get('CONGRESS_API_KEY') ?? ''
+const LEGISCAN_API_KEY  = Deno.env.get('LEGISCAN_API_KEY') ?? ''
 const CONGRESS_API_BASE = 'https://api.congress.gov/v3'
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// 119th Congress: Jan 3, 2025 – Jan 3, 2027
+const CURRENT_CONGRESS = 119
+
+// Layer 1 keys — auto-pulled; never human-written
+const LAYER1_KEYS = ['name', 'introduced', 'stage', 'stage_dates', 'stage_note'] as const
+
+// ── Federal stage mapping ─────────────────────────────────────────────────────
+// FEDERAL_STAGES = ['Introduced','Committee','House floor','Senate','Conference','Signed']
+// stage === 6 means enacted (stage === stages.length)
+
+function mapFederalStage(latestActionText: string): number {
+  const t = (latestActionText ?? '').toLowerCase()
+  if (t.includes('became public law') || t.includes('enacted into law') || t.includes('public law')) return 6
+  if (t.includes('signed by president') || t.startsWith('signed') || t.includes('signed into law')) return 5
+  if (t.includes('conference') || t.includes('resolving differences')) return 4
+  if (t.includes('received in the senate') || t.includes('received in the house') ||
+      t.includes('passed senate') || t.includes('passed house') ||
+      t.includes('agreed to in senate') || t.includes('agreed to in house')) return 3
+  if (t.includes('reported by') || t.includes('ordered to be reported') ||
+      t.includes('markup') || t.includes('committee consideration')) return 2
+  if (t.includes('referred to')) return 1
+  return 0
+}
+
+// ── Bill reference parser ─────────────────────────────────────────────────────
+
+interface BillRef {
+  congress: number
+  type: string   // 'hr' | 's' | 'hjres' | 'sjres' | 'hconres' | 'sconres' | 'hres' | 'sres'
+  number: number
+}
+
+function parseBillRef(name: string, pullSource: string | null): BillRef | null {
+  // Try pull_source URL first: .../v3/bill/119/hr/22
+  if (pullSource) {
+    const m = pullSource.match(/\/v3\/bill\/(\d+)\/([a-z]+)\/(\d+)/i)
+    if (m) return { congress: Number(m[1]), type: m[2].toLowerCase(), number: Number(m[3]) }
+  }
+
+  // Parse from bill name, longest patterns first to avoid partial matches
+  const typeMap: Array<[RegExp, string]> = [
+    [/^H\.J\.Res\.?\s*(\d+)/i,   'hjres'],
+    [/^S\.J\.Res\.?\s*(\d+)/i,   'sjres'],
+    [/^H\.Con\.Res\.?\s*(\d+)/i, 'hconres'],
+    [/^S\.Con\.Res\.?\s*(\d+)/i, 'sconres'],
+    [/^H\.Res\.?\s*(\d+)/i,      'hres'],
+    [/^S\.Res\.?\s*(\d+)/i,      'sres'],
+    [/^H\.R\.?\s*(\d+)/i,        'hr'],
+    [/^S\.?\s+(\d+)/i,           's'],
+  ]
+
+  for (const [re, type] of typeMap) {
+    const m = name.match(re)
+    if (m) return { congress: CURRENT_CONGRESS, type, number: Number(m[1]) }
+  }
+
+  return null
+}
+
+// ── Congress.gov bill fetch ───────────────────────────────────────────────────
+
+interface Layer1Update {
+  name: string
+  introduced: string | null
+  stage: number
+  stage_dates: Record<string, string>
+  stage_note: string | null
+  pull_source: string
+  raw_pull_data: unknown
+  last_pulled_at: string
+}
+
+function typeLabel(type: string): string {
+  const labels: Record<string, string> = {
+    hr: 'H.R.', s: 'S.', hjres: 'H.J.Res.', sjres: 'S.J.Res.',
+    hconres: 'H.Con.Res.', sconres: 'S.Con.Res.', hres: 'H.Res.', sres: 'S.Res.',
+  }
+  return labels[type] ?? type.toUpperCase()
+}
+
+async function fetchCongressBill(ref: BillRef): Promise<Layer1Update | null> {
+  const url = `${CONGRESS_API_BASE}/bill/${ref.congress}/${ref.type}/${ref.number}?api_key=${CONGRESS_API_KEY}`
+  try {
+    const res = await fetch(url)
+    if (!res.ok) {
+      console.warn(`[bills/federal] ${typeLabel(ref.type)} ${ref.number}: HTTP ${res.status}`)
+      return null
+    }
+    const data = await res.json()
+    const bill = data.bill
+    if (!bill) return null
+
+    const title = bill.title ?? bill.shortTitle ?? ''
+    const billName = `${typeLabel(ref.type)} ${ref.number}${title ? ' — ' + title : ''}`
+
+    const latestActionText: string = bill.latestAction?.text ?? ''
+    const latestActionDate: string = bill.latestAction?.actionDate ?? ''
+    const stage = mapFederalStage(latestActionText)
+
+    const stage_dates: Record<string, string> = latestActionDate ? { [String(stage)]: latestActionDate } : {}
+
+    // Strip API key from stored URL
+    const cleanUrl = url.replace(`?api_key=${CONGRESS_API_KEY}`, '')
+
+    return {
+      name:           billName,
+      introduced:     bill.introducedDate ?? null,
+      stage,
+      stage_dates,
+      stage_note:     latestActionText || null,
+      pull_source:    cleanUrl,
+      raw_pull_data:  data,
+      last_pulled_at: new Date().toISOString(),
+    }
+  } catch (e) {
+    console.warn(`[bills/federal] Fetch error for ${ref.type} ${ref.number}:`, e)
+    return null
+  }
+}
+
+// ── Diff computation ──────────────────────────────────────────────────────────
+
+function computeDiff(
+  current: Record<string, unknown>,
+  incoming: Layer1Update,
+): Record<string, { old: unknown; new: unknown }> | null {
+  const diff: Record<string, { old: unknown; new: unknown }> = {}
+  for (const key of LAYER1_KEYS) {
+    const cur = current[key]
+    const nxt = (incoming as unknown as Record<string, unknown>)[key]
+    if (JSON.stringify(cur) !== JSON.stringify(nxt)) {
+      diff[key] = { old: cur, new: nxt }
+    }
+  }
+  return Object.keys(diff).length > 0 ? diff : null
+}
+
+// ── Federal bills refresh ─────────────────────────────────────────────────────
+
+async function refreshFederalBills(
+  supabase: ReturnType<typeof createClient>,
+): Promise<{ updated: number; pending: number; skipped: number; error?: string }> {
+  if (!CONGRESS_API_KEY) {
+    console.warn('[bills/federal] CONGRESS_API_KEY not set — skipping.')
+    return { updated: 0, pending: 0, skipped: 0, error: 'CONGRESS_API_KEY not configured' }
+  }
+
+  const { data: bills, error: fetchErr } = await supabase
+    .from('bills')
+    .select('id, name, pull_source, verified, stage, stage_dates, stage_note, introduced')
+    .eq('state', 'US')
+
+  if (fetchErr) {
+    console.error('[bills/federal] Could not fetch bills:', fetchErr.message)
+    return { updated: 0, pending: 0, skipped: 0, error: fetchErr.message }
+  }
+
+  let updated = 0, pending = 0, skipped = 0
+
+  for (const bill of bills ?? []) {
+    const ref = parseBillRef(bill.name ?? '', bill.pull_source ?? null)
+    if (!ref) {
+      console.warn(`[bills/federal] Could not parse ref: "${bill.name}" (id=${bill.id})`)
+      skipped++
+      continue
+    }
+
+    const incoming = await fetchCongressBill(ref)
+    if (!incoming) { skipped++; continue }
+
+    if (bill.verified) {
+      // Verified: only write pending_changes if something actually changed
+      const diff = computeDiff(bill as Record<string, unknown>, incoming)
+      if (diff) {
+        const { error } = await supabase
+          .from('bills')
+          .update({
+            pending_changes: diff,
+            last_pulled_at:  incoming.last_pulled_at,
+            raw_pull_data:   incoming.raw_pull_data,
+          })
+          .eq('id', bill.id)
+        if (error) console.error(`[bills/federal] pending_changes error (id=${bill.id}):`, error.message)
+        else pending++
+      }
+    } else {
+      // Unverified: overwrite all Layer 1 fields directly
+      const { error } = await supabase
+        .from('bills')
+        .update({
+          name:           incoming.name,
+          introduced:     incoming.introduced,
+          stage:          incoming.stage,
+          stage_dates:    incoming.stage_dates,
+          stage_note:     incoming.stage_note,
+          pull_source:    incoming.pull_source,
+          raw_pull_data:  incoming.raw_pull_data,
+          last_pulled_at: incoming.last_pulled_at,
+        })
+        .eq('id', bill.id)
+      if (error) console.error(`[bills/federal] update error (id=${bill.id}):`, error.message)
+      else updated++
+    }
+
+    // 200ms between calls — Congress.gov allows ~1000 req/hour without rate-limit errors
+    await new Promise(r => setTimeout(r, 200))
+  }
+
+  console.log(`[bills/federal] updated=${updated} pending=${pending} skipped=${skipped}`)
+  return { updated, pending, skipped }
+}
+
+// ── Michigan bills refresh (stub) ─────────────────────────────────────────────
+
+async function refreshMichiganBills(
+  _supabase: ReturnType<typeof createClient>,
+): Promise<{ updated: number; error?: string }> {
+  if (!LEGISCAN_API_KEY) {
+    console.warn('[bills/michigan] LEGISCAN_API_KEY not set — skipping MI bill refresh.')
+    return { updated: 0, error: 'LEGISCAN_API_KEY not configured' }
+  }
+
+  // TODO: implement LegiScan Michigan bill refresh once key is set.
+  // Steps:
+  //   1. getSessionList → find active MI session
+  //   2. getMasterList → all bills in session
+  //   3. getBill for each → map LegiScan status codes to 5-stage MI pipeline
+  //   4. Apply two-layer update (same pattern as refreshFederalBills)
+  console.warn('[bills/michigan] LegiScan integration not yet implemented.')
+  return { updated: 0, error: 'Not yet implemented' }
+}
+
+// ── Representatives refresh ───────────────────────────────────────────────────
 
 function normalizeParty(raw: string | null | undefined): string {
   if (!raw) return 'Unknown'
@@ -100,10 +330,7 @@ async function fetchAllMembers(): Promise<CongressMember[]> {
 
     console.log(`[representatives] Fetching offset=${offset}…`)
     const res = await fetch(url)
-
-    if (!res.ok) {
-      throw new Error(`Congress.gov API error: ${res.status} ${res.statusText}`)
-    }
+    if (!res.ok) throw new Error(`Congress.gov API error: ${res.status} ${res.statusText}`)
 
     const json = await res.json()
     const page: CongressMember[] = json.members ?? []
@@ -116,8 +343,6 @@ async function fetchAllMembers(): Promise<CongressMember[]> {
 
   return members
 }
-
-// ── Representatives refresh ───────────────────────────────────────────────────
 
 async function refreshRepresentatives(
   supabase: ReturnType<typeof createClient>,
@@ -180,26 +405,15 @@ async function refreshRepresentatives(
 
 Deno.serve(async (_req: Request) => {
   const supabase = createClient(supabaseUrl, secretKey)
-  const ts = new Date().toISOString()
 
-  // 1. Bills stub refresh
-  const { error: billsError } = await supabase
-    .from('bills')
-    .update({ updated_at: ts })
-    .in('state', ['MI', 'US'])
+  const [federalResult, michiganResult, repResult] = await Promise.all([
+    refreshFederalBills(supabase),
+    refreshMichiganBills(supabase),
+    refreshRepresentatives(supabase),
+  ])
 
-  if (billsError) {
-    console.error('[bills] Refresh error:', billsError.message)
-  } else {
-    console.log(`[bills] Touched updated_at at ${ts}`)
-  }
-
-  // 2. Representatives refresh
-  const repResult = await refreshRepresentatives(supabase)
-
-  // Trigger notification generation asynchronously (fire-and-forget)
-  const notifyUrl = `${supabaseUrl}/functions/v1/notify-send`
-  fetch(notifyUrl, {
+  // Fire-and-forget: trigger notification generation
+  fetch(`${supabaseUrl}/functions/v1/notify-send`, {
     method:  'POST',
     headers: {
       'Authorization': `Bearer ${secretKey}`,
@@ -208,16 +422,19 @@ Deno.serve(async (_req: Request) => {
     body: '{}',
   }).catch(e => console.error('[daily-refresh] notify-send trigger failed:', e))
 
-  const ok = !billsError && !repResult.error
+  const ts = new Date().toISOString()
+  const ok = !federalResult.error && !repResult.error
+
   return new Response(
     JSON.stringify({
       ok,
-      refreshed_at: ts,
-      bills:   billsError ? { error: billsError.message } : { ok: true },
+      refreshed_at:    ts,
+      federal_bills:   federalResult,
+      michigan_bills:  michiganResult,
       representatives: repResult,
     }),
     {
-      status: ok ? 200 : 207,
+      status:  ok ? 200 : 207,
       headers: { 'Content-Type': 'application/json' },
     },
   )

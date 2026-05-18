@@ -1,8 +1,9 @@
 /**
- * bill-status-sync — batch-sync per-card bill statuses from the client to the DB.
+ * bill-status-sync — sync per-card bill statuses between client and DB.
  *
+ * GET  → returns all statuses for the current user: { ok, statuses: [{bill_id, status}] }
  * POST { changes: [{ bill_id: number, status: 'alert'|'watch'|'archive'|null }] }
- * status null = delete the row.
+ *      status null = delete the row.
  *
  * Requires: wsp_session cookie
  */
@@ -22,6 +23,16 @@ Deno.serve(async (req: Request) => {
 
   const user = await resolveSession(req, supabase)
   if (!user) return json({ ok: false, reason: 'unauthorized' }, 401)
+
+  // GET: return all statuses for this user so the client can seed localStorage.
+  if (req.method === 'GET') {
+    const { data, error } = await supabase
+      .from('bill_user_status')
+      .select('bill_id, status')
+      .eq('user_id', user.id)
+    if (error) return json({ ok: false, reason: error.message }, 500)
+    return json({ ok: true, statuses: data ?? [] })
+  }
 
   const body = await req.json().catch(() => null)
   if (!body || !Array.isArray(body.changes)) {

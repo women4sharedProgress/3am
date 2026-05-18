@@ -112,3 +112,15 @@ export async function syncAllBillStatuses(statuses: Record<string, string>): Pro
   }))
   if (changes.length > 0) await syncBillStatus(changes)
 }
+
+export async function fetchStatusesFromDb(): Promise<Array<{ bill_id: number; status: string }> | null> {
+  try {
+    const res = await fetch(`${BASE}/functions/v1/bill-status-sync`, {
+      method: 'GET',
+      credentials: 'include',
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return (data.statuses as Array<{ bill_id: number; status: string }>) ?? null
+  } catch { return null }
+}
