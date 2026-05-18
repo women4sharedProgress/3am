@@ -1344,6 +1344,12 @@ export default function Home() {
                     {/* ── DB-backed local role cards ── */}
                     {level === 'local' && isLoggedIn && hasProfileAddr && !!profileAddr?.state && (
                       <>
+                        {!profileAddr?.county?.trim() ? (
+                          <div className="home-rep-no-election" style={{ padding: '12px 0', fontStyle: 'italic' }}>
+                            Set your county in your profile to see your local representatives.
+                          </div>
+                        ) : (
+                        <>
                         <div className="home-local-view-toggle" role="group" aria-label="Local view mode">
                           <button
                             className={localViewMode === 'show' ? 'hlvt-active' : ''}
@@ -1356,6 +1362,11 @@ export default function Home() {
                             aria-pressed={localViewMode === 'hide'}
                           >Hide</button>
                         </div>
+                        {localRolesLoaded && localDBOfficials.length === 0 && (
+                          <div className="home-rep-no-election" style={{ padding: '10px 0', fontStyle: 'italic' }}>
+                            No local roles found for your county yet — be the first to add one!
+                          </div>
+                        )}
                         {!localRolesLoaded
                           ? <div className="home-rep-no-election">Loading...</div>
                           : (localRoles.length > 0 ? localRoles : LOCAL_ROLES_FALLBACK)
@@ -1585,6 +1596,8 @@ export default function Home() {
                               </div>
                             )
                           })}
+                        </>
+                        )}
                       </>
                     )}
 

@@ -3,6 +3,9 @@ import PageTopBar from '../components/PageTopBar'
 import FeedbackButton from '../components/FeedbackButton'
 import { useAuth } from '../contexts/AuthContext'
 import { userKey } from '../lib/userKey'
+import { getMichiganCounty } from '../lib/michiganCounties'
+import { getStateConfig } from '../lib/stateDistrictConfig'
+import { supabase } from '../lib/supabase'
 
 const US_STATES = [
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA',
@@ -98,6 +101,10 @@ function lookupZip(zip: string): { state: string | null; city: string | null; co
   }
 }
 
+function cleanCounty(raw: string): string {
+  return raw.replace(/\s+(county|parish|borough|municipality|census area)$/i, '').trim().toUpperCase()
+}
+
 interface ProfileData {
   country: string
   street: string
@@ -115,20 +122,12 @@ interface ProfileData {
   ward:                      string
   precinct:                  string
   village:                   string
-  metropolitan:              string
-  authority:                 string
-  // Courts
-  court_of_appeals:          string
+  // Courts (state-specific)
   circuit_court:             string
   probate_court:             string
-  probate_district_court:    string
   district_court:            string
-  municipal_court:           string
-  // Education & local
+  // Education
   school_district:           string
-  intermediate_school:       string
-  community_college:         string
-  library_district:          string
   // Meta
   confirmed: boolean
   city_link: string
@@ -138,10 +137,9 @@ const EMPTY: ProfileData = {
   country: 'United States', street: '', zip: '', state: '', county: '', city: '',
   congressional_district: '', state_senate_district: '', state_house_district: '',
   county_commissioner: '',
-  jurisdiction: '', ward: '', precinct: '', village: '', metropolitan: '', authority: '',
-  court_of_appeals: '', circuit_court: '', probate_court: '', probate_district_court: '',
-  district_court: '', municipal_court: '',
-  school_district: '', intermediate_school: '', community_college: '', library_district: '',
+  jurisdiction: '', ward: '', precinct: '', village: '',
+  circuit_court: '', probate_court: '', district_court: '',
+  school_district: '',
   confirmed: false, city_link: '',
 }
 
@@ -256,160 +254,48 @@ const STATE_FEDERAL_SEATS: Record<string, number> = {
 // Cities with local bill tracking. Expand as jurisdictions are added.
 const TRACKED_CITIES = new Set<string>([])
 
-type GeoStatus = 'idle' | 'loading' | 'success' | 'error'
-
-// ─── Geocoding helpers (module-level so they aren't recreated per render) ───
-
-interface GeoFields {
-  county?:                 string
-  state?:                  string
-  city?:                   string
-  jurisdiction?:           string
-  congressional_district?: string
-  state_senate_district?:  string
-  state_house_district?:   string
+// Voter / district look-up portal per state. Add new states here as they are onboarded.
+const LOOKUP_URLS: Record<string, { url: string; label: string }> = {
+  MI: { url: 'https://mvic.sos.state.mi.us/Voter/Index',                     label: 'MI Voter Info' },
+  KS: { url: 'https://www.kssos.org/elections/elections_voterlookup.aspx',   label: 'KS Voter Lookup' },
 }
 
-function cleanCounty(raw: string): string {
-  return raw.replace(/\s+(county|parish|borough|municipality|census area)$/i, '').trim().toUpperCase()
-}
-
-const CENSUS_ADDR_URL  = 'https://geocoding.geo.census.gov/geocoder/geographies/address'
-const CENSUS_COORD_URL = 'https://geocoding.geo.census.gov/geocoder/geographies/coordinates'
-const NOMINATIM_URL    = 'https://nominatim.openstreetmap.org/search'
-const GEO_COMMON = { benchmark: 'Public_AR_Current', vintage: 'Current_Current', layers: 'all', format: 'json' }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractGeoFields(geos: Record<string, any[]>, includeDistricts: boolean): GeoFields {
-  const f: GeoFields = {}
-  const county = geos['Counties']?.[0]?.NAME as string | undefined
-  if (county) f.county = cleanCounty(county)
-  const state = geos['States']?.[0]?.STUSAB as string | undefined
-  if (state) f.state = state
-  if (includeDistricts) {
-    const cd = geos['Congressional Districts']?.[0]?.BASENAME as string | undefined
-    if (cd) f.congressional_district = cd
-    const ss = geos['State Legislative Districts (Upper Chamber)']?.[0]?.BASENAME as string | undefined
-    if (ss) f.state_senate_district = ss
-    const sh = geos['State Legislative Districts (Lower Chamber)']?.[0]?.BASENAME as string | undefined
-    if (sh) f.state_house_district = sh
-  }
-  return f
-}
-
-async function tryCensusAddress(signal: AbortSignal, street: string, zip: string): Promise<GeoFields | null> {
-  try {
-    const params = new URLSearchParams({ ...GEO_COMMON, zip })
-    if (street.trim()) params.set('street', street.trim())
-    const url = `${CENSUS_ADDR_URL}?${params}`
-    console.log('[geo] Census address URL:', url)
-    const res = await fetch(url, { signal })
-    console.log('[geo] Census address status:', res.status, res.statusText)
-    if (!res.ok) return null
-    const json = await res.json()
-    const matches = json?.result?.addressMatches
-    console.log('[geo] Census address matches:', matches?.length ?? 0, matches?.[0]?.matchedAddress)
-    if (!matches?.length) return null
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const geos = (matches[0] as any).geographies ?? {}
-    console.log('[geo] Census address geo keys:', Object.keys(geos))
-    const fields = extractGeoFields(geos, !!street.trim())
-    console.log('[geo] Census address extracted:', fields)
-    return fields
-  } catch (e) {
-    console.warn('[geo] Census address error:', e)
-    return null
-  }
-}
-
-async function tryCensusCoords(signal: AbortSignal, lat: string, lon: string): Promise<GeoFields | null> {
-  try {
-    const params = new URLSearchParams({ ...GEO_COMMON, x: lon, y: lat })
-    const url = `${CENSUS_COORD_URL}?${params}`
-    console.log('[geo] Census coords URL:', url)
-    const res = await fetch(url, { signal })
-    console.log('[geo] Census coords status:', res.status, res.statusText)
-    if (!res.ok) return null
-    const json = await res.json()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const geos: Record<string, any[]> = json?.result?.geographies ?? {}
-    console.log('[geo] Census coords geo keys:', Object.keys(geos))
-    const fields = extractGeoFields(geos, true)
-    console.log('[geo] Census coords extracted:', fields)
-    return fields
-  } catch (e) {
-    console.warn('[geo] Census coords error:', e)
-    return null
-  }
-}
-
-async function tryNominatim(signal: AbortSignal, street: string, zip: string): Promise<GeoFields | null> {
-  try {
-    const params = new URLSearchParams({
-      format: 'json', addressdetails: '1', limit: '1', countrycodes: 'US',
-    })
-    if (street.trim()) { params.set('q', `${street.trim()} ${zip}`) }
-    else               { params.set('postalcode', zip) }
-
-    const url = `${NOMINATIM_URL}?${params}`
-    console.log('[geo] Nominatim URL:', url)
-    const res = await fetch(url, {
-      signal,
-      headers: { 'User-Agent': '3AMPipeline-LawTracker/1.0' },
-    })
-    console.log('[geo] Nominatim status:', res.status, res.statusText)
-    if (!res.ok) return null
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const results: any[] = await res.json()
-    console.log('[geo] Nominatim results:', results?.length, results?.[0]?.display_name, 'lat:', results?.[0]?.lat, 'lon:', results?.[0]?.lon)
-    if (!results?.length) return null
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const addr: Record<string, any> = results[0].address ?? {}
-    console.log('[geo] Nominatim address fields:', addr)
-    const rawCounty  = addr.county as string | undefined
-    const place      = (addr.city || addr.town || addr.village || addr.hamlet || addr.suburb) as string | undefined
-    const township   = addr.township as string | undefined
-    const fields: GeoFields = {
-      county:       rawCounty ? cleanCounty(rawCounty) : undefined,
-      state:        (addr.ISO3166_2_lvl4 as string | undefined)?.replace('US-', '') ?? undefined,
-      // city: named settlement first; fall back to township for rural areas with no city/town
-      city:         (place || township) ? (place || township)!.toUpperCase() : undefined,
-      // jurisdiction: township takes priority; fall back to settlement name
-      jurisdiction: township ? township.toUpperCase() : place ? place.toUpperCase() : undefined,
-    }
-
-    // Use Nominatim coordinates to ask Census for districts
-    if (results[0].lat && results[0].lon) {
-      const district = await tryCensusCoords(signal, results[0].lat as string, results[0].lon as string)
-      console.log('[geo] Nominatim→Census district result:', district)
-      if (district) {
-        fields.congressional_district = district.congressional_district
-        fields.state_senate_district  = district.state_senate_district
-        fields.state_house_district   = district.state_house_district
-        if (!fields.county && district.county) fields.county = district.county
-        if (!fields.state  && district.state)  fields.state  = district.state
-      }
-    }
-
-    console.log('[geo] Nominatim final fields:', fields)
-    return (fields.county || fields.state) ? fields : null
-  } catch (e) {
-    console.warn('[geo] Nominatim error:', e)
-    return null
-  }
+interface DistrictLookupRow {
+  id:                     string
+  zip:                    string
+  state:                  string | null
+  county:                 string | null
+  congressional_district: string | null
+  state_senate_district:  string | null
+  state_house_district:   string | null
+  county_commissioner:    string | null
+  jurisdiction:           string | null
+  ward:                   string | null
+  precinct:               string | null
+  village:                string | null
+  circuit_court:          string | null
+  probate_court:          string | null
+  district_court:         string | null
+  school_district:        string | null
+  submitted_by:           string
+  verification_count:     number
+  admin_verified:         boolean
+  created_at:             string
+  updated_at:             string
 }
 
 export default function Profile() {
   const { user } = useAuth()
-  const [data, setData]           = useState<ProfileData>(load)
-  const [saved, setSaved]         = useState(false)
-  const [geoStatus, setGeoStatus] = useState<GeoStatus>('idle')
-  const [geoError, setGeoError]   = useState('')
-  const [autoFilled, setAutoFilled] = useState<Set<keyof ProfileData>>(new Set())
-  const [cityMismatch, setCityMismatch] = useState<string | null>(null)
+  const [data, setData]                         = useState<ProfileData>(load)
+  const [saved, setSaved]                       = useState(false)
+  const [cityMismatch, setCityMismatch]         = useState<string | null>(null)
+  const [lookupRows, setLookupRows]             = useState<DistrictLookupRow[]>([])
+  const [lookupStatus, setLookupStatus]         = useState<'idle' | 'loading' | 'done'>('idle')
+  const [lookupSubmitting, setLookupSubmitting] = useState(false)
+  const [lookupVerifiedIds, setLookupVerifiedIds] = useState<Set<string>>(new Set())
+  const [lookupMessage, setLookupMessage]       = useState('')
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const geoCtrl   = useRef<AbortController | null>(null)
+  const msgTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
@@ -437,14 +323,34 @@ export default function Profile() {
     saveTimer.current = setTimeout(() => setSaved(false), 2000)
   }, [data])
 
-  // If ZIP is saved but districts are missing, geocode on mount.
+  // On mount: if a ZIP is already saved, fetch community data for it.
   useEffect(() => {
     const zip = data.zip.replace(/\D/g, '').slice(0, 5)
-    if (zip.length === 5 && !data.congressional_district) {
-      void runGeocode(data.street, zip)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (zip.length === 5) void fetchLookupData(zip)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // When county or state changes, fill empty MI court fields from static lookup.
+  useEffect(() => {
+    if (data.state !== 'MI' || !data.county) return
+    const miData = getMichiganCounty(data.county)
+    if (!miData) return
+    setData(prev => {
+      if (prev.state !== 'MI' || prev.county !== data.county) return prev
+      const next = { ...prev }
+      let changed = false
+      const fill = (field: keyof ProfileData, value: string | null) => {
+        if (value && !prev[field]) {
+          ;(next as Record<string, unknown>)[field] = value.toUpperCase()
+          changed = true
+        }
+      }
+      fill('circuit_court', miData.circuitCourt)
+      fill('probate_court', miData.probateCourt)
+      return changed ? next : prev
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.county, data.state])
 
   function set(field: keyof ProfileData, value: string) {
     const stored = field !== 'city_link' ? value.toUpperCase() : value
@@ -453,78 +359,127 @@ export default function Profile() {
       if (field !== 'city_link') next.confirmed = false
       return next
     })
-    setAutoFilled(prev => { const n = new Set(prev); n.delete(field); return n })
   }
 
-  async function runGeocode(street: string, zip: string, refreshDistricts = false) {
-    if (geoCtrl.current) geoCtrl.current.abort()
-    const ctrl = new AbortController()
-    geoCtrl.current = ctrl
-    // Snapshot which fields were auto-filled before the async work begins.
-    // Only overwrite a field if it is empty OR was previously auto-filled (not user-typed).
-    // refreshDistricts=true (explicit street update) always rewrites district fields since
-    // users never type those manually — they only come from geocoding.
-    const wasAutoFilled = new Set(autoFilled)
+  function showMsg(msg: string) {
+    setLookupMessage(msg)
+    if (msgTimer.current) clearTimeout(msgTimer.current)
+    msgTimer.current = setTimeout(() => setLookupMessage(''), 4000)
+  }
 
-    setGeoStatus('loading')
-    setGeoError('')
-
-    try {
-      console.log('[geo] runGeocode start — street:', JSON.stringify(street), 'zip:', zip, 'refreshDistricts:', refreshDistricts)
-      // With a street: Census address geocoder first, Nominatim as fallback.
-      // ZIP-only: skip Census address (it omits districts without a street) and go straight to Nominatim,
-      // which fetches coordinates and asks Census for district data.
-      let fields = street.trim() ? await tryCensusAddress(ctrl.signal, street, zip) : null
-      console.log('[geo] after Census:', fields)
-      if (!fields) {
-        console.log('[geo] Census returned null or skipped, trying Nominatim…')
-        fields = await tryNominatim(ctrl.signal, street, zip)
-        console.log('[geo] after Nominatim:', fields)
+  function applyLookupRow(row: DistrictLookupRow, onlyEmpty = false) {
+    setData(prev => {
+      const next = { ...prev }
+      const fill = (field: keyof ProfileData, value: string | null | undefined) => {
+        if (!value) return
+        if (onlyEmpty && prev[field]) return
+        ;(next as Record<string, unknown>)[field] = value.toUpperCase()
       }
+      fill('congressional_district', row.congressional_district)
+      fill('state_senate_district',  row.state_senate_district)
+      fill('state_house_district',   row.state_house_district)
+      fill('county_commissioner',    row.county_commissioner)
+      fill('jurisdiction',           row.jurisdiction)
+      fill('ward',                   row.ward)
+      fill('precinct',               row.precinct)
+      fill('village',                row.village)
+      fill('circuit_court',          row.circuit_court)
+      fill('probate_court',          row.probate_court)
+      fill('district_court',         row.district_court)
+      fill('school_district',        row.school_district)
+      fill('county',                 row.county)
+      return next
+    })
+  }
 
-      if (!fields || (!fields.county && !fields.state && !fields.congressional_district)) {
-        setGeoStatus('error')
-        setGeoError(
-          street.trim()
-            ? 'Address not found — check your street address and ZIP.'
-            : 'ZIP not recognized — try entering your street address too.'
-        )
+  async function fetchLookupData(zip: string) {
+    setLookupStatus('loading')
+    try {
+      const { data: rows, error } = await supabase
+        .from('district_lookup')
+        .select('*')
+        .eq('zip', zip)
+        .order('admin_verified', { ascending: false })
+        .order('verification_count', { ascending: false })
+      if (error) throw error
+      const typed = (rows ?? []) as DistrictLookupRow[]
+      setLookupRows(typed)
+      if (user && typed.length > 0) {
+        const { data: verifs } = await supabase
+          .from('district_lookup_verifications')
+          .select('lookup_id')
+          .in('lookup_id', typed.map(r => r.id))
+          .eq('username', user.username)
+        if (verifs) {
+          setLookupVerifiedIds(new Set((verifs as { lookup_id: string }[]).map(v => v.lookup_id)))
+        }
+      }
+      // Auto-fill empty fields from admin-verified row only.
+      const verified = typed.find(r => r.admin_verified)
+      if (verified) applyLookupRow(verified, true)
+    } catch (e) {
+      console.warn('[district] fetch error:', e)
+    } finally {
+      setLookupStatus('done')
+    }
+  }
+
+  async function handleDistrictSubmit() {
+    if (!user) return
+    const zip = data.zip.replace(/\D/g, '').slice(0, 5)
+    if (zip.length !== 5) return
+    setLookupSubmitting(true)
+    setLookupMessage('')
+    try {
+      const { error } = await supabase
+        .from('district_lookup')
+        .upsert({
+          zip,
+          state:                  data.state                  || null,
+          county:                 data.county                 || null,
+          congressional_district: data.congressional_district || null,
+          state_senate_district:  data.state_senate_district  || null,
+          state_house_district:   data.state_house_district   || null,
+          county_commissioner:    data.county_commissioner    || null,
+          jurisdiction:           data.jurisdiction            || null,
+          ward:                   data.ward                   || null,
+          precinct:               data.precinct               || null,
+          village:                data.village                || null,
+          circuit_court:          data.circuit_court          || null,
+          probate_court:          data.probate_court          || null,
+          district_court:         data.district_court         || null,
+          school_district:        data.school_district        || null,
+          submitted_by:           user.username,
+          updated_at:             new Date().toISOString(),
+        }, { onConflict: 'zip,submitted_by' })
+      if (error) throw error
+      showMsg('Submitted. Thank you!')
+      void fetchLookupData(zip)
+    } catch (e) {
+      console.warn('[district] submit error:', e)
+      showMsg('Submit failed — try again.')
+    } finally {
+      setLookupSubmitting(false)
+    }
+  }
+
+  async function handleDistrictVerify(id: string) {
+    if (!user) return
+    try {
+      const { error } = await supabase
+        .from('district_lookup_verifications')
+        .insert({ lookup_id: id, username: user.username })
+      if (error) {
+        if (error.code === '23505') setLookupVerifiedIds(prev => new Set([...prev, id]))
         return
       }
-
-      const filled = new Set<keyof ProfileData>()
-      setData(prev => {
-        const next = { ...prev, confirmed: false }
-        if (fields!.county && (!prev.county || wasAutoFilled.has('county'))) {
-          next.county = fields!.county; filled.add('county')
-        }
-        if (fields!.state && (!prev.state || wasAutoFilled.has('state'))) {
-          next.state = fields!.state; filled.add('state')
-        }
-        if (fields!.city && (!prev.city || wasAutoFilled.has('city'))) {
-          next.city = fields!.city; filled.add('city')
-        }
-        if (fields!.jurisdiction && (!prev.jurisdiction || wasAutoFilled.has('jurisdiction'))) {
-          next.jurisdiction = fields!.jurisdiction; filled.add('jurisdiction')
-        }
-        if (fields!.congressional_district && (!prev.congressional_district || refreshDistricts || wasAutoFilled.has('congressional_district'))) {
-          next.congressional_district = fields!.congressional_district; filled.add('congressional_district')
-        }
-        if (fields!.state_senate_district && (!prev.state_senate_district || refreshDistricts || wasAutoFilled.has('state_senate_district'))) {
-          next.state_senate_district = fields!.state_senate_district; filled.add('state_senate_district')
-        }
-        if (fields!.state_house_district && (!prev.state_house_district || refreshDistricts || wasAutoFilled.has('state_house_district'))) {
-          next.state_house_district = fields!.state_house_district; filled.add('state_house_district')
-        }
-        return next
-      })
-      setAutoFilled(filled)
-      setGeoStatus('success')
-
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === 'AbortError') return
-      setGeoStatus('error')
-      setGeoError('Could not reach address services — check your connection.')
+      await supabase.rpc('increment_district_verification', { row_id: id })
+      setLookupVerifiedIds(prev => new Set([...prev, id]))
+      setLookupRows(prev => prev.map(r =>
+        r.id === id ? { ...r, verification_count: r.verification_count + 1 } : r
+      ))
+    } catch (e) {
+      console.warn('[district] verify error:', e)
     }
   }
 
@@ -540,7 +495,6 @@ export default function Profile() {
           if (!prev.city || prev.city.toLowerCase() === city.toLowerCase()) {
             next.city = city
           }
-          // mismatch: keep existing city — note shown separately
         }
       }
       return next
@@ -552,24 +506,19 @@ export default function Profile() {
       } else {
         setCityMismatch(null)
       }
+      setLookupRows([])
+      setLookupStatus('idle')
+      setLookupMessage('')
+      void fetchLookupData(zip)
     } else {
       setCityMismatch(null)
-    }
-    if (zip.length === 5) {
-      void runGeocode('', zip)
-    } else if (zip.length < 5) {
-      setGeoStatus('idle')
-      setGeoError('')
+      setLookupRows([])
+      setLookupStatus('idle')
+      setLookupMessage('')
     }
   }
 
-
-  function ck(field: keyof ProfileData) {
-    return autoFilled.has(field)
-      ? <span style={{ color: '#00B050', fontSize: 15, lineHeight: 1 }}>✓</span>
-      : null
-  }
-
+  const config      = getStateConfig(data.state)
   const enough      = hasEnough(data)
   const leg         = data.state ? STATE_LEGISLATURE[data.state] : null
   const cityTracked = !!(data.city && TRACKED_CITIES.has(data.city.toLowerCase()))
@@ -627,7 +576,7 @@ export default function Profile() {
               </h2>
 
               <div>
-                <label style={labelStyle} htmlFor="prof-country">Country {ck('country')}</label>
+                <label style={labelStyle} htmlFor="prof-country">Country</label>
                 <input id="prof-country" style={inputStyle} type="text" autoComplete="country-name"
                   value={data.country} onChange={e => set('country', e.target.value)} />
               </div>
@@ -637,15 +586,6 @@ export default function Profile() {
                 <input id="prof-zip" style={inputStyle} type="text" autoComplete="postal-code"
                   inputMode="numeric" maxLength={10} value={data.zip}
                   onChange={e => handleZipChange(e.target.value)} />
-                {geoStatus === 'loading' && (
-                  <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 5 }}>
-                    Looking up your address…
-                  </div>
-                )}
-
-                {geoStatus === 'error' && geoError && (
-                  <div style={{ fontSize: 12, color: '#C00000', marginTop: 5 }}>{geoError}</div>
-                )}
               </div>
 
               <div>
@@ -656,7 +596,7 @@ export default function Profile() {
               </div>
 
               <div>
-                <label style={labelStyle} htmlFor="prof-state">State {ck('state')}</label>
+                <label style={labelStyle} htmlFor="prof-state">State</label>
                 <select id="prof-state" style={{ ...inputStyle, cursor: 'pointer' }} autoComplete="address-level1"
                   value={data.state} onChange={e => set('state', e.target.value)}>
                   <option value="" />
@@ -665,13 +605,13 @@ export default function Profile() {
               </div>
 
               <div>
-                <label style={labelStyle} htmlFor="prof-county">County {ck('county')}</label>
+                <label style={labelStyle} htmlFor="prof-county">{config.countyLabel}</label>
                 <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
                   value={data.county} onChange={e => set('county', e.target.value)} />
               </div>
 
               <div>
-                <label style={labelStyle} htmlFor="prof-city">City {ck('city')}</label>
+                <label style={labelStyle} htmlFor="prof-city">City</label>
                 <input id="prof-city" style={inputStyle} type="text" autoComplete="address-level2"
                   value={data.city} onChange={e => { set('city', e.target.value); setCityMismatch(null) }} />
                 {cityMismatch && (
@@ -704,45 +644,110 @@ export default function Profile() {
                 My District Information
               </h2>
 
-              {/* Autofill button */}
+              {/* Community district lookup */}
               {(() => {
                 const zip = data.zip.replace(/\D/g, '').slice(0, 5)
-                const ready = zip.length === 5 && geoStatus !== 'loading'
+                const hasZip = zip.length === 5
+                const best = lookupRows[0] ?? null
+                const isVerifiedByMe = best ? lookupVerifiedIds.has(best.id) : false
+                const isMyRow = best ? best.submitted_by === user?.username : false
+                const hasMySubmission = lookupRows.some(r => r.submitted_by === user?.username)
+
                 return (
-                  <div>
-                    <button
-                      type="button"
-                      disabled={!ready}
-                      onClick={() => void runGeocode(data.street, zip, true)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        padding: '9px 16px', borderRadius: 8,
-                        border: 'none', cursor: ready ? 'pointer' : 'not-allowed',
-                        background: ready ? '#1a7a72' : 'var(--color-bg-secondary)',
-                        color: ready ? '#fff' : 'var(--color-text-tertiary)',
-                        fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 13,
-                        transition: 'background .15s',
-                        width: '100%', justifyContent: 'center',
-                      }}
-                    >
-                      {geoStatus === 'loading' ? (
-                        'Looking up…'
-                      ) : (
-                        <>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                          </svg>
-                          {zip.length === 5 ? `AI Autofill for ZIP ${zip}` : 'Enter ZIP to autofill'}
-                        </>
-                      )}
-                    </button>
-                    {geoStatus === 'success' && (
-                      <div style={{ fontSize: 12, color: '#00B050', marginTop: 5, textAlign: 'center', fontFamily: "'Nunito', sans-serif" }}>
-                        District info filled — review and confirm below.
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {lookupStatus === 'loading' && (
+                      <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif" }}>
+                        Looking up community data…
                       </div>
                     )}
-                    {geoStatus === 'error' && geoError && (
-                      <div style={{ fontSize: 12, color: '#C00000', marginTop: 5, fontFamily: "'Nunito', sans-serif" }}>{geoError}</div>
+                    {lookupStatus === 'done' && !best && hasZip && (
+                      <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', fontStyle: 'italic', fontFamily: "'Nunito', sans-serif" }}>
+                        No community data for ZIP {zip} yet.
+                      </div>
+                    )}
+                    {lookupStatus === 'done' && best && (
+                      <div style={{
+                        background: 'var(--color-bg-secondary)',
+                        borderRadius: 8,
+                        padding: '10px 12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 8,
+                      }}>
+                        <div style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          fontFamily: "'Quicksand', sans-serif",
+                          color: best.admin_verified ? '#00B050' : 'var(--color-text-primary)',
+                        }}>
+                          {best.admin_verified
+                            ? '✓ Admin-verified data available'
+                            : `Community data · ${best.verification_count} ${best.verification_count === 1 ? 'verification' : 'verifications'}${lookupRows.length > 1 ? ` · ${lookupRows.length} submissions` : ''}`}
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => applyLookupRow(best)}
+                            style={{
+                              padding: '6px 12px', borderRadius: 6, border: 'none',
+                              cursor: 'pointer', background: '#1a7a72', color: '#fff',
+                              fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
+                            }}
+                          >
+                            Apply this data
+                          </button>
+                          {user && !isVerifiedByMe && !isMyRow && !best.admin_verified && (
+                            <button
+                              type="button"
+                              onClick={() => void handleDistrictVerify(best.id)}
+                              style={{
+                                padding: '6px 12px', borderRadius: 6, cursor: 'pointer',
+                                border: '1px solid var(--color-border-medium)',
+                                background: 'transparent', color: 'var(--color-text-primary)',
+                                fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
+                              }}
+                            >
+                              Verify this is correct
+                            </button>
+                          )}
+                          {isVerifiedByMe && (
+                            <span style={{ fontSize: 12, color: '#00B050', alignSelf: 'center', fontFamily: "'Nunito', sans-serif" }}>
+                              ✓ You verified this
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {user && hasZip && (
+                      <button
+                        type="button"
+                        disabled={lookupSubmitting}
+                        onClick={() => void handleDistrictSubmit()}
+                        style={{
+                          padding: '8px 14px', borderRadius: 8,
+                          border: '1px solid var(--color-border-medium)',
+                          cursor: lookupSubmitting ? 'not-allowed' : 'pointer',
+                          background: 'var(--color-bg-secondary)',
+                          color: 'var(--color-teal)',
+                          fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
+                          width: '100%',
+                        }}
+                      >
+                        {lookupSubmitting ? 'Submitting…' : hasMySubmission ? 'Update my district data' : 'Submit my district data'}
+                      </button>
+                    )}
+                    {!user && hasZip && (
+                      <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic', fontFamily: "'Nunito', sans-serif" }}>
+                        Sign in to submit or verify district data.
+                      </div>
+                    )}
+                    {lookupMessage && (
+                      <div style={{
+                        fontSize: 12, fontFamily: "'Nunito', sans-serif",
+                        color: lookupMessage.includes('fail') ? '#C00000' : '#00B050',
+                      }}>
+                        {lookupMessage}
+                      </div>
                     )}
                   </div>
                 )
@@ -781,7 +786,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Across from State — state legislature size */}
+              {/* State legislature size */}
               <div>
                 <label style={labelStyle}>State Legislature</label>
                 {leg ? (
@@ -802,152 +807,77 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Political District heading + Look up link */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                <label style={{ ...labelStyle, marginBottom: 0 }}>
-                  Political District {ck('congressional_district')}
-                </label>
-                {data.country === 'United States' && data.state === 'MI' && (
-                  <a
-                    href="https://mvic.sos.state.mi.us/Voter/Index"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      fontSize: 11, fontFamily: "'Quicksand', sans-serif", fontWeight: 700,
-                      padding: '4px 9px', borderRadius: 6,
-                      border: '1px solid var(--color-border-medium)',
-                      background: 'var(--color-bg-secondary)',
-                      color: 'var(--color-teal)',
-                      whiteSpace: 'nowrap',
-                      textDecoration: 'none',
-                      display: 'inline-block',
-                    }}
-                  >
-                    Look up
-                  </a>
-                )}
-              </div>
+              {/* Political Districts header + look-up link */}
+              {(() => {
+                const lookup = data.country === 'United States' ? LOOKUP_URLS[data.state] : undefined
+                return (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                    <label style={{ ...labelStyle, marginBottom: 0 }}>Political Districts</label>
+                    {lookup && (
+                      <a
+                        href={lookup.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          fontSize: 11, fontFamily: "'Quicksand', sans-serif", fontWeight: 700,
+                          padding: '4px 9px', borderRadius: 6,
+                          border: '1px solid var(--color-border-medium)',
+                          background: 'var(--color-bg-secondary)',
+                          color: 'var(--color-teal)',
+                          whiteSpace: 'nowrap',
+                          textDecoration: 'none',
+                          display: 'inline-block',
+                        }}
+                      >
+                        {lookup.label}
+                      </a>
+                    )}
+                  </div>
+                )
+              })()}
 
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-cd">Congressional District</label>
                 <input id="dist-cd" style={inputStyle} type="text" autoComplete="off"
+                  inputMode="numeric" pattern="[0-9]*"
                   value={data.congressional_district}
                   onChange={e => set('congressional_district', e.target.value)} />
               </div>
 
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-ss">State Senate District</label>
-                <input id="dist-ss" style={inputStyle} type="text" autoComplete="off"
-                  value={data.state_senate_district}
-                  onChange={e => set('state_senate_district', e.target.value)} />
-              </div>
+              {config.unicameral ? (
+                <div>
+                  <label style={tealLabelStyle} htmlFor="dist-leg">State {config.houseName} District</label>
+                  <input id="dist-leg" style={inputStyle} type="text" autoComplete="off"
+                    inputMode="numeric" pattern="[0-9]*"
+                    value={data.state_senate_district}
+                    onChange={e => set('state_senate_district', e.target.value)} />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label style={tealLabelStyle} htmlFor="dist-ss">State Senate District</label>
+                    <input id="dist-ss" style={inputStyle} type="text" autoComplete="off"
+                      inputMode="numeric" pattern="[0-9]*"
+                      value={data.state_senate_district}
+                      onChange={e => set('state_senate_district', e.target.value)} />
+                  </div>
+                  <div>
+                    <label style={tealLabelStyle} htmlFor="dist-sh">State {config.houseName} District</label>
+                    <input id="dist-sh" style={inputStyle} type="text" autoComplete="off"
+                      inputMode="numeric" pattern="[0-9]*"
+                      value={data.state_house_district}
+                      onChange={e => set('state_house_district', e.target.value)} />
+                  </div>
+                </>
+              )}
 
               <div>
-                <label style={tealLabelStyle} htmlFor="dist-sh">State House District</label>
-                <input id="dist-sh" style={inputStyle} type="text" autoComplete="off"
-                  value={data.state_house_district}
-                  onChange={e => set('state_house_district', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-cc">County Commissioner District</label>
+                <label style={tealLabelStyle} htmlFor="dist-cc">{config.countyLabel} Commissioner District</label>
                 <input id="dist-cc" style={inputStyle} type="text" autoComplete="off"
+                  inputMode="numeric" pattern="[0-9]*"
                   value={data.county_commissioner}
                   onChange={e => set('county_commissioner', e.target.value)} />
               </div>
-
-              {/* Jurisdiction */}
-              <label style={labelStyle}>Jurisdiction</label>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-jur">Township / City</label>
-                <input id="dist-jur" style={inputStyle} type="text" autoComplete="off"
-                  value={data.jurisdiction}
-                  onChange={e => set('jurisdiction', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-ward">Ward</label>
-                <input id="dist-ward" style={inputStyle} type="text" autoComplete="off"
-                  value={data.ward}
-                  onChange={e => set('ward', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-prec">Precinct</label>
-                <input id="dist-prec" style={inputStyle} type="text" autoComplete="off"
-                  value={data.precinct}
-                  onChange={e => set('precinct', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-vil">Village</label>
-                <input id="dist-vil" style={inputStyle} type="text" autoComplete="off"
-                  value={data.village}
-                  onChange={e => set('village', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-metro">Metropolitan</label>
-                <input id="dist-metro" style={inputStyle} type="text" autoComplete="off"
-                  value={data.metropolitan}
-                  onChange={e => set('metropolitan', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-auth">Authority</label>
-                <input id="dist-auth" style={inputStyle} type="text" autoComplete="off"
-                  value={data.authority}
-                  onChange={e => set('authority', e.target.value)} />
-              </div>
-
-              {/* Courts */}
-              <label style={labelStyle}>Courts</label>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-coa">Court of Appeals</label>
-                <input id="dist-coa" style={inputStyle} type="text" autoComplete="off"
-                  value={data.court_of_appeals}
-                  onChange={e => set('court_of_appeals', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-circ">Circuit Court</label>
-                <input id="dist-circ" style={inputStyle} type="text" autoComplete="off"
-                  value={data.circuit_court}
-                  onChange={e => set('circuit_court', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-prob">Probate Court</label>
-                <input id="dist-prob" style={inputStyle} type="text" autoComplete="off"
-                  value={data.probate_court}
-                  onChange={e => set('probate_court', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-probd">Probate District Court</label>
-                <input id="dist-probd" style={inputStyle} type="text" autoComplete="off"
-                  value={data.probate_district_court}
-                  onChange={e => set('probate_district_court', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-dc">District Court</label>
-                <input id="dist-dc" style={inputStyle} type="text" autoComplete="off"
-                  value={data.district_court}
-                  onChange={e => set('district_court', e.target.value)} />
-              </div>
-
-              <div>
-                <label style={tealLabelStyle} htmlFor="dist-muni">Municipal Court</label>
-                <input id="dist-muni" style={inputStyle} type="text" autoComplete="off"
-                  value={data.municipal_court}
-                  onChange={e => set('municipal_court', e.target.value)} />
-              </div>
-
-              {/* Education & Local */}
-              <label style={labelStyle}>Education &amp; Local</label>
 
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-sch">School District</label>
@@ -956,28 +886,73 @@ export default function Profile() {
                   onChange={e => set('school_district', e.target.value)} />
               </div>
 
+              {/* Local Jurisdiction */}
+              <label style={labelStyle}>Local Jurisdiction</label>
+
               <div>
-                <label style={tealLabelStyle} htmlFor="dist-isd">Intermediate School</label>
-                <input id="dist-isd" style={inputStyle} type="text" autoComplete="off"
-                  value={data.intermediate_school}
-                  onChange={e => set('intermediate_school', e.target.value)} />
+                <label style={tealLabelStyle} htmlFor="dist-jur">City / Township</label>
+                <input id="dist-jur" style={inputStyle} type="text" autoComplete="off"
+                  value={data.jurisdiction}
+                  onChange={e => set('jurisdiction', e.target.value)} />
               </div>
 
               <div>
-                <label style={tealLabelStyle} htmlFor="dist-cc2">Community College</label>
-                <input id="dist-cc2" style={inputStyle} type="text" autoComplete="off"
-                  value={data.community_college}
-                  onChange={e => set('community_college', e.target.value)} />
+                <label style={tealLabelStyle} htmlFor="dist-ward">Ward</label>
+                <input id="dist-ward" style={inputStyle} type="text" autoComplete="off"
+                  inputMode="numeric" pattern="[0-9]*"
+                  value={data.ward}
+                  onChange={e => set('ward', e.target.value)} />
               </div>
 
               <div>
-                <label style={tealLabelStyle} htmlFor="dist-lib">Library District</label>
-                <input id="dist-lib" style={inputStyle} type="text" autoComplete="off"
-                  value={data.library_district}
-                  onChange={e => set('library_district', e.target.value)} />
+                <label style={tealLabelStyle} htmlFor="dist-prec">Precinct</label>
+                <input id="dist-prec" style={inputStyle} type="text" autoComplete="off"
+                  inputMode="numeric" pattern="[0-9]*"
+                  value={data.precinct}
+                  onChange={e => set('precinct', e.target.value)} />
               </div>
 
-              {/* Across from City — city tracking status */}
+              {config.showVillage && (
+                <div>
+                  <label style={tealLabelStyle} htmlFor="dist-vil">Village</label>
+                  <input id="dist-vil" style={inputStyle} type="text" autoComplete="off"
+                    value={data.village}
+                    onChange={e => set('village', e.target.value)} />
+                </div>
+              )}
+
+              {/* Courts — only for states where they apply */}
+              {(config.showCircuitCourt || config.showProbateCourt || config.showDistrictCourt) && (
+                <>
+                  <label style={labelStyle}>Courts</label>
+                  {config.showCircuitCourt && (
+                    <div>
+                      <label style={tealLabelStyle} htmlFor="dist-circ">Circuit Court</label>
+                      <input id="dist-circ" style={inputStyle} type="text" autoComplete="off"
+                        value={data.circuit_court}
+                        onChange={e => set('circuit_court', e.target.value)} />
+                    </div>
+                  )}
+                  {config.showProbateCourt && (
+                    <div>
+                      <label style={tealLabelStyle} htmlFor="dist-prob">Probate Court</label>
+                      <input id="dist-prob" style={inputStyle} type="text" autoComplete="off"
+                        value={data.probate_court}
+                        onChange={e => set('probate_court', e.target.value)} />
+                    </div>
+                  )}
+                  {config.showDistrictCourt && (
+                    <div>
+                      <label style={tealLabelStyle} htmlFor="dist-dc">District Court</label>
+                      <input id="dist-dc" style={inputStyle} type="text" autoComplete="off"
+                        value={data.district_court}
+                        onChange={e => set('district_court', e.target.value)} />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* City tracking status */}
               <div>
                 <label style={labelStyle}>City in LawTracker</label>
                 {cityTracked ? (

@@ -292,3 +292,13 @@ Layer 2 (human-written, never auto-overwritten):
 - `Michigan_National_Tracker_08_May_26.html` is the visual reference
 - App must match exactly: CSS variables, card layout, filter chips, pipeline stages, policy bias bar, urgency colors, office dot system
 - Verified status is never shown on public cards
+
+---
+
+## Process Rules
+1. After any change to `supabase/functions/_shared/auth-utils.ts`, redeploy ALL edge functions immediately.
+2. Always run `npm run build` before `git push` — never push with type errors.
+3. Run all SQL migrations directly via CLI (`supabase db query --linked --file`), never copy-paste into the SQL Editor.
+4. Commit after every completed feature, not in large batches.
+5. After every deployment, verify on lawtracker1.vercel.app before continuing.
+6. When setting Supabase secrets, read from `.env` and set all at once rather than one at a time.

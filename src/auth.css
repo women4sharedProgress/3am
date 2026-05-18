@@ -447,7 +447,7 @@
   background: var(--color-bg-secondary);
   font-family: 'Nunito', sans-serif;
   font-size: 18px;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 /* Header — no box, centered text stack */
@@ -540,7 +540,9 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  min-width: 780px;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
   position: relative;
   z-index: 3;
 }
@@ -1971,4 +1973,47 @@
   color: #FFC000;
   font-style: italic;
   line-height: 1.3;
+}
+
+/* ── Mobile layout (≤ 600 px) ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .home-content {
+    padding: 16px 16px 32px;
+  }
+
+  /* Main row wraps: grid on top, stoplight pills below */
+  .home-main-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* Grid expands to full content width, equal columns */
+  .home-main-grid {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .home-main-card {
+    height: 120px;
+  }
+
+  /* Stoplight col centers under the grid */
+  .home-stoplight-col {
+    width: 100%;
+    align-items: center;
+  }
+
+  /* Greeting can wrap if username is long */
+  .home-stoplight-greeting {
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* Secondary row wraps to 4-per-row at 390 px */
+  .home-secondary-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
 }

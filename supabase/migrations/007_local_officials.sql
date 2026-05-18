@@ -36,6 +36,7 @@ alter table local_officials enable row level security;
 
 -- Public read only. All writes go through edge functions using service_role,
 -- which bypasses RLS -- no insert/update/delete policy needed here.
+drop policy if exists "local_officials_select" on local_officials;
 create policy "local_officials_select" on local_officials
   for select using (true);
 
