@@ -1,90 +1,74 @@
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import PageTopBar from '../components/PageTopBar'
 import FeedbackButton from '../components/FeedbackButton'
-import { GremlinRosie, GremlinAce, GremlinVera } from '../components/GremlinsArt'
 
-// ── Shared styles ─────────────────────────────────────────────────────────────
-
-const section: React.CSSProperties = {
-  marginBottom: 36,
+const wrap: React.CSSProperties = {
+  maxWidth: 680,
+  margin: '0 auto',
+  padding: '0 24px',
 }
 
-const heading2: React.CSSProperties = {
+const h1Style: React.CSSProperties = {
   fontFamily: "'Quicksand', sans-serif",
-  fontSize: 20,
+  fontSize: 28,
+  fontWeight: 700,
+  color: '#4f4262',
+  marginBottom: 20,
+  letterSpacing: '.2px',
+}
+
+const h2Style: React.CSSProperties = {
+  fontFamily: "'Quicksand', sans-serif",
+  fontSize: 19,
   fontWeight: 700,
   color: '#1a7a72',
-  marginBottom: 10,
-  letterSpacing: '.3px',
+  margin: '28px 0 12px',
+  letterSpacing: '.2px',
 }
 
-const bodyText: React.CSSProperties = {
+const p: React.CSSProperties = {
   fontFamily: "'Nunito', sans-serif",
   fontSize: 15,
-  lineHeight: 1.7,
+  lineHeight: 1.75,
   color: 'var(--color-text-primary)',
-  marginBottom: 12,
-  margin: 0,
+  marginBottom: 16,
+}
+
+const label: React.CSSProperties = {
+  fontFamily: "'Quicksand', sans-serif",
+  fontWeight: 700,
+  color: '#1a7a72',
 }
 
 const divider: React.CSSProperties = {
   border: 'none',
   borderTop: '1px solid var(--color-border-light)',
-  margin: '28px 0',
+  margin: '24px 0',
 }
 
-const pillRow: React.CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 10,
-  marginTop: 4,
+const tierRow: React.CSSProperties = {
+  fontFamily: "'Nunito', sans-serif",
+  fontSize: 15,
+  lineHeight: 1.7,
+  color: 'var(--color-text-primary)',
+  padding: '10px 14px',
+  borderRadius: 8,
+  background: 'var(--color-bg-primary)',
+  border: '1px solid var(--color-border-light)',
+  marginBottom: 8,
 }
 
-function Pill({ children }: { children: React.ReactNode }) {
-  return (
-    <span style={{
-      fontFamily: "'Quicksand', sans-serif",
-      fontSize: 13,
-      fontWeight: 700,
-      letterSpacing: '.4px',
-      background: 'var(--color-bg-neutral)',
-      color: '#1a7a72',
-      border: '1px solid var(--color-border-light)',
-      borderRadius: 20,
-      padding: '5px 14px',
-    }}>
-      {children}
-    </span>
-  )
+const tierLabel: React.CSSProperties = {
+  fontFamily: "'Quicksand', sans-serif",
+  fontWeight: 700,
+  color: '#4f4262',
+  marginRight: 6,
 }
-
-function PrincipleBlock({ label, text }: { label: string; text: string }) {
-  return (
-    <div style={{
-      background: 'var(--color-bg-primary)',
-      border: '1px solid var(--color-border-light)',
-      borderRadius: 10,
-      padding: '14px 18px',
-    }}>
-      <div style={{
-        fontFamily: "'Quicksand', sans-serif",
-        fontSize: 13,
-        fontWeight: 700,
-        color: '#1a7a72',
-        letterSpacing: '.4px',
-        marginBottom: 6,
-        textTransform: 'uppercase',
-      }}>
-        {label}
-      </div>
-      <p style={bodyText}>{text}</p>
-    </div>
-  )
-}
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function About() {
+  const navigate = useNavigate()
+
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
     document.documentElement.setAttribute('data-theme', theme)
@@ -100,155 +84,112 @@ export default function About() {
       minHeight: '100dvh',
       background: 'var(--color-bg-secondary)',
       color: 'var(--color-text-primary)',
-      fontFamily: "'Nunito', sans-serif",
-      padding: '50px 0 48px',
+      padding: '50px 0 64px',
     }}>
       <PageTopBar />
 
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 24px' }}>
+      <div style={wrap}>
+        <h1 style={h1Style}>About</h1>
 
-        {/* ── Title block ── */}
-        <h1 style={{
-          fontFamily: "'Quicksand', sans-serif",
-          fontSize: 30,
-          fontWeight: 700,
-          color: '#4f4262',
-          marginBottom: 4,
-          letterSpacing: '.2px',
-        }}>
-          Women for Shared Progress
-        </h1>
-        <p style={{
-          fontFamily: "'Nunito', sans-serif",
-          fontSize: 14,
-          color: 'var(--color-text-secondary)',
-          marginBottom: 28,
-          lineHeight: 1.5,
-        }}>
-          Making useful things. Deploying gremlins. Building power.
+        <p style={p}>
+          Women for Shared Progress (W4SP) is a for-profit organization founded by disabled Air Force
+          veteran women. We like making useful things.
+        </p>
+
+        <p style={p}>
+          The 3am Pipeline is a W4SP civic tech project that is explicitly nonpartisan, open source,
+          free at all levels, and encourages individual participation in our effort to make civic
+          involvement easier and more accessible to everyone.
+        </p>
+
+        <p style={p}>
+          <span style={label}>The code:&nbsp;</span>
+          The entire 3am Pipeline application is open source under GPL v3. Anyone can run their own
+          copy as a personal tool. If this site ever goes down, the 3am Pipeline can resurface in the
+          community. We built it to survive us.
+        </p>
+
+        <hr style={divider} />
+        <h2 style={h2Style}>How it works</h2>
+
+        <p style={p}>
+          <span style={label}>W4SP LawTracker:&nbsp;</span>
+          Each bill is pulled from official government sources and summarized in plain language on a
+          card. Each card shows where a bill is in the process, who introduced it, who supports it,
+          who's blocking it, and what is being decided.
+        </p>
+
+        <p style={p}>
+          <span style={label}>Your data:&nbsp;</span>
+          You can use the 3am Pipeline without an account or with our lowest level account with
+          complete anonymity. Although you can supply an email for password retrieval and home address
+          information, you don't have to. At higher account levels, you can choose to opt-in and share
+          personal data for aggregate reporting. A zip code is enough for most features. If you choose
+          to share more, it is entirely your choice, and you control each piece separately.
+        </p>
+
+        <p style={p}>
+          Zip Codes are indexed to help autofill. Your District Information is used to help populate
+          Your Representatives. The first person to enter local officials with District Information
+          filled out is helping index districts to set up autofill for other users. Other users in the
+          same district can verify the information is correct and current. Our gremlins also keep an
+          eye on it for accuracy.
+        </p>
+
+        <p style={{ ...p, fontStyle: 'italic', color: '#1a7a72', marginBottom: 0 }}>
+          The more you fill out, the more you help others.
+        </p>
+
+        <hr style={divider} />
+        <h2 style={h2Style}>3am Pipeline Usage Tiers</h2>
+
+        {[
+          { tier: 'Tier 1', text: 'Read only, no account required. Access to LawTracker. Civic Calendar.' },
+          { tier: 'Tier 2', text: 'Requires username and password. My Profile, Your Representatives, Alert/Watch/Archive, crowdsourced verification and editing.' },
+          { tier: 'Tier 3', text: 'Identity verified by W4SP. Vetted verification agents — W4SP Administration, Elected Officials, Partners, volunteers, and broadcast agents.' },
+          { tier: 'Tier 4', text: 'Requires personal information and at least one opt-in to data sharing. If opt-in aggregate data generates revenue, contributors share in it.' },
+          { tier: 'Tier 5', text: 'Requires personal information and civic history. Tier 3 electoral alumni, users with sound participation history.' },
+        ].map(({ tier, text }) => (
+          <div key={tier} style={tierRow}>
+            <span style={tierLabel}>{tier}:</span>
+            {text}
+          </div>
+        ))}
+
+        <p style={{ ...p, marginTop: 16 }}>
+          All tiers access the same legislation. Tiers are differentiated by verification level and
+          the features they unlock. This allows individuals to choose their level of privacy vs. tool
+          access.
         </p>
 
         <hr style={divider} />
 
-        {/* ── What is the 3AM Pipeline ── */}
-        <div style={section}>
-          <h2 style={heading2}>What is the 3AM Pipeline?</h2>
-          <p style={{ ...bodyText, marginBottom: 12 }}>
-            The 3AM Pipeline is a free civic tracking tool that gives you a clear, uncluttered view of
-            legislation moving through federal and state governments — the bills that affect your rights,
-            your safety, and your community.
-          </p>
-          <p style={bodyText}>
-            Most of this legislation moves quietly. Hearings are scheduled at odd hours. Floor votes
-            happen in windows most people aren't watching. We built this so that information asymmetry
-            stops being a barrier to participation.
-          </p>
-        </div>
+        <p style={p}>
+          <span style={label}>Feedback button:&nbsp;</span>
+          send comments, ideas, frustrations, bug reports, and kudos.
+        </p>
 
-        <hr style={divider} />
-
-        {/* ── Who We Are ── */}
-        <div style={section}>
-          <h2 style={heading2}>Who We Are</h2>
-          <p style={{ ...bodyText, marginBottom: 12 }}>
-            W4SP was founded by disabled Air Force veteran women who got tired of watching important
-            legislation slip by unnoticed and decided to do something about it. We are builders, not
-            commentators — we make tools and we put them in front of people who will use them.
-          </p>
-          <p style={{ ...bodyText, marginBottom: 20 }}>
-            Our gremlins — Rosie, Ace, and Vera — are the spirit of the operation: scrappy, skilled,
-            and working behind the scenes to keep things running.
-          </p>
-
-          <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap' }}>
-            {[
-              { G: GremlinRosie, name: 'Rosie' },
-              { G: GremlinAce,   name: 'Ace'   },
-              { G: GremlinVera,  name: 'Vera'  },
-            ].map(({ G, name }) => (
-              <div key={name} style={{ textAlign: 'center' }}>
-                <G />
-                <p style={{
-                  fontFamily: "'Quicksand', sans-serif",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: 'var(--color-text-secondary)',
-                  marginTop: 6,
-                  letterSpacing: '.3px',
-                }}>
-                  {name}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <hr style={divider} />
-
-        {/* ── Principles ── */}
-        <div style={section}>
-          <h2 style={heading2}>Our Principles</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <PrincipleBlock
-              label="Nonpartisan"
-              text="We track legislation across the political spectrum without editorial bias. Every bill on this tracker is chosen for its civic significance, not its political alignment."
-            />
-            <PrincipleBlock
-              label="Open Source"
-              text="The code is public. The data pipeline is documented. You don't have to take our word for anything — you can read the logic yourself."
-            />
-            <PrincipleBlock
-              label="Free at Every Level"
-              text="No paywalls. No premium tiers for the important features. Alerts, tracking, and district lookup are available to every account, always."
-            />
-            <PrincipleBlock
-              label="Privacy First"
-              text="No third-party analytics, no advertising networks, no tracking pixels. Your account data stays in our system and goes nowhere else. The only external call involving your information is the Census Geocoding API for district lookup."
-            />
-            <PrincipleBlock
-              label="Human-Verified"
-              text="Automated pulls from official sources only. Bill status and stage dates come from Congress.gov and official state sources. Context — what a bill means, who's behind it, urgency — is written by humans and never auto-overwritten."
-            />
-          </div>
-        </div>
-
-        <hr style={divider} />
-
-        {/* ── What you can do ── */}
-        <div style={section}>
-          <h2 style={heading2}>What You Can Do Here</h2>
-          <div style={pillRow}>
-            <Pill>Track bills with Alert / Watch / Archive</Pill>
-            <Pill>Get push notifications on bill movement</Pill>
-            <Pill>Look up your district representatives</Pill>
-            <Pill>Filter by policy area, urgency &amp; level</Pill>
-            <Pill>Download the tracker for offline use</Pill>
-            <Pill>Submit &amp; verify community district data</Pill>
-          </div>
-        </div>
-
-        <hr style={divider} />
-
-        {/* ── Data sources ── */}
-        <div style={section}>
-          <h2 style={heading2}>Where the Data Comes From</h2>
-          <p style={{ ...bodyText, marginBottom: 12 }}>
-            Federal bill status is pulled from the official Congress.gov API. Michigan legislation is
-            sourced from the Michigan Legislature website with LegiScan as a fallback. Representative
-            data is pulled from the Congress.gov member API. All pulls run automatically at 3&nbsp;AM US
-            Eastern — hence the name.
-          </p>
-          <p style={{
-            fontFamily: "'Nunito', sans-serif",
-            fontSize: 13,
-            color: 'var(--color-text-secondary)',
-            lineHeight: 1.6,
-          }}>
-            We never pull from unofficial sources. We never make up data. When official sources show
-            changes to a verified card, a human reviewer sees the diff before it goes live.
-          </p>
-        </div>
-
+        <button
+          onClick={() => navigate('/open-source')}
+          style={{
+            display: 'block',
+            width: '100%',
+            marginTop: 32,
+            padding: '14px 24px',
+            fontFamily: "'Quicksand', sans-serif",
+            fontSize: 15,
+            fontWeight: 700,
+            letterSpacing: '.4px',
+            color: '#fff',
+            background: '#1a7a72',
+            border: 'none',
+            borderRadius: 10,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,.2)',
+          }}
+        >
+          Clone &amp; Deploy the 3AM Pipeline
+        </button>
       </div>
 
       <FeedbackButton />

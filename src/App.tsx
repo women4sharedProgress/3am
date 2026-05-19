@@ -16,6 +16,7 @@ import Archive                 from './pages/Archive'
 import AlertSettings           from './pages/AlertSettings'
 import EnactedLegislation      from './pages/EnactedLegislation'
 import ResetPassword           from './pages/ResetPassword'
+import OpenSource             from './pages/OpenSource'
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
       <Route path="/alerts/settings"       element={<AlertSettings />} />
       <Route path="/enacted-legislation"  element={<EnactedLegislation />} />
       <Route path="/reset-password"       element={<ResetPassword />} />
+      <Route path="/open-source"          element={<OpenSource />} />
     </Routes>
   )
 }
