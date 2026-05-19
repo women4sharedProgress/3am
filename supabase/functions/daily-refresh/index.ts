@@ -87,7 +87,7 @@ interface Layer1Update {
   name: string
   introduced: string | null
   stage: number
-  stage_dates: Record<string, string>
+  stage_date: string | null   // the raw date from latestAction — merged into array by caller
   stage_note: string | null
   pull_source: string
   raw_pull_data: unknown
@@ -121,8 +121,6 @@ async function fetchCongressBill(ref: BillRef): Promise<Layer1Update | null> {
     const latestActionDate: string = bill.latestAction?.actionDate ?? ''
     const stage = mapFederalStage(latestActionText)
 
-    const stage_dates: Record<string, string> = latestActionDate ? { [String(stage)]: latestActionDate } : {}
-
     // Strip API key from stored URL
     const cleanUrl = url.replace(`?api_key=${CONGRESS_API_KEY}`, '')
 
@@ -130,7 +128,7 @@ async function fetchCongressBill(ref: BillRef): Promise<Layer1Update | null> {
       name:           billName,
       introduced:     bill.introducedDate ?? null,
       stage,
-      stage_dates,
+      stage_date:     latestActionDate || null,
       stage_note:     latestActionText || null,
       pull_source:    cleanUrl,
       raw_pull_data:  data,
@@ -142,16 +140,44 @@ async function fetchCongressBill(ref: BillRef): Promise<Layer1Update | null> {
   }
 }
 
+// ── Stage dates merge ─────────────────────────────────────────────────────────
+// stage_dates is a 6-element array indexed by stage (Federal pipeline length).
+// We only update the slot for the detected stage; other slots are preserved.
+
+const FEDERAL_STAGE_COUNT = 6
+
+function mergeStageDates(
+  current: (string | null)[] | null | undefined,
+  stage: number,
+  stageDate: string | null,
+): (string | null)[] {
+  const arr: (string | null)[] = Array.isArray(current)
+    ? [...current]
+    : Array(FEDERAL_STAGE_COUNT).fill(null)
+  // Pad to expected length
+  while (arr.length < FEDERAL_STAGE_COUNT) arr.push(null)
+  if (stage >= 0 && stage < arr.length && stageDate) arr[stage] = stageDate
+  return arr
+}
+
 // ── Diff computation ──────────────────────────────────────────────────────────
 
 function computeDiff(
   current: Record<string, unknown>,
   incoming: Layer1Update,
+  mergedStageDates: (string | null)[],
 ): Record<string, { old: unknown; new: unknown }> | null {
   const diff: Record<string, { old: unknown; new: unknown }> = {}
+  const incomingFlat: Record<string, unknown> = {
+    name:        incoming.name,
+    introduced:  incoming.introduced,
+    stage:       incoming.stage,
+    stage_dates: mergedStageDates,
+    stage_note:  incoming.stage_note,
+  }
   for (const key of LAYER1_KEYS) {
     const cur = current[key]
-    const nxt = (incoming as unknown as Record<string, unknown>)[key]
+    const nxt = incomingFlat[key]
     if (JSON.stringify(cur) !== JSON.stringify(nxt)) {
       diff[key] = { old: cur, new: nxt }
     }
@@ -192,21 +218,29 @@ async function refreshFederalBills(
     const incoming = await fetchCongressBill(ref)
     if (!incoming) { skipped++; continue }
 
+    // Merge new stage date into existing array — preserves dates already recorded at other stages
+    const mergedStageDates = mergeStageDates(
+      bill.stage_dates as (string | null)[] | null,
+      incoming.stage,
+      incoming.stage_date,
+    )
+
     if (bill.verified) {
-      // Verified: only write pending_changes if something actually changed
-      const diff = computeDiff(bill as Record<string, unknown>, incoming)
-      if (diff) {
-        const { error } = await supabase
-          .from('bills')
-          .update({
-            pending_changes: diff,
-            last_pulled_at:  incoming.last_pulled_at,
-            raw_pull_data:   incoming.raw_pull_data,
-          })
-          .eq('id', bill.id)
-        if (error) console.error(`[bills/federal] pending_changes error (id=${bill.id}):`, error.message)
-        else pending++
+      // Verified: only write pending_changes if something actually changed.
+      // Always persist pull_source so URL-based parsing works on every future run.
+      const diff = computeDiff(bill as Record<string, unknown>, incoming, mergedStageDates)
+      const verifiedUpdate: Record<string, unknown> = {
+        last_pulled_at: incoming.last_pulled_at,
+        raw_pull_data:  incoming.raw_pull_data,
       }
+      if (!bill.pull_source) verifiedUpdate.pull_source = incoming.pull_source
+      if (diff) verifiedUpdate.pending_changes = diff
+      const { error } = await supabase
+        .from('bills')
+        .update(verifiedUpdate)
+        .eq('id', bill.id)
+      if (error) console.error(`[bills/federal] verified update error (id=${bill.id}):`, error.message)
+      else if (diff) pending++
     } else {
       // Unverified: overwrite all Layer 1 fields directly
       const { error } = await supabase
@@ -215,7 +249,7 @@ async function refreshFederalBills(
           name:           incoming.name,
           introduced:     incoming.introduced,
           stage:          incoming.stage,
-          stage_dates:    incoming.stage_dates,
+          stage_dates:    mergedStageDates,
           stage_note:     incoming.stage_note,
           pull_source:    incoming.pull_source,
           raw_pull_data:  incoming.raw_pull_data,
