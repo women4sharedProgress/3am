@@ -130,194 +130,7 @@ function SignOutIcon({ size = 20, color = 'white' }: IP) {
   )
 }
 
-function MarchingBugsIcon() {
-  return (
-    <svg width="80" height="34" viewBox="0 0 76 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <radialGradient id="mb-b1" cx="40%" cy="35%" r="60%">
-          <stop offset="0%" stopColor="#ff9a9a"/><stop offset="100%" stopColor="#cc0000"/>
-        </radialGradient>
-        <radialGradient id="mb-b2" cx="40%" cy="35%" r="60%">
-          <stop offset="0%" stopColor="#74d4fc"/><stop offset="100%" stopColor="#0070c0"/>
-        </radialGradient>
-        <radialGradient id="mb-b3" cx="40%" cy="35%" r="60%">
-          <stop offset="0%" stopColor="#FFE566"/><stop offset="100%" stopColor="#FFC000"/>
-        </radialGradient>
-      </defs>
 
-      {/* ── Bug 1 (lead, red ladybug) — carries flag ── */}
-      <line x1="16" y1="13" x2="16" y2="1" stroke="#1a1a1a" strokeWidth="1.2" strokeLinecap="round"/>
-      <rect x="16" y="1" width="11" height="7" rx="1" fill="#B597D5" className="egg-flag"/>
-      {/* 5-pointed pinwheel star — bigger */}
-      <polygon className="egg-flag-star" points="21.5,2 22.09,3.69 23.88,3.73 22.45,4.81 22.97,6.52 21.5,5.5 20.03,6.52 20.55,4.81 19.12,3.73 20.91,3.69" fill="#FFC000"/>
-      {/* body */}
-      <ellipse cx="10" cy="24" rx="6.5" ry="4.5" fill="url(#mb-b1)"/>
-      <line x1="10" y1="19.5" x2="10" y2="28.5" stroke="#880000" strokeWidth="0.8"/>
-      <circle cx="7.8" cy="22.5" r="1.2" fill="#880000"/>
-      <circle cx="12.2" cy="22.5" r="1.2" fill="#880000"/>
-      <circle cx="8.5" cy="25.5" r="1" fill="#880000"/>
-      <circle cx="11.5" cy="25.5" r="1" fill="#880000"/>
-      {/* head */}
-      <circle cx="10" cy="17" r="3.5" fill="#1a1a1a"/>
-      <circle cx="8.7" cy="16.2" r="1" fill="white"/>
-      <circle cx="11.3" cy="16.2" r="1" fill="white"/>
-      <circle cx="8.9" cy="16.4" r="0.5" fill="#333"/>
-      <circle cx="11.5" cy="16.4" r="0.5" fill="#333"/>
-      <path d="M 8.7 18.4 Q 10 19.8 11.3 18.4" stroke="white" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
-      <line x1="8.7" y1="13.8" x2="6.5" y2="11" stroke="#333" strokeWidth="0.9" strokeLinecap="round"/>
-      <line x1="11.3" y1="13.8" x2="13.5" y2="11" stroke="#333" strokeWidth="0.9" strokeLinecap="round"/>
-      <circle cx="6.2" cy="10.7" r="0.8" fill="#333"/>
-      <circle cx="13.8" cy="10.7" r="0.8" fill="#333"/>
-      <line x1="4.5" y1="22" x2="1.5" y2="20" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="4.5" y1="24" x2="1.5" y2="24" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="4.5" y1="26" x2="1.5" y2="28" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="15.5" y1="22" x2="18.5" y2="20" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="15.5" y1="24" x2="18.5" y2="24" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="15.5" y1="26" x2="18.5" y2="28" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-
-      {/* ── Bug 2 (blue body, orange head) ── */}
-      <ellipse cx="37" cy="24" rx="6.5" ry="4.5" fill="url(#mb-b2)"/>
-      <line x1="37" y1="19.5" x2="37" y2="28.5" stroke="#004a96" strokeWidth="0.8"/>
-      <circle cx="34.8" cy="22.5" r="1.2" fill="#004a96"/>
-      <circle cx="39.2" cy="22.5" r="1.2" fill="#004a96"/>
-      <circle cx="35.5" cy="25.5" r="1" fill="#004a96"/>
-      <circle cx="38.5" cy="25.5" r="1" fill="#004a96"/>
-      <circle cx="37" cy="17" r="3.5" fill="#E97132"/>
-      <circle cx="35.7" cy="16.2" r="1" fill="white"/>
-      <circle cx="38.3" cy="16.2" r="1" fill="white"/>
-      <circle cx="35.9" cy="16.4" r="0.5" fill="#333"/>
-      <circle cx="38.5" cy="16.4" r="0.5" fill="#333"/>
-      <path d="M 35.7 18.4 Q 37 19.8 38.3 18.4" stroke="white" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
-      <line x1="35.7" y1="13.8" x2="33.5" y2="11" stroke="#E97132" strokeWidth="0.9" strokeLinecap="round"/>
-      <line x1="38.3" y1="13.8" x2="40.5" y2="11" stroke="#E97132" strokeWidth="0.9" strokeLinecap="round"/>
-      <circle cx="33.2" cy="10.7" r="0.8" fill="#E97132"/>
-      <circle cx="40.8" cy="10.7" r="0.8" fill="#E97132"/>
-      <line x1="31.5" y1="22" x2="28.5" y2="20" stroke="#0070c0" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="31.5" y1="24" x2="28.5" y2="24" stroke="#0070c0" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="31.5" y1="26" x2="28.5" y2="28" stroke="#0070c0" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="42.5" y1="22" x2="45.5" y2="20" stroke="#0070c0" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="42.5" y1="24" x2="45.5" y2="24" stroke="#0070c0" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="42.5" y1="26" x2="45.5" y2="28" stroke="#0070c0" strokeWidth="0.7" strokeLinecap="round"/>
-
-      {/* ── Bug 3 (yellow body, black head + legs) ── */}
-      <ellipse cx="63" cy="24" rx="6.5" ry="4.5" fill="url(#mb-b3)"/>
-      <line x1="63" y1="19.5" x2="63" y2="28.5" stroke="#CC9600" strokeWidth="0.8"/>
-      <circle cx="60.8" cy="22.5" r="1.2" fill="#CC9600"/>
-      <circle cx="65.2" cy="22.5" r="1.2" fill="#CC9600"/>
-      <circle cx="61.5" cy="25.5" r="1" fill="#CC9600"/>
-      <circle cx="64.5" cy="25.5" r="1" fill="#CC9600"/>
-      <circle cx="63" cy="17" r="3.5" fill="#1a1a1a"/>
-      <circle cx="61.7" cy="16.2" r="1" fill="white"/>
-      <circle cx="64.3" cy="16.2" r="1" fill="white"/>
-      <circle cx="61.9" cy="16.4" r="0.5" fill="#333"/>
-      <circle cx="64.5" cy="16.4" r="0.5" fill="#333"/>
-      <path d="M 61.7 18.4 Q 63 19.8 64.3 18.4" stroke="white" strokeWidth="0.8" fill="none" strokeLinecap="round"/>
-      <line x1="61.7" y1="13.8" x2="59.5" y2="11" stroke="#CC9600" strokeWidth="0.9" strokeLinecap="round"/>
-      <line x1="64.3" y1="13.8" x2="66.5" y2="11" stroke="#CC9600" strokeWidth="0.9" strokeLinecap="round"/>
-      <circle cx="59.2" cy="10.7" r="0.8" fill="#CC9600"/>
-      <circle cx="66.8" cy="10.7" r="0.8" fill="#CC9600"/>
-      <line x1="57.5" y1="22" x2="54.5" y2="20" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="57.5" y1="24" x2="54.5" y2="24" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="57.5" y1="26" x2="54.5" y2="28" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="68.5" y1="22" x2="71.5" y2="20" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="68.5" y1="24" x2="71.5" y2="24" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-      <line x1="68.5" y1="26" x2="71.5" y2="28" stroke="#1a1a1a" strokeWidth="0.7" strokeLinecap="round"/>
-    </svg>
-  )
-}
-
-function EggGremlinSVG() {
-  return (
-    <svg viewBox="0 0 58 88" width="58" height="88" aria-hidden="true">
-      <defs>
-        <radialGradient id="egg-skin" cx="40%" cy="35%" r="60%">
-          <stop offset="0%" stopColor="#8fdf68"/>
-          <stop offset="100%" stopColor="#3a8a28"/>
-        </radialGradient>
-      </defs>
-
-      {/* victory buns - behind everything */}
-      <circle cx="13" cy="32" r="8"  fill="#1a1230"/>
-      <circle cx="13" cy="32" r="5"  fill="#2a2040"/>
-      <circle cx="11" cy="29" r="2"  fill="white" opacity=".15"/>
-      <circle cx="33" cy="32" r="8"  fill="#1a1230"/>
-      <circle cx="33" cy="32" r="5"  fill="#2a2040"/>
-      <circle cx="31" cy="29" r="2"  fill="white" opacity=".15"/>
-      <path d="M13,32 Q23,25 33,32" stroke="#1a1230" strokeWidth="6" fill="none" strokeLinecap="round"/>
-
-      {/* overall bib drawn before head so face renders on top */}
-      <rect x="17" y="51" width="12" height="10" rx="2" fill="#8B4513" opacity=".85"/>
-      <rect x="19" y="53" width="8"  height="5"  rx="1" fill="none" stroke="#7a3a10" strokeWidth=".8"/>
-
-      {/* left ear */}
-      <polygon points="9,51 3,39 13,47"  fill="url(#egg-skin)"/>
-      <polygon points="9,50 5,41 12,47"  fill="#7a4535"/>
-      {/* right ear */}
-      <polygon points="37,51 43,39 33,47" fill="url(#egg-skin)"/>
-      <polygon points="37,50 41,41 34,47" fill="#7a4535"/>
-
-      {/* head - on top of bib so face shows */}
-      <ellipse cx="23" cy="46" rx="14" ry="13" fill="url(#egg-skin)"/>
-
-      {/* eyes */}
-      <ellipse cx="17" cy="45" rx="5"   ry="5.5" fill="#f8f4e8"/>
-      <ellipse cx="29" cy="45" rx="5"   ry="5.5" fill="#f8f4e8"/>
-      <circle  cx="18" cy="46" r="3.2"  fill="#1a0820"/>
-      <circle  cx="30" cy="46" r="3.2"  fill="#1a0820"/>
-      <circle  cx="19" cy="44.5" r="1.2" fill="white"/>
-      <circle  cx="31" cy="44.5" r="1.2" fill="white"/>
-
-      {/* eyebrows */}
-      <path d="M12,40 Q17,37 22,40" stroke="#2a4218" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-      <path d="M24,40 Q29,37 34,40" stroke="#2a4218" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-
-      {/* nose */}
-      <ellipse cx="23" cy="51" rx="3" ry="2" fill="#3a7828"/>
-      <circle cx="21.5" cy="51.8" r="1" fill="#2a6018"/>
-      <circle cx="24.5" cy="51.8" r="1" fill="#2a6018"/>
-
-      {/* smile - on top of head and bib */}
-      <path d="M15,55 Q23,63 31,55" stroke="#5a1010" strokeWidth="1.2" fill="#d03030" strokeLinecap="round"/>
-      <path d="M17,55 Q23,62 29,55 Z" fill="#e84040"/>
-      <path d="M17,55 Q23,62 29,55" stroke="white" strokeWidth="1.8" fill="none" opacity=".6"/>
-
-      {/* neck */}
-      <rect x="19" y="58" width="8" height="6" rx="3" fill="url(#egg-skin)"/>
-
-      {/* body skin */}
-      <ellipse cx="23" cy="71" rx="13" ry="10" fill="url(#egg-skin)"/>
-      <line x1="23" y1="62" x2="23" y2="81" stroke="#2a7018" strokeWidth="1"/>
-      <circle cx="16" cy="69" r="3"   fill="#2a7018" opacity=".45"/>
-      <circle cx="30" cy="69" r="3"   fill="#2a7018" opacity=".45"/>
-      <circle cx="18" cy="77" r="2.5" fill="#2a7018" opacity=".45"/>
-      <circle cx="28" cy="77" r="2.5" fill="#2a7018" opacity=".45"/>
-
-      {/* overall lower body - over skin, below face */}
-      <path d="M11,63 Q11,72 10,81 L36,81 Q35,72 35,63 Q35,62 23,62 Q11,62 11,63 Z" fill="#8B4513" opacity=".9"/>
-
-      {/* right arm raised */}
-      <path d="M34,67 C42,59 50,47 48,33" stroke="#3a8a28" strokeWidth="7" strokeLinecap="round" fill="none"/>
-      {/* emoji-style fist: rounded rect body + knuckle creases + thumb */}
-      <rect x="41" y="27" width="13" height="10" rx="4.5" fill="url(#egg-skin)"/>
-      <path d="M42,31 Q46.5,30 51,31" stroke="#3a7828" strokeWidth=".9" fill="none"/>
-      <line x1="44"   y1="28" x2="44"   y2="36" stroke="#3a7828" strokeWidth=".6" opacity=".5"/>
-      <line x1="47.5" y1="28" x2="47.5" y2="36" stroke="#3a7828" strokeWidth=".6" opacity=".5"/>
-      <ellipse cx="40" cy="31.5" rx="3" ry="2" fill="url(#egg-skin)" transform="rotate(-15 40 31.5)"/>
-      {/* ring spanner wrench: handle + solid head with bolt hole */}
-      <rect x="44.5" y="18" width="4" height="10" rx="2" fill="#9a9a9a"/>
-      <circle cx="46.5" cy="12" r="7.5" fill="#9a9a9a"/>
-      <circle cx="46.5" cy="12" r="4"   fill="#1a0820"/>
-      <polygon points="46.5,8.8 48,9.7 48,11.3 46.5,12.2 45,11.3 45,9.7" fill="none" stroke="#7a7a7a" strokeWidth=".6"/>
-
-      {/* left arm */}
-      <path d="M12,67 L5,77" stroke="#3a8a28" strokeWidth="6" strokeLinecap="round" fill="none"/>
-
-      {/* legs */}
-      <line x1="18" y1="80" x2="14" y2="88" stroke="#8B4513" strokeWidth="5" strokeLinecap="round"/>
-      <line x1="28" y1="80" x2="32" y2="88" stroke="#8B4513" strokeWidth="5" strokeLinecap="round"/>
-    </svg>
-  )
-}
 
 function MiniBugRed() {
   return (
@@ -461,23 +274,6 @@ function normalizeName(raw: string): string {
   return `${rest.trim()} ${last.trim()}`
 }
 
-function parseBrowser(ua: string): string {
-  if (/Edg\/(\d+)/.test(ua))     return `Edge ${ua.match(/Edg\/(\d+)/)?.[1] ?? ''}`
-  if (/Chrome\/(\d+)/.test(ua))  return `Chrome ${ua.match(/Chrome\/(\d+)/)?.[1] ?? ''}`
-  if (/Firefox\/(\d+)/.test(ua)) return `Firefox ${ua.match(/Firefox\/(\d+)/)?.[1] ?? ''}`
-  if (/Version\/(\d+).*Safari/i.test(ua)) return `Safari ${ua.match(/Version\/(\d+)/)?.[1] ?? ''}`
-  return 'Unknown'
-}
-
-function parseOS(ua: string): string {
-  if (ua.includes('Windows NT 10.0')) return 'Windows 10/11'
-  if (ua.includes('Windows'))         return 'Windows'
-  if (ua.includes('Mac OS X'))        return `macOS ${(ua.match(/Mac OS X ([\d_]+)/)?.[1] ?? '').replace(/_/g, '.')}`
-  if (ua.includes('Android'))         return `Android ${ua.match(/Android ([\d.]+)/)?.[1] ?? ''}`
-  if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS'
-  if (ua.includes('Linux'))           return 'Linux'
-  return 'Unknown'
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -487,10 +283,6 @@ export default function Home() {
   const [presidentMode, setPresidentMode] = useState<'president' | 'election'>(() =>
     localStorage.getItem('wsp-president-mode') === 'election' ? 'election' : 'president'
   )
-  const [showFeedback, setShowFeedback]   = useState(false)
-  const [feedbackText, setFeedbackText]   = useState('')
-  const [submitting, setSubmitting]       = useState(false)
-  const sessionStartRef                   = useRef<number>(Date.now())
   const [dbReps, setDbReps]               = useState<RepRow[]>([])
   const [repElectionKeys, setRepElectionKeys] = useState<Set<string>>(new Set())
   const toggleRepElection = (key: string) =>
@@ -668,10 +460,6 @@ export default function Home() {
       setLocalEditMode(prev => { const s = new Set(prev); s.delete(role); return s })
       setLocalRefreshKey(k => k + 1)
       setTimeout(() => setLocalSaveStatus(prev => { const n = { ...prev }; delete n[role]; return n }), 2000)
-      if (gremlinTimerRef.current) clearTimeout(gremlinTimerRef.current)
-      setGremlinEgg(true)
-      setGremlinKey(k => k + 1)
-      gremlinTimerRef.current = setTimeout(() => setGremlinEgg(false), 3700)
     } else {
       console.error('[local_officials] upsert error:', error.message)
       setLocalSaveStatus(prev => ({ ...prev, [role]: 'error' }))
@@ -700,9 +488,6 @@ export default function Home() {
   const deleteLocalRep = (id: string) =>
     setCustomLocalReps(prev => prev.filter(r => r.id !== id))
 
-  const [gremlinEgg, setGremlinEgg] = useState(false)
-  const [gremlinKey, setGremlinKey] = useState(0)
-  const gremlinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [scurryPhase, setScurryPhase] = useState<'start' | 'scatter' | null>(null)
   const scurryPositions = useRef<Array<{ x: number; y: number; rot: number }>>([])
@@ -774,51 +559,6 @@ export default function Home() {
     requestAnimationFrame(() => requestAnimationFrame(() => setScurryPhase('scatter')))
     const t = setTimeout(() => setScurryPhase(null), 10000)
     scurryTimers.current = [t]
-  }
-
-  async function handleFeedbackSubmit() {
-    if (!feedbackText.trim() || submitting) return
-    setSubmitting(true)
-    const ua = navigator.userAgent
-    const payload = {
-      timestamp:       new Date().toISOString(),
-      app_version:     __APP_VERSION__,
-      page_route:      window.location.pathname,
-      account_tier:    user ? (user.tier ?? 0) : 0,
-      user_role:       user ? user.role : 'none',
-      theme:           document.documentElement.getAttribute('data-theme') ?? 'dark',
-      browser:         parseBrowser(ua),
-      os:              parseOS(ua),
-      screen_size:     `${window.innerWidth}x${window.innerHeight}`,
-      session_minutes: Math.round((Date.now() - sessionStartRef.current) / 60000),
-      active_filters:  null as string | null,
-      bills_shown:     null as number | null,
-      feedback_text:   feedbackText.slice(0, 1000),
-    }
-    try {
-      await fetch(`${import.meta.env.VITE_FUNCTIONS_BASE}/functions/v1/feedback-submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include',
-      })
-      if (import.meta.env.DEV) {
-        fetch('/api/feedback-csv', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }).catch(() => {})
-      }
-    } finally {
-      setSubmitting(false)
-      setShowFeedback(false)
-      setFeedbackText('')
-    }
-  }
-
-  function handleFeedbackCancel() {
-    setShowFeedback(false)
-    setFeedbackText('')
   }
 
   return (
@@ -1638,33 +1378,6 @@ export default function Home() {
 
       </div>{/* end content */}
 
-      {/* ── Feedback button — fixed lower-right ─────── */}
-      {showFeedback && (
-        <div className="home-feedback-card" role="dialog" aria-label="Send feedback" aria-modal="true">
-          <textarea
-            className="home-feedback-textarea"
-            value={feedbackText}
-            onChange={e => setFeedbackText(e.target.value.slice(0, 1000))}
-            placeholder="What's on your mind? Bug, suggestion, or general feedback..."
-            rows={6}
-            maxLength={1000}
-            autoFocus
-          />
-          <div className={`home-feedback-countdown${feedbackText.length > 900 ? ' home-feedback-countdown--warn' : ''}`}>
-            {1000 - feedbackText.length} characters remaining
-          </div>
-          <div className="home-feedback-actions">
-            <button className="home-feedback-cancel" onClick={handleFeedbackCancel}>Cancel</button>
-            <button
-              className="home-feedback-submit"
-              onClick={() => { void handleFeedbackSubmit() }}
-              disabled={!feedbackText.trim() || submitting}
-            >
-              {submitting ? 'Sending…' : 'Submit'}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Scurrying bugs */}
       {scurryPhase !== null && scurryPositions.current.map((pos, i) => {
@@ -1691,20 +1404,6 @@ export default function Home() {
         )
       })}
 
-      {user && (
-        <div className="home-feedback-wrap">
-          {gremlinEgg && (
-            <div key={gremlinKey} className="egg-gremlin">
-              <EggGremlinSVG />
-            </div>
-          )}
-          <button className={`home-feedback-btn${gremlinEgg ? ' home-feedback-btn--dancing' : ''}`}
-            aria-label="Send feedback" onClick={() => setShowFeedback(f => !f)}>
-            <MarchingBugsIcon />
-            <span>Feedback</span>
-          </button>
-        </div>
-      )}
 
     </div>
   )
