@@ -309,3 +309,16 @@ Layer 2 (human-written, never auto-overwritten):
 6. When setting Supabase secrets, read from `.env` and set all at once rather than one at a time.
 7. **NEVER set `VITE_FUNCTIONS_BASE` to a full URL in any deployed environment.** It must be explicitly set to empty string (not absent — an absent value falls back to `VITE_SUPABASE_URL` which is cross-origin). Changing it to the Supabase URL breaks the same-origin cookie flow and silently signs every user out on every page refresh.
 8. **NEVER call `profileSave` as a side effect of component mounting or auth state changes.** Only real user edits should push to the DB. The `skipNextDbSync` ref in `Profile.tsx` guards this — do not remove it. Writing empty/default state to the DB overwrites real user data with no recovery path.
+9. **All edge function calls must go through `authApi.ts`'s `post()` helper**, not raw `fetch()` with `VITE_FUNCTIONS_BASE` constructed inline. The helper has the correct BASE fallback logic. Inline construction (e.g. `` `${VITE_FUNCTIONS_BASE}/functions/v1/...` ``) silently produces `undefined/functions/v1/...` if the env var is absent.
+
+---
+
+## Feedback System Architecture
+
+- **Dev mode** (`npm run dev`): submissions write to both `feedback/feedback_log.csv` (via Vite plugin middleware at `/api/feedback-csv`) and the `feedback_submissions` DB table (via edge function). If the CSV write fails, the Vite server console logs `[feedback-csv] write failed:` with the reason. The browser console logs `[feedback] CSV write returned <status>` for non-200 responses.
+- **Production**: only the `feedback_submissions` DB table is written. The CSV is never touched. To review feedback, query: `select * from feedback_submissions order by created_at desc limit 50;`
+- **Common failure modes that cause silent CSV loss:**
+  1. `VITE_FUNCTIONS_BASE` not empty → raw fetch URL is `undefined/functions/v1/...` → 404 (edge function path, not CSV, but same category of error)
+  2. CSV file open in Excel on Windows → `appendFileSync` throws → Vite server logs the error, browser sees 500
+  3. Not in dev mode (running `npm run preview` or accessing production) → `import.meta.env.DEV` is false → CSV path never runs
+- **Never add an auth requirement to `feedback-submit`.** It must accept anonymous submissions. Users who are not logged in (or whose session expired) must still be able to submit feedback.

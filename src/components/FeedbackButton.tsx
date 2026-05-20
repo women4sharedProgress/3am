@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { feedbackSubmit } from '../lib/authApi'
 
 function BugIcon() {
   return (
@@ -139,15 +140,13 @@ export default function FeedbackButton() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      }).catch(err => console.warn('[feedback] local CSV write failed:', err))
+      })
+        .then(res => { if (!res.ok) console.warn('[feedback] CSV write returned', res.status) })
+        .catch(err => console.warn('[feedback] CSV endpoint unreachable:', err))
     }
     try {
-      await fetch(`${import.meta.env.VITE_FUNCTIONS_BASE}/functions/v1/feedback-submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include',
-      })
+      const res = await feedbackSubmit(payload)
+      if (!res?.ok) console.warn('[feedback] edge function error:', res)
     } catch (err) {
       console.warn('[feedback] edge function failed:', err)
     } finally {

@@ -1,5 +1,6 @@
-// In dev, VITE_FUNCTIONS_BASE='' routes through the Vite proxy (/functions/v1 → Supabase).
-// In production, VITE_FUNCTIONS_BASE=https://yourproject.supabase.co (or custom domain).
+// VITE_FUNCTIONS_BASE must be empty string in ALL environments.
+// Both Vite dev proxy and vercel.json rewrite forward /functions/v1/* to Supabase.
+// If VITE_FUNCTIONS_BASE is undefined, falls back to VITE_SUPABASE_URL (cross-origin, breaks cookies).
 const BASE = (import.meta.env.VITE_FUNCTIONS_BASE ?? import.meta.env.VITE_SUPABASE_URL) + '/functions/v1'
 
 function headers() {
@@ -63,4 +64,8 @@ export function authResetConfirm(token: string, password: string) {
 
 export function profileSave(profile: object) {
   return post('profile-save', { profile })
+}
+
+export function feedbackSubmit(payload: object) {
+  return post('feedback-submit', payload)
 }

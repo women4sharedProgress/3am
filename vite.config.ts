@@ -44,9 +44,10 @@ export default defineConfig(({ mode }) => {
               appendFileSync(file, row + '\n')
               res.setHeader('Content-Type', 'application/json')
               res.end(JSON.stringify({ ok: true }))
-            } catch {
+            } catch (err) {
+              console.error('[feedback-csv] write failed:', err)
               res.statusCode = 500
-              res.end(JSON.stringify({ ok: false }))
+              res.end(JSON.stringify({ ok: false, error: String(err) }))
             }
           })
         })
