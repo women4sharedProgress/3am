@@ -10,7 +10,6 @@ import Header from '../components/Header'
 import FilterGroups from '../components/FilterGroups'
 import BillCard from '../components/BillCard'
 import ThemeToggle from '../components/ThemeToggle'
-import FeedbackButton from '../components/FeedbackButton'
 
 const DEFAULT_FILTERS: ActiveFilters = {
   level: 'all', timing: 'all', impact: 'all', issue: 'all',
@@ -224,7 +223,6 @@ export default function TrackerPage() {
           }
         </>
       )}
-      <FeedbackButton />
     </div>
   )
 }

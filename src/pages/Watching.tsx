@@ -10,7 +10,6 @@ import FilterGroups from '../components/FilterGroups'
 import BillCard from '../components/BillCard'
 import BillActivity from '../components/BillActivity'
 import ThemeToggle from '../components/ThemeToggle'
-import FeedbackButton from '../components/FeedbackButton'
 import type React from 'react'
 
 function watchMovementEnabled(): boolean {
@@ -193,8 +192,6 @@ export default function Watching() {
           }
         </>
       )}
-
-      <FeedbackButton />
     </div>
   )
 }

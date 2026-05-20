@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import FeedbackButton from '../components/FeedbackButton'
 import type { ActiveFilters, Bill } from '../types/bill'
 import { useBills } from '../hooks/useBills'
 import { filterBills, getEnactedDate } from '../lib/billUtils'
@@ -232,7 +231,6 @@ export default function EnactedLegislation() {
           }
         </>
       )}
-      <FeedbackButton />
     </div>
   )
 }

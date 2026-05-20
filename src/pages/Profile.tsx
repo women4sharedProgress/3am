@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import PageTopBar from '../components/PageTopBar'
-import FeedbackButton from '../components/FeedbackButton'
 import { useAuth } from '../contexts/AuthContext'
 import { userKey } from '../lib/userKey'
 import { getMichiganCounty } from '../lib/michiganCounties'
@@ -985,7 +984,6 @@ export default function Profile() {
 
 
       </div>
-      <FeedbackButton />
     </div>
   )
 }

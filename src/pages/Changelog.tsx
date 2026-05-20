@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
-import FeedbackButton from '../components/FeedbackButton'
 import { supabase } from '../lib/supabase'
 import { FEDERAL_STAGES, MICHIGAN_STAGES, LOCAL_STAGES, ISSUE_LABELS } from '../lib/constants'
 import type React from 'react'
@@ -484,8 +483,6 @@ export default function Changelog() {
           </div>
         ))}
       </div>
-
-      <FeedbackButton />
     </div>
   )
 }

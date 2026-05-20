@@ -1,7 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { authResetRequest, authResetConfirm } from '../lib/authApi'
-import FeedbackButton from '../components/FeedbackButton'
 
 function Eye() {
   return (
@@ -240,7 +239,6 @@ export default function ResetPassword() {
           )}
         </div>
       </div>
-      <FeedbackButton />
     </>
   )
 }

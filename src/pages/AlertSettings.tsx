@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
-import FeedbackButton from '../components/FeedbackButton'
 import { ISSUE_LABELS } from '../lib/constants'
 import { useAuth } from '../contexts/AuthContext'
 import { syncAlertSettings, subscribeToPush, unsubscribeFromPush } from '../lib/notificationClient'
@@ -674,8 +673,6 @@ export default function AlertSettings() {
         </p>
 
       </div>
-
-      <FeedbackButton />
     </div>
   )
 }

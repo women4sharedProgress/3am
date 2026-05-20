@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import FeedbackButton from '../components/FeedbackButton'
 
 interface Member {
   title: string
@@ -328,8 +327,6 @@ export default function Administration() {
       <div className="adm-grid">
         {SENIOR_MEMBERS.map((m, i) => renderCard(m, `s${i}`))}
       </div>
-
-      <FeedbackButton />
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import PageTopBar from '../components/PageTopBar'
-import FeedbackButton from '../components/FeedbackButton'
 
 const wrap: React.CSSProperties = {
   maxWidth: 680,
@@ -52,8 +51,6 @@ export default function OpenSource() {
           Developer documentation and clone instructions — coming soon.
         </p>
       </div>
-
-      <FeedbackButton />
     </div>
   )
 }

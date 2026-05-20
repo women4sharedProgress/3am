@@ -12,7 +12,6 @@ import FilterGroups from '../components/FilterGroups'
 import BillCard from '../components/BillCard'
 import BillActivity from '../components/BillActivity'
 import ThemeToggle from '../components/ThemeToggle'
-import FeedbackButton from '../components/FeedbackButton'
 import type React from 'react'
 
 function alertMovementEnabled(): boolean {
@@ -242,8 +241,6 @@ export default function Alerts() {
           }
         </>
       )}
-
-      <FeedbackButton />
     </div>
   )
 }

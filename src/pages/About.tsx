@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageTopBar from '../components/PageTopBar'
-import FeedbackButton from '../components/FeedbackButton'
 
 const wrap: React.CSSProperties = {
   maxWidth: 680,
@@ -191,8 +190,6 @@ export default function About() {
           Clone &amp; Deploy the 3AM Pipeline
         </button>
       </div>
-
-      <FeedbackButton />
     </div>
   )
 }

@@ -8,7 +8,6 @@ import Header from '../components/Header'
 import FilterGroups from '../components/FilterGroups'
 import BillCard from '../components/BillCard'
 import ThemeToggle from '../components/ThemeToggle'
-import FeedbackButton from '../components/FeedbackButton'
 import type React from 'react'
 
 const DEFAULT_FILTERS: ActiveFilters = {
@@ -151,8 +150,6 @@ export default function Archive() {
           }
         </>
       )}
-
-      <FeedbackButton />
     </div>
   )
 }
