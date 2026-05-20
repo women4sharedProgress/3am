@@ -1,4 +1,4 @@
-const BASE = '/functions/v1'
+const BASE = ''
 
 export interface AppNotification {
   id:         string
