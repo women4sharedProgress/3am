@@ -1,4 +1,4 @@
-const BASE = (import.meta.env.VITE_FUNCTIONS_BASE as string) || ''
+const BASE = '/functions/v1'
 
 export interface AppNotification {
   id:         string
