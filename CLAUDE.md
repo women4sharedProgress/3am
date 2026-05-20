@@ -300,5 +300,5 @@ Layer 2 (human-written, never auto-overwritten):
 2. Always run `npm run build` before `git push` — never push with type errors.
 3. Run all SQL migrations directly via CLI (`supabase db query --linked --file`), never copy-paste into the SQL Editor.
 4. Commit after every completed feature, not in large batches.
-5. After every deployment, verify on lawtracker1.vercel.app before continuing.
+5. After every deployment, verify on 3ampipeline.org before continuing.
 6. When setting Supabase secrets, read from `.env` and set all at once rather than one at a time.
