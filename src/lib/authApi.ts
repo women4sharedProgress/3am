@@ -1,7 +1,8 @@
-// VITE_FUNCTIONS_BASE must be empty string in ALL environments.
-// Both Vite dev proxy and vercel.json rewrite forward /functions/v1/* to Supabase.
-// If VITE_FUNCTIONS_BASE is undefined, falls back to VITE_SUPABASE_URL (cross-origin, breaks cookies).
-const BASE = (import.meta.env.VITE_FUNCTIONS_BASE ?? import.meta.env.VITE_SUPABASE_URL) + '/functions/v1'
+// Use || not ?? so that both undefined AND empty-string VITE_FUNCTIONS_BASE resolve to
+// the same-origin proxy path (/functions/v1/*). The ?? fallback to VITE_SUPABASE_URL
+// was the root cause of cross-origin cookie failures: when VITE_FUNCTIONS_BASE was
+// absent from the Vercel env, ?? fell through to the Supabase URL (cross-origin).
+const BASE = (import.meta.env.VITE_FUNCTIONS_BASE || '') + '/functions/v1'
 
 function headers() {
   return { 'Content-Type': 'application/json' }

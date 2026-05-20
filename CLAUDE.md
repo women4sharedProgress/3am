@@ -309,7 +309,8 @@ Layer 2 (human-written, never auto-overwritten):
 6. When setting Supabase secrets, read from `.env` and set all at once rather than one at a time.
 7. **NEVER set `VITE_FUNCTIONS_BASE` to a full URL in any deployed environment.** It must be explicitly set to empty string (not absent — an absent value falls back to `VITE_SUPABASE_URL` which is cross-origin). Changing it to the Supabase URL breaks the same-origin cookie flow and silently signs every user out on every page refresh.
 8. **NEVER call `profileSave` as a side effect of component mounting or auth state changes.** Only real user edits should push to the DB. The `skipNextDbSync` ref in `Profile.tsx` guards this — do not remove it. Writing empty/default state to the DB overwrites real user data with no recovery path.
-9. **All edge function calls must go through `authApi.ts`'s `post()` helper**, not raw `fetch()` with `VITE_FUNCTIONS_BASE` constructed inline. The helper has the correct BASE fallback logic. Inline construction (e.g. `` `${VITE_FUNCTIONS_BASE}/functions/v1/...` ``) silently produces `undefined/functions/v1/...` if the env var is absent.
+9. **All edge function calls must go through `authApi.ts`'s `post()` helper**, not raw `fetch()` with `VITE_FUNCTIONS_BASE` constructed inline. The helper uses `||` (not `??`) so both undefined and empty string resolve to `/functions/v1` (same-origin proxy). Inline construction OR using `??` silently falls through to `VITE_SUPABASE_URL` when the env var is absent, making the call cross-origin and breaking cookies.
+10. **The feedback button (FeedbackButton.tsx) is tier 2+ only.** Do not lower this gate. Tier 1 accounts must not see or use the feedback button. The feedback workflow is part of the verification process for tier 3 (verifier) accounts.
 
 ---
 
@@ -317,8 +318,10 @@ Layer 2 (human-written, never auto-overwritten):
 
 - **Dev mode** (`npm run dev`): submissions write to both `feedback/feedback_log.csv` (via Vite plugin middleware at `/api/feedback-csv`) and the `feedback_submissions` DB table (via edge function). If the CSV write fails, the Vite server console logs `[feedback-csv] write failed:` with the reason. The browser console logs `[feedback] CSV write returned <status>` for non-200 responses.
 - **Production**: only the `feedback_submissions` DB table is written. The CSV is never touched. To review feedback, query: `select * from feedback_submissions order by created_at desc limit 50;`
-- **Common failure modes that cause silent CSV loss:**
-  1. `VITE_FUNCTIONS_BASE` not empty → raw fetch URL is `undefined/functions/v1/...` → 404 (edge function path, not CSV, but same category of error)
-  2. CSV file open in Excel on Windows → `appendFileSync` throws → Vite server logs the error, browser sees 500
-  3. Not in dev mode (running `npm run preview` or accessing production) → `import.meta.env.DEV` is false → CSV path never runs
-- **Never add an auth requirement to `feedback-submit`.** It must accept anonymous submissions. Users who are not logged in (or whose session expired) must still be able to submit feedback.
+- **Common failure modes that cause silent CSV/DB loss:**
+  1. `VITE_FUNCTIONS_BASE` set to Supabase URL in Vercel env → authApi BASE is cross-origin → CORS may block or cookie lost. Fix: delete `VITE_FUNCTIONS_BASE` from Vercel env entirely. The `||` in authApi.ts then defaults to `/functions/v1` (same-origin via Vercel proxy).
+  2. `??` vs `||` in authApi BASE: `??` falls through to `VITE_SUPABASE_URL` when env var is absent (cross-origin). `||` falls through to `''` (same-origin). Always use `||`.
+  3. CSV file open in Excel on Windows → `appendFileSync` throws → Vite server console logs `[feedback-csv] write failed:`, browser console logs the HTTP 500 status.
+  4. Not in dev mode (running `npm run preview` or accessing production) → `import.meta.env.DEV` is false → CSV path never runs. Production feedback is DB-only.
+- **Never add an auth requirement to `feedback-submit`.** It must accept any request. Tier 2+ gate is in the UI only (FeedbackButton.tsx). The edge function must not require a session.
+- **To verify feedback is reaching the DB** (production): `select * from feedback_submissions order by created_at desc limit 20;`
