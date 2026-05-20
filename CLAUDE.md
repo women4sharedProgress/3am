@@ -310,7 +310,7 @@ Layer 2 (human-written, never auto-overwritten):
 7. **NEVER re-introduce `VITE_FUNCTIONS_BASE` into `authApi.ts`.** The BASE is now hardcoded to `/functions/v1` (relative path) so all calls route through the proxy regardless of environment. The `VITE_FUNCTIONS_BASE` env var can be deleted from Vercel entirely — it is not read by the auth or function call code.
 8. **NEVER call `profileSave` as a side effect of component mounting or auth state changes.** Only real user edits should push to the DB. The `skipNextDbSync` ref in `Profile.tsx` guards this — do not remove it. Writing empty/default state to the DB overwrites real user data with no recovery path.
 9. **All edge function calls must go through `authApi.ts`'s `post()` helper**, not raw `fetch()` with `VITE_FUNCTIONS_BASE` constructed inline. The helper uses `||` (not `??`) so both undefined and empty string resolve to `/functions/v1` (same-origin proxy). Inline construction OR using `??` silently falls through to `VITE_SUPABASE_URL` when the env var is absent, making the call cross-origin and breaking cookies.
-10. **The feedback button (FeedbackButton.tsx) is tier 2+ only.** Do not lower this gate. Tier 1 accounts must not see or use the feedback button. The feedback workflow is part of the verification process for tier 3 (verifier) accounts.
+10. **The feedback button (FeedbackButton.tsx) is visible to any signed-in user (`user !== null`).** Tier design: tier 1 in the DB = signed-in account holder; public/signed-out users are not account holders. Higher tiers (verifier, admin UI) are not yet built. Do not add a numeric tier check — the gate is simply `if (!user) return null`.
 
 ---
 

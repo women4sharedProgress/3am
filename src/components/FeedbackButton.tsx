@@ -114,8 +114,8 @@ export default function FeedbackButton() {
   const [submitting, setSubmitting]     = useState(false)
   const sessionRef                      = useRef(Date.now())
 
-  // Tier 2+ only — verifiers and admins need this for the verification workflow
-  if (!user || (user.tier ?? 0) < 2) return null
+  // Signed-in users only (tier 1 = public/signed-out; any account = tier 2+ in design)
+  if (!user) return null
 
   function handleCancel() { setShow(false); setText('') }
 
