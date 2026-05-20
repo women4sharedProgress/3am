@@ -23,6 +23,9 @@ npx supabase functions deploy auth-register
 npx supabase functions deploy auth-create-account
 npx supabase functions deploy daily-refresh
 
+# Profile / district data
+npx supabase functions deploy profile-save
+
 # Notification system
 npx supabase functions deploy push-subscribe
 npx supabase functions deploy alert-settings-save
@@ -304,6 +307,5 @@ Layer 2 (human-written, never auto-overwritten):
 4. Commit after every completed feature, not in large batches.
 5. After every deployment, verify on 3ampipeline.org before continuing.
 6. When setting Supabase secrets, read from `.env` and set all at once rather than one at a time.
-7. **NEVER set `VITE_FUNCTIONS_BASE` to a full URL in any deployed environment.** It must always be empty string. Changing it to a Supabase URL breaks the same-origin cookie flow and silently signs every user out on every page refresh.
-8. **NEVER write to user profile/district data fields with empty or default values on page load.** Profile data writes must only happen in response to explicit user edits — never as a side effect of component mounting or auth state changes. Writing EMPTY state to the DB overwrites real user data.
-9. **profile-save must never be called before confirming the data being saved reflects actual user input**, not initialized defaults. The `[data, user]` effect in Profile.tsx must be guarded so it does not fire on the initial EMPTY load before any user interaction.
+7. **NEVER set `VITE_FUNCTIONS_BASE` to a full URL in any deployed environment.** It must be explicitly set to empty string (not absent — an absent value falls back to `VITE_SUPABASE_URL` which is cross-origin). Changing it to the Supabase URL breaks the same-origin cookie flow and silently signs every user out on every page refresh.
+8. **NEVER call `profileSave` as a side effect of component mounting or auth state changes.** Only real user edits should push to the DB. The `skipNextDbSync` ref in `Profile.tsx` guards this — do not remove it. Writing empty/default state to the DB overwrites real user data with no recovery path.
