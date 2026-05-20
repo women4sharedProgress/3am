@@ -332,6 +332,8 @@ The DB `tier` column only stores values 2–5 (constraint: `CHECK (tier BETWEEN 
 11. **Before fixing any bug, read the relevant file first and state the root cause in one sentence.** Do not make changes until the root cause is confirmed. If the same bug has been fixed before in this session, stop and ask the user what changed rather than re-fixing it.
 12. **Never touch working code to fix an unrelated bug.** If fixing bug A requires changing code that bug B depends on, flag the conflict to the user before proceeding.
 13. **Maximum two attempts to fix the same bug.** If a bug persists after two targeted fixes, stop and ask the user for more context rather than trying a third approach.
+14. **Before answering "does X exist in multiple places", always run a grep across the entire src/ directory, not just the most recently touched file. Never answer existence questions from memory.**
+15. **Never remove code that isn't directly causing the bug being fixed.** If cleanup is needed, ask the user first. Easter eggs, animations, and UI features are intentional — do not remove them as side effects of other fixes.
 
 ---
 
