@@ -1691,18 +1691,20 @@ export default function Home() {
         )
       })}
 
-      <div className="home-feedback-wrap">
-        {gremlinEgg && (
-          <div key={gremlinKey} className="egg-gremlin">
-            <EggGremlinSVG />
-          </div>
-        )}
-        <button className={`home-feedback-btn${gremlinEgg ? ' home-feedback-btn--dancing' : ''}`}
-          aria-label="Send feedback" onClick={() => setShowFeedback(f => !f)}>
-          <MarchingBugsIcon />
-          <span>Feedback</span>
-        </button>
-      </div>
+      {user && (
+        <div className="home-feedback-wrap">
+          {gremlinEgg && (
+            <div key={gremlinKey} className="egg-gremlin">
+              <EggGremlinSVG />
+            </div>
+          )}
+          <button className={`home-feedback-btn${gremlinEgg ? ' home-feedback-btn--dancing' : ''}`}
+            aria-label="Send feedback" onClick={() => setShowFeedback(f => !f)}>
+            <MarchingBugsIcon />
+            <span>Feedback</span>
+          </button>
+        </div>
+      )}
 
     </div>
   )
