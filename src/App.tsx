@@ -1,4 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
+import { useAuth }             from './contexts/AuthContext'
+import FeedbackButton          from './components/FeedbackButton'
 import Home                    from './pages/Home'
 import TrackerPage             from './pages/TrackerPage'
 import Login                   from './pages/Login'
@@ -19,8 +21,10 @@ import ResetPassword           from './pages/ResetPassword'
 import OpenSource             from './pages/OpenSource'
 
 export default function App() {
+  const { user } = useAuth()
   return (
     <>
+    {user && <FeedbackButton />}
     <Routes>
       <Route path="/"                        element={<Home />} />
       <Route path="/tracker"                 element={<TrackerPage />} />
