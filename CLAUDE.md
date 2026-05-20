@@ -51,9 +51,9 @@ SUPABASE_SECRET_KEY=           # Server-side only — seed script, edge function
 
 `src/lib/supabase.ts` throws at module load time if `VITE_SUPABASE_URL` or `VITE_SUPABASE_PUBLISHABLE_KEY` is missing.
 
-**VITE_FUNCTIONS_BASE must be empty string in ALL environments** (dev and production). Both the Vite dev server proxy and the Vercel rewrite in `vercel.json` forward `/functions/v1/*` to Supabase. This keeps auth cookie requests same-origin from the browser's perspective — browsers block third-party cookies (Supabase domain ≠ app domain), which causes `auth-validate` to fail silently, signing users out on every page load and losing all restored profile/district data. **If `VITE_FUNCTIONS_BASE` is ever set to the full Supabase URL in a deployed environment, users will be signed out on every refresh and profile data will not persist.**
+**`authApi.ts` uses a hardcoded relative path `/functions/v1` — `VITE_FUNCTIONS_BASE` is intentionally ignored for all auth and edge function calls.** This ensures requests always route through the active proxy (Vite in dev, Vercel in prod) and are never sent cross-origin. Cross-origin requests lose the `wsp_session` cookie (browsers block third-party cookies), causing silent sign-outs on every page refresh and lost profile/district data. Do not re-introduce `VITE_FUNCTIONS_BASE` into `authApi.ts`.
 
-**Vercel production proxy:** `vercel.json` rewrites `/functions/v1/:path*` → Supabase URL. This is the production equivalent of the Vite proxy. Do not remove it.
+**Vercel production proxy:** `vercel.json` rewrites `/functions/v1/:path*` → Supabase URL. This is the production equivalent of the Vite dev proxy. **Do not remove it.** Without it, every edge function call fails (cookie not sent, CORS issues).
 
 **Supabase secrets** (set via `supabase secrets set KEY=value`, not `.env`):
 - `ALLOWED_ORIGIN` — the app's public URL (`https://3ampipeline.org`), used in CORS headers for credentialed requests
@@ -307,7 +307,7 @@ Layer 2 (human-written, never auto-overwritten):
 4. Commit after every completed feature, not in large batches.
 5. After every deployment, verify on 3ampipeline.org before continuing.
 6. When setting Supabase secrets, read from `.env` and set all at once rather than one at a time.
-7. **NEVER set `VITE_FUNCTIONS_BASE` to a full URL in any deployed environment.** It must be explicitly set to empty string (not absent — an absent value falls back to `VITE_SUPABASE_URL` which is cross-origin). Changing it to the Supabase URL breaks the same-origin cookie flow and silently signs every user out on every page refresh.
+7. **NEVER re-introduce `VITE_FUNCTIONS_BASE` into `authApi.ts`.** The BASE is now hardcoded to `/functions/v1` (relative path) so all calls route through the proxy regardless of environment. The `VITE_FUNCTIONS_BASE` env var can be deleted from Vercel entirely — it is not read by the auth or function call code.
 8. **NEVER call `profileSave` as a side effect of component mounting or auth state changes.** Only real user edits should push to the DB. The `skipNextDbSync` ref in `Profile.tsx` guards this — do not remove it. Writing empty/default state to the DB overwrites real user data with no recovery path.
 9. **All edge function calls must go through `authApi.ts`'s `post()` helper**, not raw `fetch()` with `VITE_FUNCTIONS_BASE` constructed inline. The helper uses `||` (not `??`) so both undefined and empty string resolve to `/functions/v1` (same-origin proxy). Inline construction OR using `??` silently falls through to `VITE_SUPABASE_URL` when the env var is absent, making the call cross-origin and breaking cookies.
 10. **The feedback button (FeedbackButton.tsx) is tier 2+ only.** Do not lower this gate. Tier 1 accounts must not see or use the feedback button. The feedback workflow is part of the verification process for tier 3 (verifier) accounts.

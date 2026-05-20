@@ -1,8 +1,10 @@
-// Use || not ?? so that both undefined AND empty-string VITE_FUNCTIONS_BASE resolve to
-// the same-origin proxy path (/functions/v1/*). The ?? fallback to VITE_SUPABASE_URL
-// was the root cause of cross-origin cookie failures: when VITE_FUNCTIONS_BASE was
-// absent from the Vercel env, ?? fell through to the Supabase URL (cross-origin).
-const BASE = (import.meta.env.VITE_FUNCTIONS_BASE || '') + '/functions/v1'
+// Always use a relative path so requests route through the active proxy:
+//   dev        → Vite proxy (vite.config.ts server.proxy)
+//   production → Vercel rewrite (vercel.json)
+// Both forward /functions/v1/* to Supabase. A relative path means the cookie is
+// always same-origin (never third-party), which is required for httpOnly cookies.
+// VITE_FUNCTIONS_BASE is intentionally ignored here — do not re-introduce it.
+const BASE = '/functions/v1'
 
 function headers() {
   return { 'Content-Type': 'application/json' }
