@@ -334,6 +334,7 @@ The DB `tier` column only stores values 2–5 (constraint: `CHECK (tier BETWEEN 
 13. **Maximum two attempts to fix the same bug.** If a bug persists after two targeted fixes, stop and ask the user for more context rather than trying a third approach.
 14. **Before answering "does X exist in multiple places", always run a grep across the entire src/ directory, not just the most recently touched file. Never answer existence questions from memory.**
 15. **Never remove code that isn't directly causing the bug being fixed.** If cleanup is needed, ask the user first. Easter eggs, animations, and UI features are intentional — do not remove them as side effects of other fixes.
+16. **All edge functions must be deployed with `--no-verify-jwt` flag. Never deploy without it.**
 
 ---
 
