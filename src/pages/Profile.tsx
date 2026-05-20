@@ -295,9 +295,12 @@ export default function Profile() {
   const [lookupSubmitting, setLookupSubmitting] = useState(false)
   const [lookupVerifiedIds, setLookupVerifiedIds] = useState<Set<string>>(new Set())
   const [lookupMessage, setLookupMessage]       = useState('')
-  const saveTimer   = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const dbSyncTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const msgTimer    = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const saveTimer        = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dbSyncTimer      = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const msgTimer         = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Prevents DB sync from firing on programmatic data loads (mount, auth restore).
+  // Only actual user edits should push to the DB.
+  const skipNextDbSync   = useRef(true)
 
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
@@ -311,6 +314,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user) return
+    skipNextDbSync.current = true  // this load must not trigger a DB write
     try {
       const raw = localStorage.getItem(`wsp-profile-${user.username}`)
       setData(raw ? { ...EMPTY, ...JSON.parse(raw) } : { ...EMPTY })
@@ -323,11 +327,12 @@ export default function Profile() {
     setSaved(true)
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => setSaved(false), 2000)
-    // Debounced DB sync — only fires if user is logged in, 3s after last change
-    if (user) {
+    // Debounced DB sync — only for real user edits, never for programmatic loads
+    if (user && !skipNextDbSync.current) {
       if (dbSyncTimer.current) clearTimeout(dbSyncTimer.current)
       dbSyncTimer.current = setTimeout(() => { profileSave(data).catch(() => {}) }, 3000)
     }
+    skipNextDbSync.current = false
   }, [data, user])
 
   // On mount: if a ZIP is already saved, fetch community data for it.

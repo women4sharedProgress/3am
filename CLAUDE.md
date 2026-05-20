@@ -42,16 +42,18 @@ There are no tests. There is no linter config beyond the default Vite scaffold.
 ```
 VITE_SUPABASE_URL=           # Supabase project URL, exposed to browser
 VITE_SUPABASE_PUBLISHABLE_KEY= # Supabase publishable key, exposed to browser
-VITE_FUNCTIONS_BASE=           # Empty string in dev (uses Vite proxy); full Supabase URL in prod
+VITE_FUNCTIONS_BASE=           # MUST be empty string in ALL environments — see proxy note below
 SUPABASE_SECRET_KEY=           # Server-side only — seed script, edge functions
 ```
 
 `src/lib/supabase.ts` throws at module load time if `VITE_SUPABASE_URL` or `VITE_SUPABASE_PUBLISHABLE_KEY` is missing.
 
-**Dev proxy:** `VITE_FUNCTIONS_BASE=` (empty string) activates `vite.config.ts`'s `server.proxy` rule, which forwards `/functions/v1/*` to the Supabase project URL. This makes auth requests same-origin in the browser, which is required for `SameSite=Strict` cookies to work locally. **Always restart the dev server after changing `.env`.**
+**VITE_FUNCTIONS_BASE must be empty string in ALL environments** (dev and production). Both the Vite dev server proxy and the Vercel rewrite in `vercel.json` forward `/functions/v1/*` to Supabase. This keeps auth cookie requests same-origin from the browser's perspective — browsers block third-party cookies (Supabase domain ≠ app domain), which causes `auth-validate` to fail silently, signing users out on every page load and losing all restored profile/district data. **If `VITE_FUNCTIONS_BASE` is ever set to the full Supabase URL in a deployed environment, users will be signed out on every refresh and profile data will not persist.**
+
+**Vercel production proxy:** `vercel.json` rewrites `/functions/v1/:path*` → Supabase URL. This is the production equivalent of the Vite proxy. Do not remove it.
 
 **Supabase secrets** (set via `supabase secrets set KEY=value`, not `.env`):
-- `ALLOWED_ORIGIN` — the app's public URL, used in CORS headers for credentialed requests
+- `ALLOWED_ORIGIN` — the app's public URL (`https://3ampipeline.org`), used in CORS headers for credentialed requests
 - `ADMIN_SECRET` — protects the `auth-create-account` edge function
 
 ---
@@ -302,3 +304,6 @@ Layer 2 (human-written, never auto-overwritten):
 4. Commit after every completed feature, not in large batches.
 5. After every deployment, verify on 3ampipeline.org before continuing.
 6. When setting Supabase secrets, read from `.env` and set all at once rather than one at a time.
+7. **NEVER set `VITE_FUNCTIONS_BASE` to a full URL in any deployed environment.** It must always be empty string. Changing it to a Supabase URL breaks the same-origin cookie flow and silently signs every user out on every page refresh.
+8. **NEVER write to user profile/district data fields with empty or default values on page load.** Profile data writes must only happen in response to explicit user edits — never as a side effect of component mounting or auth state changes. Writing EMPTY state to the DB overwrites real user data.
+9. **profile-save must never be called before confirming the data being saved reflects actual user input**, not initialized defaults. The `[data, user]` effect in Profile.tsx must be guarded so it does not fire on the initial EMPTY load before any user interaction.

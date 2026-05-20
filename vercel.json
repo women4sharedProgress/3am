@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/functions/v1/:path*",
+      "destination": "https://kputfdhdfgtybtfcsazw.supabase.co/functions/v1/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/index.html",
