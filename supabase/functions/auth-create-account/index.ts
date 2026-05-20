@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
       passcode_hash,
       email:          email         ?? null,
       role:           role          ?? 'user',
-      tier:           tier          ?? 1,
+      tier:           tier          ?? 2,
       address:        address       ?? null,
       district_info:  district_info ?? null,
     })

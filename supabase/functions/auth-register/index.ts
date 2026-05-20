@@ -3,7 +3,7 @@
  *
  * POST { username: string, password: string, passcode: string, email?: string }
  *
- * Always creates tier = 1, role = 'user'. Caller cannot set role or tier.
+ * Always creates tier = 2, role = 'user'. Caller cannot set role or tier.
  * Rate limited: 3 attempts per IP per hour.
  *
  * Success: { ok: true,  id: string }
@@ -122,7 +122,7 @@ Deno.serve(async (req: Request) => {
       passcode_hash,
       email:        body.email ?? null,
       role:         'user',   // hardcoded — caller cannot set
-      tier:         1,        // hardcoded — caller cannot set
+      tier:         2,        // hardcoded — caller cannot set; tier 1 = no account
     })
     .select('id')
     .single()

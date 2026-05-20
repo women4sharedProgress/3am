@@ -173,7 +173,7 @@ All auth edge functions are in `supabase/functions/auth-*/index.ts`. They share 
 - `auth-validate` — session guard, rolls the 45-day window forward
 - `auth-sensitive` — password re-verification for sensitive actions
 - `auth-signout` — clears session server-side + cookie Max-Age=0
-- `auth-register` — public self-registration, rate-limited 3/hour/IP, always tier=1 role=user
+- `auth-register` — public self-registration, rate-limited 3/hour/IP, always tier=2 role=user
 - `auth-create-account` — admin-only (requires `ADMIN_SECRET`), can set role/tier
 
 ### Database tables
@@ -272,17 +272,17 @@ Tiers gate both the UI shown and the features available. **Each tier has a disti
 | Tier | Who | DB value | UI & Features |
 |------|-----|----------|---------------|
 | **1** | Public / signed-out | n/a (no account) | Read-only. LawTracker, Civic Calendar. No account required. |
-| **2** | Account holder | `tier = 1` in DB* | Full tier-2 UI: My Profile, Your Representatives, Alert/Watch/Archive, stoplight pills, feedback button, crowdsourced verification and editing, personal comment box. Requires username + password. No personal info required — can remain fully anonymous. |
-| **3** | W4SP-verified identity | `tier = 2` | Tier-3 UI adds: vetted verification agent tools. Covers W4SP Administration, Elected Officials, Partners, volunteers, broadcast agents. Identity verified by W4SP off-platform. |
-| **4** | Opt-in data sharer | `tier = 3` | Same UI as Tier 5. Requires personal information + at least one opt-in to data sharing. Revenue share if aggregate opt-in data generates revenue. |
-| **5** | Civic history verified | `tier = 4` | Same UI as Tier 4. Requires personal information + civic participation history. Includes Tier 3 electoral alumni and users with sound participation history. |
+| **2** | Account holder | `tier = 2` | Full tier-2 UI: My Profile, Your Representatives, Alert/Watch/Archive, stoplight pills, feedback button, crowdsourced verification and editing, personal comment box. Requires username + password. No personal info required — can remain fully anonymous. |
+| **3** | W4SP-verified identity | `tier = 3` | Tier-3 UI adds: vetted verification agent tools. Covers W4SP Administration, Elected Officials, Partners, volunteers, broadcast agents. Identity verified by W4SP off-platform. |
+| **4** | Opt-in data sharer | `tier = 4` | Same UI as Tier 5. Requires personal information + at least one opt-in to data sharing. Revenue share if aggregate opt-in data generates revenue. |
+| **5** | Civic history verified | `tier = 5` | Same UI as Tier 4. Requires personal information + civic participation history. Includes Tier 3 electoral alumni and users with sound participation history. |
 
-*\*Note: The DB `tier` column currently stores 1 for all account holders because Tiers 3–5 are not yet built. When Tier 3 UI is built, accounts will be upgraded to `tier = 2` in the DB. Do not conflate the DB integer with the public-facing tier number — they are offset by one.*
+The DB `tier` column only stores values 2–5 (constraint: `CHECK (tier BETWEEN 2 AND 5)`, default 2). Tier 1 = no account = no DB row. The public tier number and DB integer are identical — there is no offset.
 
 ### Feature gates by tier (UI = what the component checks)
 - **`!user`** → tier 1 (public). Show read-only UI, hide all account features.
 - **`user`** → tier 2+. Show feedback button, stoplights, profile, alert/watch/archive.
-- **`user.tier >= 2`** → tier 3+. Show verifier/admin tools. *(Not yet built.)*
+- **`user.tier >= 3`** → tier 3+. Show verifier/admin tools. *(Not yet built.)*
 - **`user.role === 'verifier' || user.role === 'admin'`** → verifier/admin actions within tier 3+ UI.
 
 ### What is NOT yet built
@@ -328,7 +328,7 @@ Tiers gate both the UI shown and the features available. **Each tier has a disti
 7. **NEVER re-introduce `VITE_FUNCTIONS_BASE` into `authApi.ts`.** The BASE is now hardcoded to `/functions/v1` (relative path) so all calls route through the proxy regardless of environment. The `VITE_FUNCTIONS_BASE` env var can be deleted from Vercel entirely — it is not read by the auth or function call code.
 8. **NEVER call `profileSave` as a side effect of component mounting or auth state changes.** Only real user edits should push to the DB. The `skipNextDbSync` ref in `Profile.tsx` guards this — do not remove it. Writing empty/default state to the DB overwrites real user data with no recovery path.
 9. **All edge function calls must go through `authApi.ts`'s `post()` helper**, not raw `fetch()` with `VITE_FUNCTIONS_BASE` constructed inline. The helper uses `||` (not `??`) so both undefined and empty string resolve to `/functions/v1` (same-origin proxy). Inline construction OR using `??` silently falls through to `VITE_SUPABASE_URL` when the env var is absent, making the call cross-origin and breaking cookies.
-10. **The feedback button (FeedbackButton.tsx) is visible to any signed-in user (`user !== null`).** Tier design: tier 1 in the DB = signed-in account holder; public/signed-out users are not account holders. Higher tiers (verifier, admin UI) are not yet built. Do not add a numeric tier check — the gate is simply `if (!user) return null`.
+10. **The feedback button (FeedbackButton.tsx) is visible to any signed-in user (`user !== null`).** Tier 1 = public/no account; account holders are tier 2+ in the DB. Do not add a numeric tier check — the gate is simply `if (!user) return null`.
 
 ---
 
