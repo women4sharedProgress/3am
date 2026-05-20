@@ -134,6 +134,13 @@ export default function FeedbackButton() {
       bills_shown:     null as number | null,
       feedback_text:   text.slice(0, 1000),
     }
+    if (import.meta.env.DEV) {
+      fetch('/api/feedback-csv', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }).catch(err => console.warn('[feedback] local CSV write failed:', err))
+    }
     try {
       await fetch(`${import.meta.env.VITE_FUNCTIONS_BASE}/functions/v1/feedback-submit`, {
         method: 'POST',
@@ -141,13 +148,8 @@ export default function FeedbackButton() {
         body: JSON.stringify(payload),
         credentials: 'include',
       })
-      if (import.meta.env.DEV) {
-        fetch('/api/feedback-csv', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }).catch(() => {})
-      }
+    } catch (err) {
+      console.warn('[feedback] edge function failed:', err)
     } finally {
       setSubmitting(false)
       setShow(false)
