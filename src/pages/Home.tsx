@@ -101,41 +101,6 @@ function ArchiveIcon({ size = 20, color = '#5a3a00' }: IP) {
   )
 }
 
-function CivicIcon({ size = 20, color = 'white' }: IP) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="3" y1="22" x2="21" y2="22"/>
-      <line x1="6" y1="18" x2="6" y2="11"/>
-      <line x1="10" y1="18" x2="10" y2="11"/>
-      <line x1="14" y1="18" x2="14" y2="11"/>
-      <line x1="18" y1="18" x2="18" y2="11"/>
-      <polygon points="12 2 20 7 4 7"/>
-    </svg>
-  )
-}
-
-function CandidatesIcon({ size = 20, color = 'white' }: IP) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
-      <polyline points="16 11 17.5 13 21 10"/>
-    </svg>
-  )
-}
-
-function PolicyIcon({ size = 20, color = 'white' }: IP) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-      <polyline points="14 2 14 8 20 8"/>
-      <line x1="16" y1="13" x2="8" y2="13"/>
-      <line x1="16" y1="17" x2="8" y2="17"/>
-      <line x1="10" y1="9" x2="8" y2="9"/>
-    </svg>
-  )
-}
-
 function AboutIcon({ size = 20, color = '#2D1B4E' }: IP) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1075,21 +1040,6 @@ export default function Home() {
         {/* ── Secondary row — 8 tiles ──────────────────── */}
         <div className="home-secondary-row">
 
-          <button className="home-secondary-card" style={{ background: '#4F4262' }}
-            disabled aria-label="Civic Education — Coming Soon">
-            <CivicIcon size={20} color="white" />
-            <span className="home-secondary-label">Civic Ed</span>
-            <span className="home-secondary-badge">Coming Soon</span>
-          </button>
-
-          <button className="home-secondary-card" style={{ background: '#4F4262' }}
-            onClick={() => navigate('/presidential-candidates')}
-            aria-label="Presidential Candidates">
-            <CandidatesIcon size={20} color="#E97132" />
-            <span className="home-secondary-label">Candidates</span>
-            <span className="home-secondary-badge">Placeholder</span>
-          </button>
-
           <button
             className="home-secondary-card" style={{ background: '#B597D5' }}
             onClick={() => navigate('/about')}
@@ -1099,12 +1049,6 @@ export default function Home() {
             <span className="home-secondary-label" style={{ color: '#2D1B4E' }}>About W4SP</span>
           </button>
 
-          <button className="home-secondary-card" style={{ background: '#4F4262' }}
-            disabled aria-label="Policy — Coming Soon">
-            <PolicyIcon size={20} color="white" />
-            <span className="home-secondary-label">Policy</span>
-            <span className="home-secondary-badge">Coming Soon</span>
-          </button>
 
           <button
             className="home-secondary-card" style={{ background: '#4F4262' }}
