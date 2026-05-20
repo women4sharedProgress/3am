@@ -132,6 +132,99 @@ function SignOutIcon({ size = 20, color = 'white' }: IP) {
 
 
 
+function EggGremlinSVG() {
+  return (
+    <svg viewBox="0 0 58 88" width="58" height="88" aria-hidden="true">
+      <defs>
+        <radialGradient id="egg-skin" cx="40%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#8fdf68"/>
+          <stop offset="100%" stopColor="#3a8a28"/>
+        </radialGradient>
+      </defs>
+
+      {/* victory buns - behind everything */}
+      <circle cx="13" cy="32" r="8"  fill="#1a1230"/>
+      <circle cx="13" cy="32" r="5"  fill="#2a2040"/>
+      <circle cx="11" cy="29" r="2"  fill="white" opacity=".15"/>
+      <circle cx="33" cy="32" r="8"  fill="#1a1230"/>
+      <circle cx="33" cy="32" r="5"  fill="#2a2040"/>
+      <circle cx="31" cy="29" r="2"  fill="white" opacity=".15"/>
+      <path d="M13,32 Q23,25 33,32" stroke="#1a1230" strokeWidth="6" fill="none" strokeLinecap="round"/>
+
+      {/* overall bib drawn before head so face renders on top */}
+      <rect x="17" y="51" width="12" height="10" rx="2" fill="#8B4513" opacity=".85"/>
+      <rect x="19" y="53" width="8"  height="5"  rx="1" fill="none" stroke="#7a3a10" strokeWidth=".8"/>
+
+      {/* left ear */}
+      <polygon points="9,51 3,39 13,47"  fill="url(#egg-skin)"/>
+      <polygon points="9,50 5,41 12,47"  fill="#7a4535"/>
+      {/* right ear */}
+      <polygon points="37,51 43,39 33,47" fill="url(#egg-skin)"/>
+      <polygon points="37,50 41,41 34,47" fill="#7a4535"/>
+
+      {/* head - on top of bib so face shows */}
+      <ellipse cx="23" cy="46" rx="14" ry="13" fill="url(#egg-skin)"/>
+
+      {/* eyes */}
+      <ellipse cx="17" cy="45" rx="5"   ry="5.5" fill="#f8f4e8"/>
+      <ellipse cx="29" cy="45" rx="5"   ry="5.5" fill="#f8f4e8"/>
+      <circle  cx="18" cy="46" r="3.2"  fill="#1a0820"/>
+      <circle  cx="30" cy="46" r="3.2"  fill="#1a0820"/>
+      <circle  cx="19" cy="44.5" r="1.2" fill="white"/>
+      <circle  cx="31" cy="44.5" r="1.2" fill="white"/>
+
+      {/* eyebrows */}
+      <path d="M12,40 Q17,37 22,40" stroke="#2a4218" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+      <path d="M24,40 Q29,37 34,40" stroke="#2a4218" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+
+      {/* nose */}
+      <ellipse cx="23" cy="51" rx="3" ry="2" fill="#3a7828"/>
+      <circle cx="21.5" cy="51.8" r="1" fill="#2a6018"/>
+      <circle cx="24.5" cy="51.8" r="1" fill="#2a6018"/>
+
+      {/* smile - on top of head and bib */}
+      <path d="M15,55 Q23,63 31,55" stroke="#5a1010" strokeWidth="1.2" fill="#d03030" strokeLinecap="round"/>
+      <path d="M17,55 Q23,62 29,55 Z" fill="#e84040"/>
+      <path d="M17,55 Q23,62 29,55" stroke="white" strokeWidth="1.8" fill="none" opacity=".6"/>
+
+      {/* neck */}
+      <rect x="19" y="58" width="8" height="6" rx="3" fill="url(#egg-skin)"/>
+
+      {/* body skin */}
+      <ellipse cx="23" cy="71" rx="13" ry="10" fill="url(#egg-skin)"/>
+      <line x1="23" y1="62" x2="23" y2="81" stroke="#2a7018" strokeWidth="1"/>
+      <circle cx="16" cy="69" r="3"   fill="#2a7018" opacity=".45"/>
+      <circle cx="30" cy="69" r="3"   fill="#2a7018" opacity=".45"/>
+      <circle cx="18" cy="77" r="2.5" fill="#2a7018" opacity=".45"/>
+      <circle cx="28" cy="77" r="2.5" fill="#2a7018" opacity=".45"/>
+
+      {/* overall lower body - over skin, below face */}
+      <path d="M11,63 Q11,72 10,81 L36,81 Q35,72 35,63 Q35,62 23,62 Q11,62 11,63 Z" fill="#8B4513" opacity=".9"/>
+
+      {/* right arm raised */}
+      <path d="M34,67 C42,59 50,47 48,33" stroke="#3a8a28" strokeWidth="7" strokeLinecap="round" fill="none"/>
+      {/* emoji-style fist: rounded rect body + knuckle creases + thumb */}
+      <rect x="41" y="27" width="13" height="10" rx="4.5" fill="url(#egg-skin)"/>
+      <path d="M42,31 Q46.5,30 51,31" stroke="#3a7828" strokeWidth=".9" fill="none"/>
+      <line x1="44"   y1="28" x2="44"   y2="36" stroke="#3a7828" strokeWidth=".6" opacity=".5"/>
+      <line x1="47.5" y1="28" x2="47.5" y2="36" stroke="#3a7828" strokeWidth=".6" opacity=".5"/>
+      <ellipse cx="40" cy="31.5" rx="3" ry="2" fill="url(#egg-skin)" transform="rotate(-15 40 31.5)"/>
+      {/* ring spanner wrench: handle + solid head with bolt hole */}
+      <rect x="44.5" y="18" width="4" height="10" rx="2" fill="#9a9a9a"/>
+      <circle cx="46.5" cy="12" r="7.5" fill="#9a9a9a"/>
+      <circle cx="46.5" cy="12" r="4"   fill="#1a0820"/>
+      <polygon points="46.5,8.8 48,9.7 48,11.3 46.5,12.2 45,11.3 45,9.7" fill="none" stroke="#7a7a7a" strokeWidth=".6"/>
+
+      {/* left arm */}
+      <path d="M12,67 L5,77" stroke="#3a8a28" strokeWidth="6" strokeLinecap="round" fill="none"/>
+
+      {/* legs */}
+      <line x1="18" y1="80" x2="14" y2="88" stroke="#8B4513" strokeWidth="5" strokeLinecap="round"/>
+      <line x1="28" y1="80" x2="32" y2="88" stroke="#8B4513" strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
 function MiniBugRed() {
   return (
     <svg width="22" height="28" viewBox="0 0 22 28" aria-hidden="true">
@@ -460,6 +553,10 @@ export default function Home() {
       setLocalEditMode(prev => { const s = new Set(prev); s.delete(role); return s })
       setLocalRefreshKey(k => k + 1)
       setTimeout(() => setLocalSaveStatus(prev => { const n = { ...prev }; delete n[role]; return n }), 2000)
+      if (gremlinTimerRef.current) clearTimeout(gremlinTimerRef.current)
+      setGremlinEgg(true)
+      setGremlinKey(k => k + 1)
+      gremlinTimerRef.current = setTimeout(() => setGremlinEgg(false), 3700)
     } else {
       console.error('[local_officials] upsert error:', error.message)
       setLocalSaveStatus(prev => ({ ...prev, [role]: 'error' }))
@@ -489,6 +586,9 @@ export default function Home() {
     setCustomLocalReps(prev => prev.filter(r => r.id !== id))
 
 
+  const [gremlinEgg, setGremlinEgg] = useState(false)
+  const [gremlinKey, setGremlinKey] = useState(0)
+  const gremlinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [scurryPhase, setScurryPhase] = useState<'start' | 'scatter' | null>(null)
   const scurryPositions = useRef<Array<{ x: number; y: number; rot: number }>>([])
   const scurryTimers   = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -1404,6 +1504,11 @@ export default function Home() {
         )
       })}
 
+      {gremlinEgg && (
+        <div key={gremlinKey} className="egg-gremlin">
+          <EggGremlinSVG />
+        </div>
+      )}
 
     </div>
   )
