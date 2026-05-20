@@ -108,14 +108,13 @@ function parseOS(ua: string): string {
 }
 
 export default function FeedbackButton() {
-  const { user }                        = useAuth()
+  const { user, ready }                 = useAuth()
   const [show, setShow]                 = useState(false)
   const [text, setText]                 = useState('')
   const [submitting, setSubmitting]     = useState(false)
   const sessionRef                      = useRef(Date.now())
 
-  // Signed-in users only (tier 1 = public/signed-out; any account = tier 2+ in design)
-  if (!user) return null
+  if (!ready || !user) return null
 
   function handleCancel() { setShow(false); setText('') }
 
