@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom'
-import FeedbackButton          from './components/FeedbackButton'
 import Home                    from './pages/Home'
 import TrackerPage             from './pages/TrackerPage'
 import Login                   from './pages/Login'
@@ -22,7 +21,6 @@ import OpenSource             from './pages/OpenSource'
 export default function App() {
   return (
     <>
-    <FeedbackButton />
     <Routes>
       <Route path="/"                        element={<Home />} />
       <Route path="/tracker"                 element={<TrackerPage />} />
