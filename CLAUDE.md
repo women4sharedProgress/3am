@@ -329,6 +329,9 @@ The DB `tier` column only stores values 2–5 (constraint: `CHECK (tier BETWEEN 
 8. **NEVER call `profileSave` as a side effect of component mounting or auth state changes.** Only real user edits should push to the DB. The `skipNextDbSync` ref in `Profile.tsx` guards this — do not remove it. Writing empty/default state to the DB overwrites real user data with no recovery path.
 9. **All edge function calls must go through `authApi.ts`'s `post()` helper**, not raw `fetch()` with `VITE_FUNCTIONS_BASE` constructed inline. The helper uses `||` (not `??`) so both undefined and empty string resolve to `/functions/v1` (same-origin proxy). Inline construction OR using `??` silently falls through to `VITE_SUPABASE_URL` when the env var is absent, making the call cross-origin and breaking cookies.
 10. **The feedback button (FeedbackButton.tsx) is visible to any signed-in user (`user !== null`).** Tier 1 = public/no account; account holders are tier 2+ in the DB. Do not add a numeric tier check — the gate is simply `if (!user) return null`.
+11. **Before fixing any bug, read the relevant file first and state the root cause in one sentence.** Do not make changes until the root cause is confirmed. If the same bug has been fixed before in this session, stop and ask the user what changed rather than re-fixing it.
+12. **Never touch working code to fix an unrelated bug.** If fixing bug A requires changing code that bug B depends on, flag the conflict to the user before proceeding.
+13. **Maximum two attempts to fix the same bug.** If a bug persists after two targeted fixes, stop and ask the user for more context rather than trying a third approach.
 
 ---
 
