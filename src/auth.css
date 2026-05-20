@@ -2004,10 +2004,11 @@
     align-items: center;
   }
 
-  /* Greeting can wrap if username is long */
+  /* Greeting can wrap if username is long; move above pills on mobile */
   .home-stoplight-greeting {
     white-space: normal;
     text-align: center;
+    order: -1;
   }
 
   /* Secondary row wraps to 4-per-row at 390 px */
