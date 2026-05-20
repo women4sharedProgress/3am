@@ -265,12 +265,30 @@ Layer 2 (human-written, never auto-overwritten):
 
 ---
 
-## Role Permissions
-- Public: read cards and change log only
-- Tier 1 Account: Alert/Watch/Archive per card, personal comment box
-- Tier 2 Verified Account: verified badge, district info, dates timeline
-- Verifier role: check/uncheck verified checkbox, re-pull button, notes block only
-- Admin role: full write on all fields, assign roles, view aggregates
+## Usage Tiers — Authoritative Definition
+
+Tiers gate both the UI shown and the features available. **Each tier has a distinct UI.** Tier is stored as an integer in `accounts.tier`. The `role` column (`user | verifier | admin`) is separate and orthogonal to tier.
+
+| Tier | Who | DB value | UI & Features |
+|------|-----|----------|---------------|
+| **1** | Public / signed-out | n/a (no account) | Read-only. LawTracker, Civic Calendar. No account required. |
+| **2** | Account holder | `tier = 1` in DB* | Full tier-2 UI: My Profile, Your Representatives, Alert/Watch/Archive, stoplight pills, feedback button, crowdsourced verification and editing, personal comment box. Requires username + password. No personal info required — can remain fully anonymous. |
+| **3** | W4SP-verified identity | `tier = 2` | Tier-3 UI adds: vetted verification agent tools. Covers W4SP Administration, Elected Officials, Partners, volunteers, broadcast agents. Identity verified by W4SP off-platform. |
+| **4** | Opt-in data sharer | `tier = 3` | Same UI as Tier 5. Requires personal information + at least one opt-in to data sharing. Revenue share if aggregate opt-in data generates revenue. |
+| **5** | Civic history verified | `tier = 4` | Same UI as Tier 4. Requires personal information + civic participation history. Includes Tier 3 electoral alumni and users with sound participation history. |
+
+*\*Note: The DB `tier` column currently stores 1 for all account holders because Tiers 3–5 are not yet built. When Tier 3 UI is built, accounts will be upgraded to `tier = 2` in the DB. Do not conflate the DB integer with the public-facing tier number — they are offset by one.*
+
+### Feature gates by tier (UI = what the component checks)
+- **`!user`** → tier 1 (public). Show read-only UI, hide all account features.
+- **`user`** → tier 2+. Show feedback button, stoplights, profile, alert/watch/archive.
+- **`user.tier >= 2`** → tier 3+. Show verifier/admin tools. *(Not yet built.)*
+- **`user.role === 'verifier' || user.role === 'admin'`** → verifier/admin actions within tier 3+ UI.
+
+### What is NOT yet built
+- Tier 3 UI (verifier agent tools, identity verification workflow)
+- Tier 4/5 UI (opt-in data sharing, revenue share, civic history)
+- Any UI differentiation beyond tier 2 (account holder)
 
 ---
 
