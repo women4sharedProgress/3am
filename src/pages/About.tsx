@@ -127,14 +127,6 @@ export default function About() {
           to share more, it is entirely your choice, and you control each piece separately.
         </p>
 
-        <p style={p}>
-          Zip Codes are indexed to help autofill. Your District Information is used to help populate
-          Your Representatives. The first person to enter local officials with District Information
-          filled out is helping index districts to set up autofill for other users. Other users in the
-          same district can verify the information is correct and current. Our gremlins also keep an
-          eye on it for accuracy.
-        </p>
-
         <p style={{ ...p, fontStyle: 'italic', color: '#1a7a72', marginBottom: 0 }}>
           The more you fill out, the more you help others.
         </p>
