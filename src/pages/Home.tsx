@@ -886,7 +886,7 @@ export default function Home() {
             aria-label="About Women for Shared Progress"
           >
             <AboutIcon size={20} color="#2D1B4E" />
-            <span className="home-secondary-label" style={{ color: '#2D1B4E' }}>About W4SP</span>
+            <span className="home-secondary-label" style={{ color: '#2D1B4E' }}>About</span>
           </button>
 
 
