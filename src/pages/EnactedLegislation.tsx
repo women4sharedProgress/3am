@@ -61,7 +61,7 @@ export default function EnactedLegislation() {
   const navigate = useNavigate()
   const { bills, loading, error } = useBills(['MI', 'US'])
   const [active, setActive] = useState<ActiveFilters>(DEFAULT_FILTERS)
-  const [session, setSession] = useState('last-5-years')
+  const [session, setSession] = useState('this-session')
   const [copied, setCopied] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
 
