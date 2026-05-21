@@ -63,54 +63,39 @@ const ZIP_CITY: Record<string, string> = {
   '90210': 'Beverly Hills',
 }
 
-// HUD ZIP-to-county crosswalk. Each ZIP maps to one or more county names.
-// Single entry → autofill. Multiple entries → dropdown.
-const ZIP_COUNTIES: Record<string, string[]> = {
-  // Michigan
-  '48821': ['Eaton County'],
-  '49036': ['Branch County'],       '49601': ['Wexford County'],
-  '49770': ['Emmet County'],        '49783': ['Chippewa County'],
-  '49855': ['Marquette County'],    '49883': ['Luce County'],
-  '49931': ['Houghton County'],     '49935': ['Dickinson County'],
-  '49946': ['Baraga County'],       '48858': ['Isabella County'],
-  // New England
-  '04609': ['Hancock County'],      '04976': ['Somerset County'],
-  '03301': ['Merrimack County'],    '05401': ['Chittenden County'],
-  // Mid-Atlantic
-  '13326': ['Otsego County'],       '17325': ['Adams County'],
-  // South / Appalachia
-  '25425': ['Jefferson County'],    '33040': ['Monroe County'],
-  // Mountain West
-  '80517': ['Larimer County'],      '82001': ['Laramie County'],
-  // Great Plains
-  '57501': ['Hughes County'],       '57785': ['Meade County'],
-  '58501': ['Burleigh County'],
-  // Pacific / Alaska
-  '99901': ['Ketchikan Gateway Borough'],
-  // Famous
-  '90210': ['Los Angeles County'],
-}
-
-function lookupZip(zip: string): { state: string | null; city: string | null; county: string | null } {
-  if (zip.length < 5) return { state: null, city: null, county: null }
+function lookupZip(zip: string): { state: string | null; city: string | null } {
+  if (zip.length < 5) return { state: null, city: null }
   const prefix = parseInt(zip.slice(0, 3), 10)
   const match = ZIP_STATE_RANGES.find(([lo, hi]) => prefix >= lo && prefix <= hi)
   const key = zip.slice(0, 5)
   return {
-    state:  match ? match[2] : null,
-    city:   ZIP_CITY[key] ?? null,
-    county: (() => { const cs = ZIP_COUNTIES[key] ?? []; return cs.length === 1 ? cs[0] ?? null : null })(),
+    state: match ? match[2] : null,
+    city:  ZIP_CITY[key] ?? null,
   }
 }
 
-function cleanCounty(raw: string): string {
-  return raw.replace(/\s+(county|parish|borough|municipality|census area)$/i, '').trim().toUpperCase()
+type Provenance = 'empty' | 'manual' | 'autofill' | 'election'
+interface FieldEntry {
+  current_value: string
+  previous_value: string
+  provenance: Provenance
+  source: string
+  timestamp: string
+  original_autofill_value: string
 }
-
-type Provenance = 'empty' | 'manual' | 'autofill'
-type ProvenanceMap = { state: Provenance; city: Provenance; county: Provenance }
-const AUTOFILL_FIELDS = ['state', 'city', 'county'] as const
+type FieldStore = Record<AutofillField, FieldEntry>
+const AUTOFILL_FIELDS = ['state', 'city', 'county', 'congressional_district', 'state_senate_district', 'state_house_district'] as const
 type AutofillField = typeof AUTOFILL_FIELDS[number]
+
+interface CivicOffice {
+  name: string
+  divisionId: string
+  levels?: string[]
+  roles?: string[]
+}
+interface CivicApiResponse {
+  offices?: CivicOffice[]
+}
 
 interface ProfileData {
   country: string
@@ -294,17 +279,27 @@ interface DistrictLookupRow {
 export default function Profile() {
   const { user } = useAuth()
   const [data, setData]                         = useState<ProfileData>(load)
-  const [provenance, setProvenance]             = useState<ProvenanceMap>(() => {
+  const [fieldStore, setFieldStore]             = useState<FieldStore>(() => {
     const d = load()
+    const now = new Date().toISOString()
+    const entry = (val: string): FieldEntry => ({
+      current_value: val, previous_value: '',
+      provenance: val ? 'manual' : 'empty',
+      source: val ? 'saved' : '', timestamp: now,
+      original_autofill_value: '',
+    })
     return {
-      state:  d.state  ? 'manual' : 'empty',
-      city:   d.city   ? 'manual' : 'empty',
-      county: d.county ? 'manual' : 'empty',
+      state:                  entry(d.state),
+      city:                   entry(d.city),
+      county:                 entry(d.county),
+      congressional_district: entry(d.congressional_district),
+      state_senate_district:  entry(d.state_senate_district),
+      state_house_district:   entry(d.state_house_district),
     }
   })
+  const [pendingElection, setPendingElection]   = useState<Partial<Record<AutofillField, string>> | null>(null)
   const [saved, setSaved]                       = useState(false)
   const [cityMismatch, setCityMismatch]         = useState<string | null>(null)
-  const [countyOptions, setCountyOptions]       = useState<string[]>([])
   const [lookupRows, setLookupRows]             = useState<DistrictLookupRow[]>([])
   const [lookupStatus, setLookupStatus]         = useState<'idle' | 'loading' | 'done'>('idle')
   const [lookupSubmitting, setLookupSubmitting] = useState(false)
@@ -316,6 +311,7 @@ export default function Profile() {
   // Prevents DB sync from firing on programmatic data loads (mount, auth restore).
   // Only actual user edits should push to the DB.
   const skipNextDbSync   = useRef(true)
+  const autofillSourceRef = useRef<string>('')
 
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
@@ -387,9 +383,78 @@ export default function Profile() {
       return next
     })
     if ((AUTOFILL_FIELDS as readonly string[]).includes(field)) {
-      setProvenance(prev => ({ ...prev, [field as AutofillField]: stored ? 'manual' : 'empty' }))
+      const now = new Date().toISOString()
+      setFieldStore(prev => ({
+        ...prev,
+        [field as AutofillField]: {
+          ...prev[field as AutofillField],
+          current_value: stored,
+          previous_value: prev[field as AutofillField].current_value,
+          provenance: stored ? 'manual' : 'empty',
+          source: 'user',
+          timestamp: now,
+        },
+      }))
     }
   }
+
+  function writeAutofillFields(
+    updates: Partial<Record<AutofillField, { value: string; provenance: Provenance; source: string }>>
+  ) {
+    const now = new Date().toISOString()
+    setData(prev => {
+      const next = { ...prev }
+      for (const [f, upd] of Object.entries(updates) as [AutofillField, { value: string; provenance: Provenance; source: string }][]) {
+        if (upd) (next as Record<string, unknown>)[f] = upd.value
+      }
+      return next
+    })
+    setFieldStore(prev => {
+      const next = { ...prev }
+      for (const [f, upd] of Object.entries(updates) as [AutofillField, { value: string; provenance: Provenance; source: string }][]) {
+        if (upd) next[f] = {
+          current_value: upd.value,
+          previous_value: prev[f].current_value,
+          provenance: upd.value ? upd.provenance : 'empty',
+          source: upd.source,
+          timestamp: now,
+          original_autofill_value: upd.provenance === 'autofill'
+            ? (prev[f].original_autofill_value || upd.value)
+            : prev[f].original_autofill_value,
+        }
+      }
+      return next
+    })
+  }
+
+  function revertField(field: AutofillField) {
+    const now = new Date().toISOString()
+    const prev_val = fieldStore[field].previous_value
+    setData(prev => ({ ...prev, [field]: prev_val, confirmed: false }))
+    setFieldStore(prev => ({
+      ...prev,
+      [field]: {
+        ...prev[field],
+        current_value: prev_val,
+        previous_value: prev[field].current_value,
+        provenance: prev_val ? 'manual' : 'empty',
+        source: 'revert',
+        timestamp: now,
+      },
+    }))
+  }
+
+  function acceptElection() {
+    if (!pendingElection) return
+    const updates: Partial<Record<AutofillField, { value: string; provenance: Provenance; source: string }>> = {}
+    for (const [f, v] of Object.entries(pendingElection) as [AutofillField, string][]) {
+      updates[f] = { value: v, provenance: 'election', source: 'election_data' }
+    }
+    writeAutofillFields(updates)
+    setPendingElection(null)
+  }
+
+  function dismissElection() { setPendingElection(null) }
 
   function showMsg(msg: string) {
     setLookupMessage(msg)
@@ -515,20 +580,8 @@ export default function Profile() {
 
   function handleZipChange(raw: string) {
     const zip = raw.replace(/[^\d-]/g, '')
-    setData(prev => {
-      const next = { ...prev, zip, confirmed: false }
-      if (provenance.state  === 'autofill') next.state  = ''
-      if (provenance.city   === 'autofill') next.city   = ''
-      if (provenance.county === 'autofill') next.county = ''
-      return next
-    })
-    setProvenance(prev => ({
-      state:  prev.state  === 'autofill' ? 'empty' : prev.state,
-      city:   prev.city   === 'autofill' ? 'empty' : prev.city,
-      county: prev.county === 'autofill' ? 'empty' : prev.county,
-    }))
+    setData(prev => ({ ...prev, zip, confirmed: false }))
     setCityMismatch(null)
-    setCountyOptions([])
     setLookupRows([])
     setLookupStatus('idle')
     setLookupMessage('')
@@ -537,27 +590,79 @@ export default function Profile() {
   function handleZipBlur() {
     const zip = data.zip.replace(/\D/g, '').slice(0, 5)
     if (zip.length !== 5) return
-    const { state, city, county } = lookupZip(zip)
-    const provenanceUpdates: Partial<ProvenanceMap> = {}
-    setData(prev => {
-      const next = { ...prev }
-      if (state  && provenance.state  === 'empty') { next.state  = state;               provenanceUpdates.state  = 'autofill' }
-      if (county && provenance.county === 'empty') { next.county = cleanCounty(county); provenanceUpdates.county = 'autofill' }
-      if (city   && provenance.city   === 'empty') { next.city   = city;                provenanceUpdates.city   = 'autofill' }
-      return next
-    })
-    if (Object.keys(provenanceUpdates).length > 0) {
-      setProvenance(prev => ({ ...prev, ...provenanceUpdates }))
+    const addressKey = `${data.street.trim().toUpperCase()}|${zip}`
+    if (addressKey !== autofillSourceRef.current) {
+      const now = new Date().toISOString()
+      setData(prev => {
+        const next = { ...prev }
+        AUTOFILL_FIELDS.forEach(f => {
+          if (fieldStore[f].provenance === 'autofill') (next as Record<string, unknown>)[f] = ''
+        })
+        return next
+      })
+      setFieldStore(prev => {
+        const next = { ...prev }
+        AUTOFILL_FIELDS.forEach(f => {
+          if (prev[f].provenance === 'autofill') {
+            next[f] = { ...prev[f], current_value: '', previous_value: prev[f].current_value, provenance: 'empty', source: '', timestamp: now }
+          }
+        })
+        return next
+      })
+      autofillSourceRef.current = addressKey
     }
-    if (city && data.city && data.city.toLowerCase() !== city.toLowerCase()) {
-      setCityMismatch(city)
-    }
-    const counties = ZIP_COUNTIES[zip] ?? []
-    if (provenance.county === 'empty' && counties.length > 1) setCountyOptions(counties)
+    const { state, city } = lookupZip(zip)
+    const updates: Partial<Record<AutofillField, { value: string; provenance: Provenance; source: string }>> = {}
+    if (state && fieldStore.state.provenance === 'empty') updates.state = { value: state, provenance: 'autofill', source: 'zip_lookup' }
+    if (city  && fieldStore.city.provenance  === 'empty') updates.city  = { value: city,  provenance: 'autofill', source: 'zip_lookup' }
+    if (Object.keys(updates).length > 0) writeAutofillFields(updates)
+    if (city && data.city && data.city.toLowerCase() !== city.toLowerCase()) setCityMismatch(city)
     setLookupRows([])
     setLookupStatus('idle')
     setLookupMessage('')
     void fetchLookupData(zip)
+    const effectiveState = fieldStore.state.provenance === 'empty' && state ? state : data.state
+    const effectiveCity  = fieldStore.city.provenance  === 'empty' && city  ? city  : data.city
+    if (data.street && effectiveCity && effectiveState) {
+      void callCivicApi(`${data.street}, ${effectiveCity}, ${effectiveState} ${zip}`)
+    }
+  }
+
+  async function callCivicApi(address: string) {
+    const key = import.meta.env.VITE_GOOGLE_CIVIC_API_KEY as string | undefined
+    if (!key) return
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/civicinfo/v2/representatives?key=${key}&address=${encodeURIComponent(address)}`
+      )
+      if (!res.ok) return
+      const json = await res.json() as CivicApiResponse
+      let congressional: string | null = null
+      let stateSenate: string | null   = null
+      let stateHouse: string | null    = null
+      for (const office of json.offices ?? []) {
+        const levels = office.levels ?? []
+        const roles  = office.roles  ?? []
+        const divId  = office.divisionId ?? ''
+        if (levels.includes('country') && roles.includes('legislatorLowerBody')) {
+          const m = divId.match(/\/cd:(\d+)/); if (m) congressional = m[1]
+        }
+        if (levels.includes('administrativeArea1') && roles.includes('legislatorUpperBody')) {
+          const m = divId.match(/\/sldu:(\d+)/); if (m) stateSenate = m[1]
+        }
+        if (levels.includes('administrativeArea1') && roles.includes('legislatorLowerBody')) {
+          const m = divId.match(/\/sldl:(\d+)/); if (m) stateHouse = m[1]
+        }
+      }
+      const civicUpdates: Partial<Record<AutofillField, { value: string; provenance: Provenance; source: string }>> = {}
+      if (congressional && fieldStore.congressional_district.provenance === 'empty')
+        civicUpdates.congressional_district = { value: congressional, provenance: 'autofill', source: 'google_civic_api' }
+      if (stateSenate && fieldStore.state_senate_district.provenance === 'empty')
+        civicUpdates.state_senate_district = { value: stateSenate, provenance: 'autofill', source: 'google_civic_api' }
+      if (stateHouse && fieldStore.state_house_district.provenance === 'empty')
+        civicUpdates.state_house_district = { value: stateHouse, provenance: 'autofill', source: 'google_civic_api' }
+      if (Object.keys(civicUpdates).length > 0) writeAutofillFields(civicUpdates)
+    } catch { /* ignore network/parse errors */ }
   }
 
   const config      = getStateConfig(data.state)
@@ -597,6 +702,65 @@ export default function Profile() {
             Location information is used to populate Your Representatives on your dashboard. If the outline is green, we have what we need and you don't have to fill anything else out for the pipeline to do its job.
           </p>
         </div>
+
+        {/* Election data preview gate */}
+        {pendingElection && (
+          <div style={{
+            maxWidth: 480, marginBottom: 20,
+            background: 'var(--color-card)',
+            border: '2px solid #b8860b',
+            borderRadius: 10, padding: '16px 18px',
+            display: 'flex', flexDirection: 'column', gap: 10,
+          }}>
+            <div style={{ fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 14, color: '#b8860b' }}>
+              Election data available — review before accepting
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {(Object.entries(pendingElection) as [AutofillField, string][]).map(([f, v]) => {
+                const entry = fieldStore[f]
+                const userCorrected =
+                  v !== entry.current_value &&
+                  entry.current_value !== entry.original_autofill_value &&
+                  entry.original_autofill_value !== ''
+                return (
+                  <div key={f} style={{
+                    display: 'flex', flexDirection: 'column', gap: 3,
+                    padding: userCorrected ? '6px 8px' : '2px 0',
+                    borderRadius: userCorrected ? 6 : 0,
+                    background: userCorrected ? 'rgba(184,134,11,0.12)' : 'transparent',
+                    borderLeft: userCorrected ? '3px solid #b8860b' : 'none',
+                    paddingLeft: userCorrected ? 8 : 0,
+                  }}>
+                    <div style={{ display: 'flex', gap: 10, fontSize: 13, fontFamily: "'Nunito', sans-serif", alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-text-tertiary)', minWidth: 180 }}>{f.replace(/_/g, ' ')}</span>
+                      <span style={{ color: 'var(--color-text-secondary)', textDecoration: 'line-through' }}>{entry.current_value || '—'}</span>
+                      <span style={{ color: 'var(--color-text-tertiary)' }}>→</span>
+                      <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>{v}</span>
+                    </div>
+                    {userCorrected && (
+                      <div style={{ fontSize: 11, fontFamily: "'Nunito', sans-serif", color: '#b8860b', fontStyle: 'italic' }}>
+                        overwrites your correction (was {entry.original_autofill_value || '—'})
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={acceptElection} style={{
+                padding: '6px 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                background: '#00B050', color: '#fff',
+                fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 13,
+              }}>Accept</button>
+              <button onClick={dismissElection} style={{
+                padding: '6px 16px', borderRadius: 6, cursor: 'pointer',
+                background: 'transparent', border: '1px solid var(--color-border-medium)',
+                color: 'var(--color-text-secondary)',
+                fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 13,
+              }}>Dismiss</button>
+            </div>
+          </div>
+        )}
 
         {/* cards row — address left, districts right */}
         <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
@@ -645,19 +809,21 @@ export default function Profile() {
                   <option value="" />
                   {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
+                {fieldStore.state.previous_value && (
+                  <button onClick={() => revertField('state')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                    ↩ revert to {fieldStore.state.previous_value}
+                  </button>
+                )}
               </div>
 
               <div>
                 <label style={labelStyle} htmlFor="prof-county">{config.countyLabel}</label>
-                {countyOptions.length > 1 ? (
-                  <select id="prof-county" style={{ ...inputStyle, cursor: 'pointer' }}
-                    value={data.county} onChange={e => set('county', e.target.value)}>
-                    <option value="">— select county —</option>
-                    {countyOptions.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                ) : (
-                  <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
-                    value={data.county} onChange={e => set('county', e.target.value)} />
+                <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
+                  value={data.county} onChange={e => set('county', e.target.value)} />
+                {fieldStore.county.previous_value && (
+                  <button onClick={() => revertField('county')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                    ↩ revert to {fieldStore.county.previous_value}
+                  </button>
                 )}
               </div>
 
@@ -669,6 +835,11 @@ export default function Profile() {
                   <div style={{ fontSize: 12, color: '#b8860b', marginTop: 4 }}>
                     ZIP suggests {cityMismatch}
                   </div>
+                )}
+                {fieldStore.city.previous_value && (
+                  <button onClick={() => revertField('city')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                    ↩ revert to {fieldStore.city.previous_value}
+                  </button>
                 )}
               </div>
 
@@ -893,6 +1064,11 @@ export default function Profile() {
                   inputMode="numeric" pattern="[0-9]*"
                   value={data.congressional_district}
                   onChange={e => set('congressional_district', e.target.value)} />
+                {fieldStore.congressional_district.previous_value && (
+                  <button onClick={() => revertField('congressional_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                    ↩ revert to {fieldStore.congressional_district.previous_value}
+                  </button>
+                )}
               </div>
 
               {config.unicameral ? (
@@ -902,6 +1078,11 @@ export default function Profile() {
                     inputMode="numeric" pattern="[0-9]*"
                     value={data.state_senate_district}
                     onChange={e => set('state_senate_district', e.target.value)} />
+                  {fieldStore.state_senate_district.previous_value && (
+                    <button onClick={() => revertField('state_senate_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                      ↩ revert to {fieldStore.state_senate_district.previous_value}
+                    </button>
+                  )}
                 </div>
               ) : (
                 <>
@@ -911,6 +1092,11 @@ export default function Profile() {
                       inputMode="numeric" pattern="[0-9]*"
                       value={data.state_senate_district}
                       onChange={e => set('state_senate_district', e.target.value)} />
+                    {fieldStore.state_senate_district.previous_value && (
+                      <button onClick={() => revertField('state_senate_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                        ↩ revert to {fieldStore.state_senate_district.previous_value}
+                      </button>
+                    )}
                   </div>
                   <div>
                     <label style={tealLabelStyle} htmlFor="dist-sh">State {config.houseName} District</label>
@@ -918,6 +1104,11 @@ export default function Profile() {
                       inputMode="numeric" pattern="[0-9]*"
                       value={data.state_house_district}
                       onChange={e => set('state_house_district', e.target.value)} />
+                    {fieldStore.state_house_district.previous_value && (
+                      <button onClick={() => revertField('state_house_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
+                        ↩ revert to {fieldStore.state_house_district.previous_value}
+                      </button>
+                    )}
                   </div>
                 </>
               )}

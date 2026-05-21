@@ -47,6 +47,7 @@ VITE_SUPABASE_URL=           # Supabase project URL, exposed to browser
 VITE_SUPABASE_PUBLISHABLE_KEY= # Supabase publishable key, exposed to browser
 VITE_FUNCTIONS_BASE=           # MUST be empty string in ALL environments — see proxy note below
 SUPABASE_SECRET_KEY=           # Server-side only — seed script, edge functions
+VITE_GOOGLE_CIVIC_API_KEY=     # Google Civic Information API key (browser-side; restrict to your domain in Google Cloud Console)
 ```
 
 `src/lib/supabase.ts` throws at module load time if `VITE_SUPABASE_URL` or `VITE_SUPABASE_PUBLISHABLE_KEY` is missing.
@@ -223,7 +224,7 @@ The edge function `supabase/functions/daily-refresh/index.ts` currently stubs th
 ---
 
 ## Vendor Restrictions
-- No Google APIs or Google services anywhere in the stack
+- No Google APIs or Google services anywhere in the stack — **exception:** Google Civic Information API (`civicinfo/v2/representatives`) is permitted solely for federal/state representative and district lookup from the Profile page. Key stored in `VITE_GOOGLE_CIVIC_API_KEY`. No other Google services.
 - No Palantir products or APIs
 - For address to district lookup: use Census Geocoding API
 - For mapping: OpenStreetMap / Leaflet only
@@ -237,7 +238,7 @@ The edge function `supabase/functions/daily-refresh/index.ts` currently stubs th
 - No advertising networks or SDKs of any kind
 - No social share buttons that make external calls on page load
 - All user data stays in our Supabase instance
-- The only permitted external data call involving user info is Census Geocoding API for district lookup
+- The only permitted external data calls involving user info are Census Geocoding API for district lookup and Google Civic Information API for representative/district autofill from the Profile page (approved exception — see Vendor Restrictions)
 - Every feature must be evaluated for external data exposure before being built
 
 ---
