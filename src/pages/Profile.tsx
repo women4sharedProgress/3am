@@ -915,131 +915,6 @@ export default function Profile() {
                 My District Information
               </h2>
 
-              {/* Community district lookup */}
-              {(() => {
-                const zip = data.zip.replace(/\D/g, '').slice(0, 5)
-                const hasZip = zip.length === 5
-                const best = lookupRows[0] ?? null
-                const isVerifiedByMe = best ? lookupVerifiedIds.has(best.id) : false
-                const isMyRow = best ? best.submitted_by === user?.username : false
-                const hasMySubmission = lookupRows.some(r => r.submitted_by === user?.username)
-
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {lookupStatus === 'loading' && (
-                      <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif" }}>
-                        Looking up community data…
-                      </div>
-                    )}
-                    {lookupStatus === 'done' && !best && hasZip && (
-                      <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', fontStyle: 'italic', fontFamily: "'Nunito', sans-serif" }}>
-                        No community data for ZIP {zip} yet.
-                      </div>
-                    )}
-                    {lookupStatus === 'done' && best && (
-                      <div style={{
-                        background: 'var(--color-bg-secondary)',
-                        borderRadius: 8,
-                        padding: '10px 12px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 8,
-                      }}>
-                        <div style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          fontFamily: "'Quicksand', sans-serif",
-                          color: best.admin_verified ? '#00B050' : 'var(--color-text-primary)',
-                        }}>
-                          {best.admin_verified
-                            ? '✓ Admin-verified data available'
-                            : `Community data · ${best.verification_count} ${best.verification_count === 1 ? 'verification' : 'verifications'}${lookupRows.length > 1 ? ` · ${lookupRows.length} submissions` : ''}`}
-                        </div>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          <button
-                            type="button"
-                            onClick={() => applyLookupRow(best)}
-                            style={{
-                              padding: '6px 12px', borderRadius: 6, border: 'none',
-                              cursor: 'pointer', background: '#1a7a72', color: '#fff',
-                              fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
-                            }}
-                          >
-                            Apply this data
-                          </button>
-                          {user && !isVerifiedByMe && !isMyRow && !best.admin_verified && (
-                            <button
-                              type="button"
-                              onClick={() => void handleDistrictVerify(best.id)}
-                              style={{
-                                padding: '6px 12px', borderRadius: 6, cursor: 'pointer',
-                                border: '1px solid var(--color-border-medium)',
-                                background: 'transparent', color: 'var(--color-text-primary)',
-                                fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
-                              }}
-                            >
-                              Verify this is correct
-                            </button>
-                          )}
-                          {isVerifiedByMe && (
-                            <span style={{ fontSize: 12, color: '#00B050', alignSelf: 'center', fontFamily: "'Nunito', sans-serif" }}>
-                              ✓ You verified this
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    {user && hasZip && (
-                      <button
-                        type="button"
-                        disabled={lookupSubmitting}
-                        onClick={() => void handleDistrictSubmit()}
-                        style={{
-                          padding: '8px 14px', borderRadius: 8,
-                          border: '1px solid var(--color-border-medium)',
-                          cursor: lookupSubmitting ? 'not-allowed' : 'pointer',
-                          background: 'var(--color-bg-secondary)',
-                          color: 'var(--color-teal)',
-                          fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
-                          width: '100%',
-                        }}
-                      >
-                        {lookupSubmitting ? 'Submitting…' : hasMySubmission ? 'Update my district data' : 'Submit my district data'}
-                      </button>
-                    )}
-                    {!user && hasZip && (
-                      <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic', fontFamily: "'Nunito', sans-serif" }}>
-                        Sign in to submit or verify district data.
-                      </div>
-                    )}
-                    {lookupMessage && (
-                      <div style={{
-                        fontSize: 12, fontFamily: "'Nunito', sans-serif",
-                        color: lookupMessage.includes('fail') ? '#C00000' : '#00B050',
-                      }}>
-                        {lookupMessage}
-                      </div>
-                    )}
-                  </div>
-                )
-              })()}
-
-              {/* Verification */}
-              <div>
-                <label style={labelStyle}>Verification</label>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={data.confirmed}
-                    onChange={e => setData(prev => ({ ...prev, confirmed: e.target.checked }))}
-                    style={{ marginTop: 3, width: 16, height: 16, cursor: 'pointer', accentColor: '#00B050', flexShrink: 0 }}
-                  />
-                  <span style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--color-text-primary)', fontFamily: "'Nunito', sans-serif" }}>
-                    Confirm this information is correct
-                  </span>
-                </label>
-              </div>
-
               {/* National legislature */}
               <div>
                 <label style={labelStyle}>National Legislature</label>
@@ -1261,6 +1136,131 @@ export default function Profile() {
                     {data.city ? `${data.city} is not yet tracked locally.` : 'No city on file.'}
                   </div>
                 )}
+              </div>
+
+              {/* Community district lookup */}
+              {(() => {
+                const zip = data.zip.replace(/\D/g, '').slice(0, 5)
+                const hasZip = zip.length === 5
+                const best = lookupRows[0] ?? null
+                const isVerifiedByMe = best ? lookupVerifiedIds.has(best.id) : false
+                const isMyRow = best ? best.submitted_by === user?.username : false
+                const hasMySubmission = lookupRows.some(r => r.submitted_by === user?.username)
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {lookupStatus === 'loading' && (
+                      <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif" }}>
+                        Looking up community data…
+                      </div>
+                    )}
+                    {lookupStatus === 'done' && !best && hasZip && (
+                      <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', fontStyle: 'italic', fontFamily: "'Nunito', sans-serif" }}>
+                        No community data for ZIP {zip} yet.
+                      </div>
+                    )}
+                    {lookupStatus === 'done' && best && (
+                      <div style={{
+                        background: 'var(--color-bg-secondary)',
+                        borderRadius: 8,
+                        padding: '10px 12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 8,
+                      }}>
+                        <div style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          fontFamily: "'Quicksand', sans-serif",
+                          color: best.admin_verified ? '#00B050' : 'var(--color-text-primary)',
+                        }}>
+                          {best.admin_verified
+                            ? '✓ Admin-verified data available'
+                            : `Community data · ${best.verification_count} ${best.verification_count === 1 ? 'verification' : 'verifications'}${lookupRows.length > 1 ? ` · ${lookupRows.length} submissions` : ''}`}
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => applyLookupRow(best)}
+                            style={{
+                              padding: '6px 12px', borderRadius: 6, border: 'none',
+                              cursor: 'pointer', background: '#1a7a72', color: '#fff',
+                              fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
+                            }}
+                          >
+                            Apply this data
+                          </button>
+                          {user && !isVerifiedByMe && !isMyRow && !best.admin_verified && (
+                            <button
+                              type="button"
+                              onClick={() => void handleDistrictVerify(best.id)}
+                              style={{
+                                padding: '6px 12px', borderRadius: 6, cursor: 'pointer',
+                                border: '1px solid var(--color-border-medium)',
+                                background: 'transparent', color: 'var(--color-text-primary)',
+                                fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
+                              }}
+                            >
+                              Verify this is correct
+                            </button>
+                          )}
+                          {isVerifiedByMe && (
+                            <span style={{ fontSize: 12, color: '#00B050', alignSelf: 'center', fontFamily: "'Nunito', sans-serif" }}>
+                              ✓ You verified this
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {user && hasZip && (
+                      <button
+                        type="button"
+                        disabled={lookupSubmitting}
+                        onClick={() => void handleDistrictSubmit()}
+                        style={{
+                          padding: '8px 14px', borderRadius: 8,
+                          border: '1px solid var(--color-border-medium)',
+                          cursor: lookupSubmitting ? 'not-allowed' : 'pointer',
+                          background: 'var(--color-bg-secondary)',
+                          color: 'var(--color-teal)',
+                          fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
+                          width: '100%',
+                        }}
+                      >
+                        {lookupSubmitting ? 'Submitting…' : hasMySubmission ? 'Update my district data' : 'Submit my district data'}
+                      </button>
+                    )}
+                    {!user && hasZip && (
+                      <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic', fontFamily: "'Nunito', sans-serif" }}>
+                        Sign in to submit or verify district data.
+                      </div>
+                    )}
+                    {lookupMessage && (
+                      <div style={{
+                        fontSize: 12, fontFamily: "'Nunito', sans-serif",
+                        color: lookupMessage.includes('fail') ? '#C00000' : '#00B050',
+                      }}>
+                        {lookupMessage}
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+
+              {/* Verification */}
+              <div>
+                <label style={labelStyle}>Verification</label>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={data.confirmed}
+                    onChange={e => setData(prev => ({ ...prev, confirmed: e.target.checked }))}
+                    style={{ marginTop: 3, width: 16, height: 16, cursor: 'pointer', accentColor: '#00B050', flexShrink: 0 }}
+                  />
+                  <span style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--color-text-primary)', fontFamily: "'Nunito', sans-serif" }}>
+                    Confirm this information is correct
+                  </span>
+                </label>
               </div>
 
             </div>
