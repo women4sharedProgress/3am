@@ -3,6 +3,7 @@ import PageTopBar from '../components/PageTopBar'
 import { useAuth } from '../contexts/AuthContext'
 import { userKey } from '../lib/userKey'
 import { getMichiganCounty } from '../lib/michiganCounties'
+import { lookupZipCounty } from '../lib/zipCounty'
 import { getStateConfig } from '../lib/stateDistrictConfig'
 import { supabase } from '../lib/supabase'
 import { profileSave } from '../lib/authApi'
@@ -305,6 +306,7 @@ export default function Profile() {
   const [lookupSubmitting, setLookupSubmitting] = useState(false)
   const [lookupVerifiedIds, setLookupVerifiedIds] = useState<Set<string>>(new Set())
   const [lookupMessage, setLookupMessage]       = useState('')
+  const [countyChoices, setCountyChoices]       = useState<string[]>([])
   const saveTimer        = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dbSyncTimer      = useRef<ReturnType<typeof setTimeout> | null>(null)
   const msgTimer         = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -582,6 +584,7 @@ export default function Profile() {
     const zip = raw.replace(/[^\d-]/g, '')
     setData(prev => ({ ...prev, zip, confirmed: false }))
     setCityMismatch(null)
+    setCountyChoices([])
     setLookupRows([])
     setLookupStatus('idle')
     setLookupMessage('')
@@ -617,6 +620,16 @@ export default function Profile() {
     if (city  && fieldStore.city.provenance  === 'empty') updates.city  = { value: city,  provenance: 'autofill', source: 'zip_lookup' }
     if (Object.keys(updates).length > 0) writeAutofillFields(updates)
     if (city && data.city && data.city.toLowerCase() !== city.toLowerCase()) setCityMismatch(city)
+    const countyResult = lookupZipCounty(zip)
+    if (countyResult) {
+      if (countyResult.length === 1) {
+        if (fieldStore.county.provenance === 'empty')
+          writeAutofillFields({ county: { value: countyResult[0], provenance: 'autofill', source: 'zip_county_lookup' } })
+        setCountyChoices([])
+      } else {
+        setCountyChoices(countyResult)
+      }
+    }
     setLookupRows([])
     setLookupStatus('idle')
     setLookupMessage('')
@@ -818,8 +831,24 @@ export default function Profile() {
 
               <div>
                 <label style={labelStyle} htmlFor="prof-county">{config.countyLabel}</label>
-                <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
-                  value={data.county} onChange={e => set('county', e.target.value)} />
+                {countyChoices.length > 0 ? (
+                  <select
+                    id="prof-county"
+                    style={{ ...inputStyle, cursor: 'pointer' }}
+                    value={data.county}
+                    onChange={e => {
+                      if (e.target.value === '') { setCountyChoices([]); return }
+                      set('county', e.target.value)
+                      setCountyChoices([])
+                    }}
+                  >
+                    <option value="">— select or type manually —</option>
+                    {countyChoices.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                ) : (
+                  <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
+                    value={data.county} onChange={e => set('county', e.target.value)} />
+                )}
                 {fieldStore.county.previous_value && (
                   <button onClick={() => revertField('county')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
                     ↩ revert to {fieldStore.county.previous_value}
