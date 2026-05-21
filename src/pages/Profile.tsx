@@ -64,6 +64,26 @@ const ZIP_CITY: Record<string, string> = {
   '90210': 'Beverly Hills',
 }
 
+// Strips non-digits and removes leading zeros → "06" → "6", "003" → "3"
+function normalizeDistrict(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (!digits) return ''
+  const n = parseInt(digits, 10)
+  return isNaN(n) ? '' : String(n)
+}
+
+function normalizeProfileData(d: ProfileData): ProfileData {
+  return {
+    ...d,
+    congressional_district: normalizeDistrict(d.congressional_district),
+    state_senate_district:  normalizeDistrict(d.state_senate_district),
+    state_house_district:   normalizeDistrict(d.state_house_district),
+    county_commissioner:    normalizeDistrict(d.county_commissioner),
+    ward:                   normalizeDistrict(d.ward),
+    precinct:               normalizeDistrict(d.precinct),
+  }
+}
+
 function lookupZip(zip: string): { state: string | null; city: string | null } {
   if (zip.length < 5) return { state: null, city: null }
   const prefix = parseInt(zip.slice(0, 3), 10)
@@ -139,7 +159,7 @@ const EMPTY: ProfileData = {
 function load(): ProfileData {
   try {
     const raw = localStorage.getItem(userKey('wsp-profile'))
-    if (raw) return { ...EMPTY, ...JSON.parse(raw) }
+    if (raw) return normalizeProfileData({ ...EMPTY, ...JSON.parse(raw) })
   } catch { /* ignore */ }
   return { ...EMPTY }
 }
@@ -330,7 +350,7 @@ export default function Profile() {
     skipNextDbSync.current = true  // this load must not trigger a DB write
     try {
       const raw = localStorage.getItem(`wsp-profile-${user.username}`)
-      setData(raw ? { ...EMPTY, ...JSON.parse(raw) } : { ...EMPTY })
+      setData(raw ? normalizeProfileData({ ...EMPTY, ...JSON.parse(raw) }) : { ...EMPTY })
     } catch { setData({ ...EMPTY }) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.username])
@@ -1090,9 +1110,9 @@ export default function Profile() {
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-cd">Congressional District</label>
                 <input id="dist-cd" style={inputStyle} type="text" autoComplete="off"
-                  inputMode="numeric" pattern="[0-9]*"
+                  inputMode="numeric" maxLength={2}
                   value={data.congressional_district}
-                  onChange={e => set('congressional_district', e.target.value)} />
+                  onChange={e => set('congressional_district', normalizeDistrict(e.target.value))} />
                 {fieldStore.congressional_district.previous_value && (
                   <button onClick={() => revertField('congressional_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
                     ↩ revert to {fieldStore.congressional_district.previous_value}
@@ -1104,9 +1124,9 @@ export default function Profile() {
                 <div>
                   <label style={tealLabelStyle} htmlFor="dist-leg">State {config.houseName} District</label>
                   <input id="dist-leg" style={inputStyle} type="text" autoComplete="off"
-                    inputMode="numeric" pattern="[0-9]*"
+                    inputMode="numeric" maxLength={3}
                     value={data.state_senate_district}
-                    onChange={e => set('state_senate_district', e.target.value)} />
+                    onChange={e => set('state_senate_district', normalizeDistrict(e.target.value))} />
                   {fieldStore.state_senate_district.previous_value && (
                     <button onClick={() => revertField('state_senate_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
                       ↩ revert to {fieldStore.state_senate_district.previous_value}
@@ -1118,9 +1138,9 @@ export default function Profile() {
                   <div>
                     <label style={tealLabelStyle} htmlFor="dist-ss">State Senate District</label>
                     <input id="dist-ss" style={inputStyle} type="text" autoComplete="off"
-                      inputMode="numeric" pattern="[0-9]*"
+                      inputMode="numeric" maxLength={3}
                       value={data.state_senate_district}
-                      onChange={e => set('state_senate_district', e.target.value)} />
+                      onChange={e => set('state_senate_district', normalizeDistrict(e.target.value))} />
                     {fieldStore.state_senate_district.previous_value && (
                       <button onClick={() => revertField('state_senate_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
                         ↩ revert to {fieldStore.state_senate_district.previous_value}
@@ -1130,9 +1150,9 @@ export default function Profile() {
                   <div>
                     <label style={tealLabelStyle} htmlFor="dist-sh">State {config.houseName} District</label>
                     <input id="dist-sh" style={inputStyle} type="text" autoComplete="off"
-                      inputMode="numeric" pattern="[0-9]*"
+                      inputMode="numeric" maxLength={3}
                       value={data.state_house_district}
-                      onChange={e => set('state_house_district', e.target.value)} />
+                      onChange={e => set('state_house_district', normalizeDistrict(e.target.value))} />
                     {fieldStore.state_house_district.previous_value && (
                       <button onClick={() => revertField('state_house_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
                         ↩ revert to {fieldStore.state_house_district.previous_value}
@@ -1145,14 +1165,15 @@ export default function Profile() {
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-cc">{config.countyLabel} Commissioner District</label>
                 <input id="dist-cc" style={inputStyle} type="text" autoComplete="off"
-                  inputMode="numeric" pattern="[0-9]*"
+                  inputMode="numeric" maxLength={2}
                   value={data.county_commissioner}
-                  onChange={e => set('county_commissioner', e.target.value)} />
+                  onChange={e => set('county_commissioner', normalizeDistrict(e.target.value))} />
               </div>
 
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-sch">School District</label>
                 <input id="dist-sch" style={inputStyle} type="text" autoComplete="off"
+                  maxLength={100}
                   value={data.school_district}
                   onChange={e => set('school_district', e.target.value)} />
               </div>
@@ -1163,6 +1184,7 @@ export default function Profile() {
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-jur">City / Township</label>
                 <input id="dist-jur" style={inputStyle} type="text" autoComplete="off"
+                  maxLength={80}
                   value={data.jurisdiction}
                   onChange={e => set('jurisdiction', e.target.value)} />
               </div>
@@ -1170,23 +1192,24 @@ export default function Profile() {
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-ward">Ward</label>
                 <input id="dist-ward" style={inputStyle} type="text" autoComplete="off"
-                  inputMode="numeric" pattern="[0-9]*"
+                  inputMode="numeric" maxLength={3}
                   value={data.ward}
-                  onChange={e => set('ward', e.target.value)} />
+                  onChange={e => set('ward', normalizeDistrict(e.target.value))} />
               </div>
 
               <div>
                 <label style={tealLabelStyle} htmlFor="dist-prec">Precinct</label>
                 <input id="dist-prec" style={inputStyle} type="text" autoComplete="off"
-                  inputMode="numeric" pattern="[0-9]*"
+                  inputMode="numeric" maxLength={4}
                   value={data.precinct}
-                  onChange={e => set('precinct', e.target.value)} />
+                  onChange={e => set('precinct', normalizeDistrict(e.target.value))} />
               </div>
 
               {config.showVillage && (
                 <div>
                   <label style={tealLabelStyle} htmlFor="dist-vil">Village</label>
                   <input id="dist-vil" style={inputStyle} type="text" autoComplete="off"
+                    maxLength={80}
                     value={data.village}
                     onChange={e => set('village', e.target.value)} />
                 </div>
@@ -1200,6 +1223,7 @@ export default function Profile() {
                     <div>
                       <label style={tealLabelStyle} htmlFor="dist-circ">Circuit Court</label>
                       <input id="dist-circ" style={inputStyle} type="text" autoComplete="off"
+                        maxLength={60}
                         value={data.circuit_court}
                         onChange={e => set('circuit_court', e.target.value)} />
                     </div>
@@ -1208,6 +1232,7 @@ export default function Profile() {
                     <div>
                       <label style={tealLabelStyle} htmlFor="dist-prob">Probate Court</label>
                       <input id="dist-prob" style={inputStyle} type="text" autoComplete="off"
+                        maxLength={80}
                         value={data.probate_court}
                         onChange={e => set('probate_court', e.target.value)} />
                     </div>
@@ -1216,6 +1241,7 @@ export default function Profile() {
                     <div>
                       <label style={tealLabelStyle} htmlFor="dist-dc">District Court</label>
                       <input id="dist-dc" style={inputStyle} type="text" autoComplete="off"
+                        maxLength={80}
                         value={data.district_court}
                         onChange={e => set('district_court', e.target.value)} />
                     </div>
