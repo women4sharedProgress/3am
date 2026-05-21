@@ -974,7 +974,7 @@ export default function Home() {
               <polyline points="7 12.5 10.5 16 17 9" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span className="home-secondary-label">Passed Law</span>
-            <span className="home-secondary-badge">2 year History</span>
+            <span className="home-secondary-badge">Check it out</span>
           </button>
 
           <button
