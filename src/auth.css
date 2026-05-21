@@ -683,7 +683,8 @@
   text-align: center;
   padding-top: 6px;
   letter-spacing: .03em;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
 }
 
 /* Secondary row — 8 small squares */

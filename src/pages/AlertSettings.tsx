@@ -5,6 +5,11 @@ import { ISSUE_LABELS } from '../lib/constants'
 import { useAuth } from '../contexts/AuthContext'
 import { syncAlertSettings, subscribeToPush, unsubscribeFromPush } from '../lib/notificationClient'
 import { userKey } from '../lib/userKey'
+import {
+  type GreetingPrefs, DEFAULT_GREETING, GREETING_STORAGE_KEY,
+  GREETING_WORDS, GREETING_COLORS, buildGreetingText,
+} from '../lib/greetingPrefs'
+import { renderGreeting } from '../lib/greetingRender'
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface AlertConfig {
@@ -233,6 +238,13 @@ export default function AlertSettings() {
   const [kwInput, setKwInput]   = useState('')
   const [pushStatus, setPushStatus] = useState<PushPermission>(getPushStatus)
   const kwRef = useRef<HTMLInputElement>(null)
+  const [greeting, setGreeting] = useState<GreetingPrefs>(() => {
+    try {
+      const raw = localStorage.getItem(userKey(GREETING_STORAGE_KEY))
+      if (!raw) return DEFAULT_GREETING
+      return { ...DEFAULT_GREETING, ...(JSON.parse(raw) as Partial<GreetingPrefs>) }
+    } catch { return DEFAULT_GREETING }
+  })
 
   const VAPID_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
 
@@ -272,6 +284,10 @@ export default function AlertSettings() {
     localStorage.setItem(userKey('wsp-alert-settings'), JSON.stringify(cfg))
     if (user) syncAlertSettings(cfg).catch(() => {})
   }, [cfg, user])
+
+  useEffect(() => {
+    localStorage.setItem(userKey(GREETING_STORAGE_KEY), JSON.stringify(greeting))
+  }, [greeting])
 
   function patch(partial: Partial<AlertConfig>) {
     setCfg(prev => ({ ...prev, ...partial }))
@@ -665,6 +681,96 @@ export default function AlertSettings() {
               </div>
             </div>
           </div>
+        </Section>
+
+        {/* ── Greeting preferences ── */}
+        <Section title="Greeting preferences">
+          {(() => {
+            const isDark = !['light', 'outline', 'dots'].includes(
+              document.documentElement.getAttribute('data-theme') ?? 'dark'
+            )
+            const chipBase: React.CSSProperties = {
+              fontFamily: "'Nunito', sans-serif", fontSize: 13, fontWeight: 600,
+              padding: '5px 12px', borderRadius: 20, cursor: 'pointer',
+              transition: 'all .15s', border: '1.5px solid',
+            }
+            const chip = (on: boolean): React.CSSProperties => ({
+              ...chipBase,
+              borderColor:  on ? '#B597D5' : 'var(--color-border-light)',
+              background:   on ? 'rgba(181,151,213,.18)' : 'transparent',
+              color:        on ? '#B597D5' : 'var(--color-text-secondary)',
+            })
+            const previewText = buildGreetingText(greeting.word, user?.username ?? 'You')
+            return (
+              <>
+                {/* Word */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+                    Greeting
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {GREETING_WORDS.map(({ value, label }) => (
+                      <button key={value}
+                        onClick={() => setGreeting(p => ({ ...p, word: value }))}
+                        style={chip(greeting.word === value)}
+                      >{label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Color */}
+                <div style={{ marginBottom: greeting.word !== 'none' ? 16 : 0 }}>
+                  <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+                    Color
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {GREETING_COLORS.map(({ value, label }) => (
+                      <button key={value}
+                        onClick={() => setGreeting(p => ({ ...p, color: value }))}
+                        style={{
+                          ...chip(greeting.color === value),
+                          color: undefined,
+                          WebkitTextFillColor: undefined,
+                        }}
+                      >
+                        {value === 'default'
+                          ? <span style={{ color: greeting.color === value ? '#B597D5' : 'var(--color-text-secondary)' }}>{label}</span>
+                          : <span style={{ fontWeight: 700 }}>{renderGreeting(label, value, isDark)}</span>
+                        }
+                      </button>
+                    ))}
+                  </div>
+                  {greeting.color === 'america' && (
+                    <p style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)', margin: '8px 0 0' }}>
+                      Adapts to your current theme — dark shows red, white &amp; blue; light shows red &amp; blue.
+                    </p>
+                  )}
+                </div>
+
+                {/* Preview */}
+                {previewText && (
+                  <div style={{
+                    background: 'var(--color-bg-secondary)',
+                    border: '1px solid var(--color-border-light)',
+                    borderRadius: 10,
+                    padding: '12px 16px',
+                  }}>
+                    <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>
+                      Preview
+                    </div>
+                    <div style={{
+                      fontFamily: "'Quicksand', sans-serif",
+                      fontSize: 22, fontWeight: 700,
+                      color: 'var(--color-text-secondary)',
+                      textAlign: 'center',
+                    }}>
+                      {renderGreeting(previewText, greeting.color, isDark)}
+                    </div>
+                  </div>
+                )}
+              </>
+            )
+          })()}
         </Section>
 
         {/* ── Save confirmation ── */}

@@ -10,6 +10,10 @@ import {
   fetchNotifications, markAllRead,
   type AppNotification,
 } from '../lib/notificationClient'
+import {
+  type GreetingPrefs, DEFAULT_GREETING, GREETING_STORAGE_KEY, buildGreetingText,
+} from '../lib/greetingPrefs'
+import { renderGreeting } from '../lib/greetingRender'
 
 interface RepRow {
   bioguide_id: string
@@ -593,6 +597,15 @@ export default function Home() {
   const scurryPositions = useRef<Array<{ x: number; y: number; rot: number }>>([])
   const scurryTimers   = useRef<ReturnType<typeof setTimeout>[]>([])
 
+  const [theme, setTheme] = useState(() => localStorage.getItem('wsp-theme') ?? 'dark')
+  const [greetingPrefs, setGreetingPrefs] = useState<GreetingPrefs>(() => {
+    try {
+      const raw = localStorage.getItem(userKey(GREETING_STORAGE_KEY))
+      if (!raw) return DEFAULT_GREETING
+      return { ...DEFAULT_GREETING, ...(JSON.parse(raw) as Partial<GreetingPrefs>) }
+    } catch { return DEFAULT_GREETING }
+  })
+
   const [alertCount,   setAlertCount]   = useState(() => getIdsByStatus('alert').size)
   const [watchCount,   setWatchCount]   = useState(() => getIdsByStatus('watch').size)
   const [archiveCount, setArchiveCount] = useState(() => getIdsByStatus('archive').size)
@@ -616,6 +629,18 @@ export default function Home() {
     if (!user) return
     fetchNotifications().then(setNotifications)
     syncStatusesAfterLogin()
+  }, [user?.username])
+
+  // Reload greeting prefs when user becomes known (handles login-on-this-session)
+  useEffect(() => {
+    if (!user?.username) return
+    try {
+      const raw = localStorage.getItem(userKey(GREETING_STORAGE_KEY))
+      setGreetingPrefs(raw
+        ? { ...DEFAULT_GREETING, ...(JSON.parse(raw) as Partial<GreetingPrefs>) }
+        : DEFAULT_GREETING
+      )
+    } catch { setGreetingPrefs(DEFAULT_GREETING) }
   }, [user?.username])
 
   // Close notification dropdown on outside click
@@ -645,6 +670,7 @@ export default function Home() {
   async function handleSignOut() { await signOut() }
 
   function triggerScurry(newIsDark: boolean) {
+    setTheme(localStorage.getItem('wsp-theme') ?? 'dark')
     if (newIsDark) return  // only on switch to light mode
     scurryTimers.current.forEach(t => clearTimeout(t))
     const vw = window.innerWidth
@@ -866,14 +892,16 @@ export default function Home() {
             </div>
           </button>
 
-          {isLoggedIn && (
-            <div className="home-stoplight-greeting">
-              {user!.username.length > 8
-                ? <><span>Hello,</span><br /><span>{user!.username}</span></>
-                : `Hello, ${user!.username}`
-              }
-            </div>
-          )}
+          {isLoggedIn && (() => {
+            const txt = buildGreetingText(greetingPrefs.word, user!.username)
+            if (!txt) return null
+            const isDark = !['light', 'outline', 'dots'].includes(theme)
+            return (
+              <div className="home-stoplight-greeting">
+                {renderGreeting(txt, greetingPrefs.color, isDark)}
+              </div>
+            )
+          })()}
         </div>}{/* end stoplight col */}
         </div>{/* end main row */}
 
