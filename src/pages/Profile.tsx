@@ -63,30 +63,32 @@ const ZIP_CITY: Record<string, string> = {
   '90210': 'Beverly Hills',
 }
 
-const ZIP_COUNTY: Record<string, string> = {
+// HUD ZIP-to-county crosswalk. Each ZIP maps to one or more county names.
+// Single entry → autofill. Multiple entries → dropdown.
+const ZIP_COUNTIES: Record<string, string[]> = {
   // Michigan
-  '48821': 'Eaton County',
-  '49036': 'Branch County',       '49601': 'Wexford County',
-  '49770': 'Emmet County',        '49783': 'Chippewa County',
-  '49855': 'Marquette County',    '49883': 'Luce County',
-  '49931': 'Houghton County',     '49935': 'Dickinson County',
-  '49946': 'Baraga County',       '48858': 'Isabella County',
+  '48821': ['Eaton County'],
+  '49036': ['Branch County'],       '49601': ['Wexford County'],
+  '49770': ['Emmet County'],        '49783': ['Chippewa County'],
+  '49855': ['Marquette County'],    '49883': ['Luce County'],
+  '49931': ['Houghton County'],     '49935': ['Dickinson County'],
+  '49946': ['Baraga County'],       '48858': ['Isabella County'],
   // New England
-  '04609': 'Hancock County',      '04976': 'Somerset County',
-  '03301': 'Merrimack County',    '05401': 'Chittenden County',
+  '04609': ['Hancock County'],      '04976': ['Somerset County'],
+  '03301': ['Merrimack County'],    '05401': ['Chittenden County'],
   // Mid-Atlantic
-  '13326': 'Otsego County',       '17325': 'Adams County',
+  '13326': ['Otsego County'],       '17325': ['Adams County'],
   // South / Appalachia
-  '25425': 'Jefferson County',    '33040': 'Monroe County',
+  '25425': ['Jefferson County'],    '33040': ['Monroe County'],
   // Mountain West
-  '80517': 'Larimer County',      '82001': 'Laramie County',
+  '80517': ['Larimer County'],      '82001': ['Laramie County'],
   // Great Plains
-  '57501': 'Hughes County',       '57785': 'Meade County',
-  '58501': 'Burleigh County',
+  '57501': ['Hughes County'],       '57785': ['Meade County'],
+  '58501': ['Burleigh County'],
   // Pacific / Alaska
-  '99901': 'Ketchikan Gateway Borough',
+  '99901': ['Ketchikan Gateway Borough'],
   // Famous
-  '90210': 'Los Angeles County',
+  '90210': ['Los Angeles County'],
 }
 
 function lookupZip(zip: string): { state: string | null; city: string | null; county: string | null } {
@@ -97,13 +99,18 @@ function lookupZip(zip: string): { state: string | null; city: string | null; co
   return {
     state:  match ? match[2] : null,
     city:   ZIP_CITY[key] ?? null,
-    county: ZIP_COUNTY[key] ?? null,
+    county: (() => { const cs = ZIP_COUNTIES[key] ?? []; return cs.length === 1 ? cs[0] ?? null : null })(),
   }
 }
 
 function cleanCounty(raw: string): string {
   return raw.replace(/\s+(county|parish|borough|municipality|census area)$/i, '').trim().toUpperCase()
 }
+
+type Provenance = 'empty' | 'manual' | 'autofill'
+type ProvenanceMap = { state: Provenance; city: Provenance; county: Provenance }
+const AUTOFILL_FIELDS = ['state', 'city', 'county'] as const
+type AutofillField = typeof AUTOFILL_FIELDS[number]
 
 interface ProfileData {
   country: string
@@ -287,8 +294,17 @@ interface DistrictLookupRow {
 export default function Profile() {
   const { user } = useAuth()
   const [data, setData]                         = useState<ProfileData>(load)
+  const [provenance, setProvenance]             = useState<ProvenanceMap>(() => {
+    const d = load()
+    return {
+      state:  d.state  ? 'manual' : 'empty',
+      city:   d.city   ? 'manual' : 'empty',
+      county: d.county ? 'manual' : 'empty',
+    }
+  })
   const [saved, setSaved]                       = useState(false)
   const [cityMismatch, setCityMismatch]         = useState<string | null>(null)
+  const [countyOptions, setCountyOptions]       = useState<string[]>([])
   const [lookupRows, setLookupRows]             = useState<DistrictLookupRow[]>([])
   const [lookupStatus, setLookupStatus]         = useState<'idle' | 'loading' | 'done'>('idle')
   const [lookupSubmitting, setLookupSubmitting] = useState(false)
@@ -370,6 +386,9 @@ export default function Profile() {
       if (field !== 'city_link') next.confirmed = false
       return next
     })
+    if ((AUTOFILL_FIELDS as readonly string[]).includes(field)) {
+      setProvenance(prev => ({ ...prev, [field as AutofillField]: stored ? 'manual' : 'empty' }))
+    }
   }
 
   function showMsg(msg: string) {
@@ -498,35 +517,47 @@ export default function Profile() {
     const zip = raw.replace(/[^\d-]/g, '')
     setData(prev => {
       const next = { ...prev, zip, confirmed: false }
-      if (zip.length === 5) {
-        const { state, city, county } = lookupZip(zip)
-        if (state && !prev.state) next.state = state
-        if (county && !prev.county) next.county = cleanCounty(county)
-        if (city) {
-          if (!prev.city || prev.city.toLowerCase() === city.toLowerCase()) {
-            next.city = city
-          }
-        }
-      }
+      if (provenance.state  === 'autofill') next.state  = ''
+      if (provenance.city   === 'autofill') next.city   = ''
+      if (provenance.county === 'autofill') next.county = ''
       return next
     })
-    if (zip.length === 5) {
-      const { city } = lookupZip(zip)
-      if (city && data.city && data.city.toLowerCase() !== city.toLowerCase()) {
-        setCityMismatch(city)
-      } else {
-        setCityMismatch(null)
-      }
-      setLookupRows([])
-      setLookupStatus('idle')
-      setLookupMessage('')
-      void fetchLookupData(zip)
-    } else {
-      setCityMismatch(null)
-      setLookupRows([])
-      setLookupStatus('idle')
-      setLookupMessage('')
+    setProvenance(prev => ({
+      state:  prev.state  === 'autofill' ? 'empty' : prev.state,
+      city:   prev.city   === 'autofill' ? 'empty' : prev.city,
+      county: prev.county === 'autofill' ? 'empty' : prev.county,
+    }))
+    setCityMismatch(null)
+    setCountyOptions([])
+    setLookupRows([])
+    setLookupStatus('idle')
+    setLookupMessage('')
+  }
+
+  function handleZipBlur() {
+    const zip = data.zip.replace(/\D/g, '').slice(0, 5)
+    if (zip.length !== 5) return
+    const { state, city, county } = lookupZip(zip)
+    const provenanceUpdates: Partial<ProvenanceMap> = {}
+    setData(prev => {
+      const next = { ...prev }
+      if (state  && provenance.state  === 'empty') { next.state  = state;               provenanceUpdates.state  = 'autofill' }
+      if (county && provenance.county === 'empty') { next.county = cleanCounty(county); provenanceUpdates.county = 'autofill' }
+      if (city   && provenance.city   === 'empty') { next.city   = city;                provenanceUpdates.city   = 'autofill' }
+      return next
+    })
+    if (Object.keys(provenanceUpdates).length > 0) {
+      setProvenance(prev => ({ ...prev, ...provenanceUpdates }))
     }
+    if (city && data.city && data.city.toLowerCase() !== city.toLowerCase()) {
+      setCityMismatch(city)
+    }
+    const counties = ZIP_COUNTIES[zip] ?? []
+    if (provenance.county === 'empty' && counties.length > 1) setCountyOptions(counties)
+    setLookupRows([])
+    setLookupStatus('idle')
+    setLookupMessage('')
+    void fetchLookupData(zip)
   }
 
   const config      = getStateConfig(data.state)
@@ -596,7 +627,8 @@ export default function Profile() {
                 <label style={labelStyle} htmlFor="prof-zip">ZIP code</label>
                 <input id="prof-zip" style={inputStyle} type="text" autoComplete="postal-code"
                   inputMode="numeric" maxLength={10} value={data.zip}
-                  onChange={e => handleZipChange(e.target.value)} />
+                  onChange={e => handleZipChange(e.target.value)}
+                  onBlur={() => handleZipBlur()} />
               </div>
 
               <div>
@@ -617,8 +649,16 @@ export default function Profile() {
 
               <div>
                 <label style={labelStyle} htmlFor="prof-county">{config.countyLabel}</label>
-                <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
-                  value={data.county} onChange={e => set('county', e.target.value)} />
+                {countyOptions.length > 1 ? (
+                  <select id="prof-county" style={{ ...inputStyle, cursor: 'pointer' }}
+                    value={data.county} onChange={e => set('county', e.target.value)}>
+                    <option value="">— select county —</option>
+                    {countyOptions.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                ) : (
+                  <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
+                    value={data.county} onChange={e => set('county', e.target.value)} />
+                )}
               </div>
 
               <div>
