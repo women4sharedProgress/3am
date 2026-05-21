@@ -759,7 +759,7 @@
 
 .home-district-grid {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: 16px;
 }
 @media (min-width: 768px) {
