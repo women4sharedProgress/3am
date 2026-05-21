@@ -7,6 +7,10 @@ declare const self: ServiceWorkerGlobalScope
 cleanupOutdatedCaches()
 precacheAndRoute(self.__WB_MANIFEST)
 
+self.addEventListener('message', (event: ExtendableMessageEvent) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
+})
+
 // SPA navigation fallback — same denylist as the old generateSW config
 registerRoute(
   new NavigationRoute(createHandlerBoundToURL('/index.html'), {
