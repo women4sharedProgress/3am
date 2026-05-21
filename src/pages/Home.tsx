@@ -1030,7 +1030,7 @@ export default function Home() {
             )}
 
             <div className="home-district-grid">
-              {(['national', 'state', 'local'] as const).map(level => {
+              {(['local', 'state', 'national'] as const).map(level => {
                 const officials = (() => {
                   if (!hasProfileAddr) return []
                   if (level === 'national') {

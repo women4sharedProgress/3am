@@ -762,6 +762,12 @@
   flex-direction: column;
   gap: 16px;
 }
+@media (min-width: 768px) {
+  .home-district-grid {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
 .home-district-col {
   flex: 1;
   display: flex;
