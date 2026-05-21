@@ -797,8 +797,8 @@ export default function Home() {
               aria-label="Alert Settings — configure your alerts"
             >
               <div className="home-card-icon-wrap"><AlertSettingsIcon size={34} /></div>
-              <span className="home-card-label">Alert Settings</span>
-              <span className="home-card-desc">Configure your alerts</span>
+              <span className="home-card-label">Alerts &amp; Settings</span>
+              <span className="home-card-desc">Configure your preferences</span>
             </button>
           )}
 
@@ -812,7 +812,7 @@ export default function Home() {
             >
               <div className="home-card-icon-wrap"><ProfileCardIcon size={34} /></div>
               <span className="home-card-label">My Profile</span>
-              <span className="home-card-desc">Your account &amp; preferences</span>
+              <span className="home-card-desc">Your account</span>
             </button>
           )}
 
