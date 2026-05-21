@@ -197,7 +197,7 @@ export default function CivicCalendar() {
         <h1 style={{
           fontFamily: "'Quicksand', sans-serif",
           fontSize: 28, fontWeight: 700,
-          color: '#4f4262', marginBottom: 8, letterSpacing: '.2px',
+          color: '#B597D5', marginBottom: 8, letterSpacing: '.2px',
         }}>Civic Calendar</h1>
 
         <p style={{
