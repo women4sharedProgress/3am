@@ -115,6 +115,23 @@ function AboutIcon({ size = 20, color = '#2D1B4E' }: IP) {
 }
 
 
+function CivicCalendarIcon({ size = 20, color = 'white' }: IP) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="3"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+      <line x1="8" y1="15" x2="8" y2="15"/>
+      <circle cx="8" cy="15" r=".6" fill={color}/>
+      <line x1="12" y1="15" x2="12" y2="15"/>
+      <circle cx="12" cy="15" r=".6" fill={color}/>
+      <line x1="16" y1="15" x2="16" y2="15"/>
+      <circle cx="16" cy="15" r=".6" fill={color}/>
+    </svg>
+  )
+}
+
 function SignInIcon({ size = 20, color = '#5a3a00' }: IP) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -927,6 +944,15 @@ export default function Home() {
 
         {/* ── Secondary row — 8 tiles ──────────────────── */}
         <div className="home-secondary-row">
+
+          <button
+            className="home-secondary-card" style={{ background: '#1D4ED8' }}
+            onClick={() => navigate('/civic-calendar')}
+            aria-label="Civic Calendar — elections and registration deadlines"
+          >
+            <CivicCalendarIcon size={20} color="white" />
+            <span className="home-secondary-label">Civic Calendar</span>
+          </button>
 
           <button
             className="home-secondary-card" style={{ background: '#B597D5' }}

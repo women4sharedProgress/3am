@@ -19,6 +19,7 @@ import AlertSettings           from './pages/AlertSettings'
 import EnactedLegislation      from './pages/EnactedLegislation'
 import ResetPassword           from './pages/ResetPassword'
 import OpenSource             from './pages/OpenSource'
+import CivicCalendar          from './pages/CivicCalendar'
 
 export default function App() {
   const { user } = useAuth()
@@ -44,6 +45,7 @@ export default function App() {
       <Route path="/enacted-legislation"  element={<EnactedLegislation />} />
       <Route path="/reset-password"       element={<ResetPassword />} />
       <Route path="/open-source"          element={<OpenSource />} />
+      <Route path="/civic-calendar"      element={<CivicCalendar />} />
     </Routes>
     </>
   )
