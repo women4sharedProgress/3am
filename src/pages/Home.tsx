@@ -399,7 +399,12 @@ export default function Home() {
     localStorage.getItem('wsp-president-mode') === 'election' ? 'election' : 'president'
   )
   const [dbReps, setDbReps]               = useState<RepRow[]>([])
-  const [repElectionKeys, setRepElectionKeys] = useState<Set<string>>(new Set())
+  const [repElectionKeys, setRepElectionKeys] = useState<Set<string>>(() => {
+    try {
+      const r = localStorage.getItem(userKey('wsp-rep-election-keys'))
+      return r ? new Set(JSON.parse(r) as string[]) : new Set()
+    } catch { return new Set() }
+  })
   const toggleRepElection = (key: string) =>
     setRepElectionKeys(prev => { const s = new Set(prev); s.has(key) ? s.delete(key) : s.add(key); return s })
 
@@ -430,7 +435,12 @@ export default function Home() {
       return r ? new Set(JSON.parse(r) as string[]) : new Set()
     } catch { return new Set() }
   })
-  const [localViewMode, setLocalViewMode]         = useState<'show' | 'hide'>('show')
+  const [localViewMode, setLocalViewMode]         = useState<'show' | 'hide'>(() => {
+    try {
+      const r = localStorage.getItem(userKey('wsp-local-view-mode'))
+      return r === 'hide' ? 'hide' : 'show'
+    } catch { return 'show' }
+  })
   const [localParty, setLocalParty]               = useState<Record<string, string>>(() => {
     try { const r = localStorage.getItem(userKey('wsp-local-party')); return r ? JSON.parse(r) : {} } catch { return {} }
   })
@@ -486,6 +496,14 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem(userKey('wsp-local-party'), JSON.stringify(localParty))
   }, [localParty])
+
+  useEffect(() => {
+    localStorage.setItem(userKey('wsp-rep-election-keys'), JSON.stringify([...repElectionKeys]))
+  }, [repElectionKeys])
+
+  useEffect(() => {
+    localStorage.setItem(userKey('wsp-local-view-mode'), localViewMode)
+  }, [localViewMode])
 
   useEffect(() => {
     if (!user?.username) return
