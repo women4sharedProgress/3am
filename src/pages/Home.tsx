@@ -11,7 +11,8 @@ import {
   type AppNotification,
 } from '../lib/notificationClient'
 import {
-  type GreetingPrefs, DEFAULT_GREETING, GREETING_STORAGE_KEY, buildGreetingText,
+  type GreetingPrefs, DEFAULT_GREETING, GREETING_STORAGE_KEY,
+  buildGreetingText, buildGreetingLines,
 } from '../lib/greetingPrefs'
 import { renderGreeting } from '../lib/greetingRender'
 
@@ -893,11 +894,30 @@ export default function Home() {
           </button>
 
           {isLoggedIn && (() => {
+            const isDark = !['light', 'outline', 'dots'].includes(theme)
+            const isBig  = greetingPrefs.size === 'big'
+            const isMobileW = typeof window !== 'undefined' && window.innerWidth <= 600
+
+            if (isBig && isMobileW) {
+              const lines = buildGreetingLines(greetingPrefs.word, user!.username)
+              if (!lines) return null
+              const maxLen   = Math.max(...lines.map(l => l.length))
+              const fsVw     = Math.min(36, Math.max(4, 88 / (maxLen * 0.60))).toFixed(2)
+              return (
+                <div className="home-stoplight-greeting home-stoplight-greeting--big">
+                  {lines.map((line, i) => (
+                    <div key={i} style={{ fontSize: `${fsVw}vw`, lineHeight: 1.1, textAlign: 'center' }}>
+                      {renderGreeting(line, greetingPrefs.color, isDark)}
+                    </div>
+                  ))}
+                </div>
+              )
+            }
+
             const txt = buildGreetingText(greetingPrefs.word, user!.username)
             if (!txt) return null
-            const isDark = !['light', 'outline', 'dots'].includes(theme)
             return (
-              <div className="home-stoplight-greeting">
+              <div className="home-stoplight-greeting" style={isBig ? { fontSize: 28 } : undefined}>
                 {renderGreeting(txt, greetingPrefs.color, isDark)}
               </div>
             )

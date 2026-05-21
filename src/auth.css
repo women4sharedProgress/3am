@@ -2019,6 +2019,15 @@
     width: 100%;
   }
 
+  /* Big greeting: stretch to full column width so vw font size fills edge-to-edge */
+  .home-stoplight-greeting--big {
+    width: 100%;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
   /* Phone tel links: visibly tappable on mobile */
   .home-rep-phone {
     text-decoration: underline;

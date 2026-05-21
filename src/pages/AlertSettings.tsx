@@ -9,6 +9,7 @@ import {
   type GreetingPrefs, DEFAULT_GREETING, GREETING_STORAGE_KEY,
   GREETING_WORDS, GREETING_COLORS, buildGreetingText,
 } from '../lib/greetingPrefs'
+import React from 'react'
 import { renderGreeting } from '../lib/greetingRender'
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -703,6 +704,21 @@ export default function AlertSettings() {
             const previewText = buildGreetingText(greeting.word, user?.username ?? 'You')
             return (
               <>
+                {/* Size */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+                    Size
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {(['small', 'big'] as const).map(s => (
+                      <button key={s}
+                        onClick={() => setGreeting(p => ({ ...p, size: s }))}
+                        style={chip(greeting.size === s)}
+                      >{s.charAt(0).toUpperCase() + s.slice(1)}</button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Word */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
