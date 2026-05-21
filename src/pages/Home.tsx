@@ -946,7 +946,7 @@ export default function Home() {
         <div className="home-secondary-row">
 
           <button
-            className="home-secondary-card" style={{ background: '#1D4ED8' }}
+            className="home-secondary-card" style={{ background: '#4F4262' }}
             onClick={() => navigate('/civic-calendar')}
             aria-label="Civic Calendar — elections and registration deadlines"
           >
@@ -974,7 +974,7 @@ export default function Home() {
               <polyline points="7 12.5 10.5 16 17 9" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span className="home-secondary-label">Passed Law</span>
-            <span className="home-secondary-badge">5 year History</span>
+            <span className="home-secondary-badge">2 year History</span>
           </button>
 
           <button
