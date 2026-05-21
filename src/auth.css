@@ -758,8 +758,8 @@
 
 .home-district-grid {
   display: flex;
+  flex-direction: column;
   gap: 16px;
-  align-items: start;
 }
 .home-district-col {
   flex: 1;
@@ -2016,11 +2016,6 @@
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
-  }
-
-  /* Representatives grid: single column, each level stacks vertically */
-  .home-district-grid {
-    flex-direction: column;
   }
 
   /* Phone tel links: visibly tappable on mobile */
