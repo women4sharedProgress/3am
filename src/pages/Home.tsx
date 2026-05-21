@@ -950,7 +950,7 @@ export default function Home() {
             onClick={() => navigate('/civic-calendar')}
             aria-label="Civic Calendar — elections and registration deadlines"
           >
-            <CivicCalendarIcon size={20} color="white" />
+            <CivicCalendarIcon size={20} color="#008080" />
             <span className="home-secondary-label">Civic Calendar</span>
           </button>
 
