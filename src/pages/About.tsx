@@ -135,9 +135,9 @@ export default function About() {
         <h2 style={h2Style}>3am Pipeline Usage Tiers</h2>
 
         {[
-          { tier: 'Tier 1', text: 'Read only, no account required. Access to LawTracker. Civic Calendar.' },
-          { tier: 'Tier 2', text: 'Requires username and password. My Profile, Your Representatives, Alert/Watch/Archive, crowdsourced verification and editing.' },
-          { tier: 'Tier 3', text: 'Identity verified by W4SP. Vetted verification agents — W4SP Administration, Elected Officials, Partners, volunteers, and broadcast agents.' },
+          { tier: 'Tier 1', text: 'Read only, no account required. Access to LawTracker and Civic Calendar.' },
+          { tier: 'Tier 2', text: 'Requires username and password. Access to My Profile, Your Representatives, Alert/Watch/Archive, crowdsourced verification and editing.' },
+          { tier: 'Tier 3', text: 'Identity verified by W4SP. Vetted verification agents — W4SP Administration, Elected Officials, Partners, volunteers, and broadcast agents and elected officials.' },
           { tier: 'Tier 4', text: 'Requires personal information and at least one opt-in to data sharing. If opt-in aggregate data generates revenue, contributors share in it.' },
           { tier: 'Tier 5', text: 'Requires personal information and civic history. Tier 3 electoral alumni, users with sound participation history.' },
         ].map(({ tier, text }) => (
@@ -156,7 +156,7 @@ export default function About() {
         <hr style={divider} />
 
         <p style={p}>
-          <span style={label}>Feedback button:&nbsp;</span>
+          <span style={label}>Feedback Bug Button:&nbsp;</span>
           send comments, ideas, frustrations, bug reports, and kudos.
         </p>
 
