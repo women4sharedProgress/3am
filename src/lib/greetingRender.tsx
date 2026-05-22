@@ -15,6 +15,7 @@ const SOLID: Partial<Record<GreetingColor, string>> = {
   navy:    '#002868',
   demblue: '#003F87',
   brown:   '#8B4513',
+  yellow:  '#E6C200',
 }
 
 export function renderGreeting(text: string, color: GreetingColor, isDark: boolean): ReactNode {
@@ -24,7 +25,22 @@ export function renderGreeting(text: string, color: GreetingColor, isDark: boole
   if (color === 'rainbow') {
     return (
       <span style={{
-        background: 'linear-gradient(to right, #ff0000, #ff7700, #ffee00, #00cc00, #0055ff, #8800ee)',
+        background: 'linear-gradient(to bottom, #ff0000, #ff7700, #ffee00, #00cc00, #0055ff, #8800ee)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+      }}>
+        {text}
+      </span>
+    )
+  }
+  if (color === 'merica') {
+    return (
+      <span style={{
+        backgroundImage: 'linear-gradient(#002868, #002868), repeating-linear-gradient(180deg, #CC0000, #CC0000 7.69%, #FFFFFF 7.69%, #FFFFFF 15.38%)',
+        backgroundSize: '40% 54%, 100% 100%',
+        backgroundPosition: '0 0, 0 0',
+        backgroundRepeat: 'no-repeat, no-repeat',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
