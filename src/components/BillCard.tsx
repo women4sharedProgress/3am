@@ -278,6 +278,44 @@ export default function BillCard({ bill }: { bill: Bill }) {
             {offMeta.label}
           </span>
         </div>
+
+        {user && <div className="crowd-verify-center">
+          <button
+            className={`crowd-verify-dot ${dotClass}`}
+            onClick={handleVerify}
+            disabled={!user || userVerified || verifyBusy}
+            title={!user ? 'Sign in to verify' : userVerified ? 'You verified this' : 'I verify this information'}
+            aria-label={!user ? 'Sign in to verify' : userVerified ? 'You verified this' : 'Verify this information'}
+          />
+          <span className="crowd-verify-label">
+            {communityVerified
+              ? `Community verified · ${verifyCount} verification${verifyCount !== 1 ? 's' : ''}`
+              : userVerified
+              ? verifyCount > 1 ? `You + ${verifyCount - 1} other${verifyCount - 1 !== 1 ? 's' : ''} verifying` : 'You verified this'
+              : verifyCount > 0
+              ? `I verify this information · ${verifyCount} verifying`
+              : 'I verify this information'}
+          </span>
+
+          <button
+              className={`crowd-flag-btn${userFlagged || communityFlagged ? ' crowd-flag-btn--active' : ''}`}
+              onClick={handleFlag}
+              disabled={flagBusy}
+              title={
+                isAdmin
+                  ? flagCount > 0 ? `Clear ${flagCount} error flag${flagCount !== 1 ? 's' : ''} (admin)` : 'No active flags'
+                  : userFlagged ? 'Remove your error flag' : `Flag as having errors${flagCount > 0 ? ` · ${flagCount} flagged` : ''}`
+              }
+              aria-label={isAdmin ? 'Clear error flags' : userFlagged ? 'Remove error flag' : 'Flag bill as having errors'}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill={userFlagged || communityFlagged ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+              </svg>
+              {flagCount > 0 && <span className="crowd-flag-count">{flagCount}</span>}
+            </button>
+        </div>}
+
         <button
           className="bill-scroll-top"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -288,45 +326,6 @@ export default function BillCard({ bill }: { bill: Bill }) {
             <polyline points="18 15 12 9 6 15"/>
           </svg>
         </button>
-      </div>
-
-      <div className="crowd-verify-row">
-        <button
-          className={`crowd-verify-dot ${dotClass}`}
-          onClick={handleVerify}
-          disabled={!user || userVerified || verifyBusy}
-          title={!user ? 'Sign in to verify' : userVerified ? 'You verified this' : 'I verify this information'}
-          aria-label={!user ? 'Sign in to verify' : userVerified ? 'You verified this' : 'Verify this information'}
-        />
-        <span className="crowd-verify-label">
-          {communityVerified
-            ? `Community verified · ${verifyCount} verification${verifyCount !== 1 ? 's' : ''}`
-            : userVerified
-            ? verifyCount > 1 ? `You + ${verifyCount - 1} other${verifyCount - 1 !== 1 ? 's' : ''} verifying` : 'You verified this'
-            : verifyCount > 0
-            ? `I verify this information · ${verifyCount} verifying`
-            : 'I verify this information'}
-        </span>
-
-        {(user || communityFlagged) && (
-          <button
-            className={`crowd-flag-btn${userFlagged || communityFlagged ? ' crowd-flag-btn--active' : ''}`}
-            onClick={handleFlag}
-            disabled={flagBusy}
-            title={
-              isAdmin
-                ? flagCount > 0 ? `Clear ${flagCount} error flag${flagCount !== 1 ? 's' : ''} (admin)` : 'No active flags'
-                : userFlagged ? 'Remove your error flag' : `Flag as having errors${flagCount > 0 ? ` · ${flagCount} flagged` : ''}`
-            }
-            aria-label={isAdmin ? 'Clear error flags' : userFlagged ? 'Remove error flag' : 'Flag bill as having errors'}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill={userFlagged || communityFlagged ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-              <line x1="4" y1="22" x2="4" y2="15"/>
-            </svg>
-            {flagCount > 0 && <span className="crowd-flag-count">{flagCount}</span>}
-          </button>
-        )}
       </div>
     </div>
   )

@@ -336,10 +336,12 @@ body {
 .bill-status-dot--watch.active   { background: #E97132; }
 .bill-status-dot--archive.active { background: #FFC000; }
 
-/* office badge + scroll-top footer row */
+/* office badge + verification cluster + scroll-top — single footer row */
 .card-footer-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 0.5rem;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--color-border-light);
 }
 .office-badge {
   display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
@@ -350,20 +352,18 @@ body {
   display: inline-flex; align-items: center; gap: 4px;
   white-space: nowrap; flex-shrink: 0;
 }
+.crowd-verify-center {
+  display: flex; align-items: center; gap: 7px;
+}
 .bill-scroll-top {
   background: none; border: none; cursor: pointer; padding: 4px 5px;
   color: var(--color-text-tertiary); border-radius: 4px;
   display: flex; align-items: center; transition: color 0.15s;
-  line-height: 1;
+  line-height: 1; justify-self: end;
 }
 .bill-scroll-top:hover { color: var(--color-text-primary); }
 
-/* ── Crowd verification row ───────────────────────────────────── */
-.crowd-verify-row {
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  margin-top: 12px; padding-top: 10px;
-  border-top: 1px solid var(--color-border-light);
-}
+/* ── Crowd verification dots/flag ─────────────────────────────── */
 .crowd-verify-dot {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
   background: var(--color-text-tertiary); border: none; padding: 0; cursor: pointer;
@@ -377,7 +377,6 @@ body {
 .crowd-verify-label {
   font-family: 'Nunito', sans-serif; font-size: 11px;
   color: var(--color-text-tertiary); line-height: 1.4; cursor: default;
-  flex: 1;
 }
 .crowd-flag-btn {
   display: flex; align-items: center; gap: 3px;
