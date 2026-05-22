@@ -1016,9 +1016,9 @@ export default function Home() {
             onClick={() => navigate('/enacted-legislation')}
             aria-label="Enacted Legislation"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle cx="12" cy="12" r="11" fill="#00B050"/>
-              <polyline points="7 12.5 10.5 16 17 9" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="7.5 12.5 10.5 15.5 16.5 9"/>
             </svg>
             <span className="home-secondary-label">Passed Law</span>
             <span className="home-secondary-badge">Check it out</span>

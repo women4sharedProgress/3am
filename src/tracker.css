@@ -289,8 +289,7 @@ body {
 .tag-now     { background: #fcebeb; color: #791f1f; }
 .tag-months  { background: #faeeda; color: #633806; }
 .tag-year    { background: #f1efe8; color: #444441; }
-.tag-stalled  { background: #e8e6e0; color: #1a7a72; }
-.tag-enacted  { background: #e6f4ec; color: #1a5e32; }
+.tag-stalled { background: #e8e6e0; color: #1a7a72; }
 
 .amend-tag {
   font-size: 11px; padding: 1px 6px; border-radius: 8px;

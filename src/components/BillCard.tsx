@@ -52,7 +52,7 @@ export default function BillCard({ bill }: { bill: Bill }) {
     ? <span className="tag tag-local">📍 {bill.municipality}</span>
     : <span className="tag tag-mi">Michigan</span>
 
-  const urgTag = isEnacted(bill)             ? <span className="tag tag-enacted">&#10003; Enacted</span>
+  const urgTag = isEnacted(bill)             ? null
                : bill.urgency === 'urgent'  ? <span className="tag tag-now">Act now</span>
                : bill.urgency === 'months'  ? <span className="tag tag-months">Months</span>
                : bill.urgency === 'stalled' ? <span className="tag tag-stalled">Stalled</span>
