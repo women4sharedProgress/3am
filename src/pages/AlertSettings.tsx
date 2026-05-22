@@ -890,6 +890,27 @@ export default function AlertSettings() {
           Settings save automatically.
         </p>
 
+        {/* ── Tier upgrade — tier 2 only ── */}
+        {user?.tier === 2 && (
+          <div style={{ borderTop: '1px solid var(--color-border-light)', marginTop: 24, paddingTop: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <p style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-secondary)', textAlign: 'center', margin: 0 }}>
+              Want expanded access? W4SP-verified identities unlock additional tools.
+            </p>
+            <button
+              onClick={() => navigate('/account-tier')}
+              style={{
+                fontFamily: "'Quicksand', sans-serif", fontSize: 13, fontWeight: 700,
+                padding: '9px 22px', borderRadius: 20, border: '1.5px solid #4F4262',
+                background: 'transparent', color: '#4F4262',
+                cursor: 'pointer', letterSpacing: '.3px',
+                transition: 'all .15s',
+              }}
+            >
+              Request tier upgrade
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   )

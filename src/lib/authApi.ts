@@ -92,3 +92,15 @@ export function adminBillSave(
 export function authChangePassword(current_password: string, new_password: string) {
   return post('auth-change-password', { current_password, new_password })
 }
+
+export function tierRequestSubmit(request_type: string, note: string, contact_email: string, contact_phone: string) {
+  return post('tier-request-submit', { request_type, note, contact_email, contact_phone })
+}
+
+export function tierRequestList() {
+  return post('tier-request-list', {})
+}
+
+export function tierRequestReview(request_id: number, status: 'approved' | 'disapproved' | 'pending') {
+  return post('tier-request-review', { request_id, status })
+}

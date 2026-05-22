@@ -21,6 +21,8 @@ import ResetPassword           from './pages/ResetPassword'
 import OpenSource             from './pages/OpenSource'
 import CivicCalendar          from './pages/CivicCalendar'
 import PatchesUpdates         from './pages/PatchesUpdates'
+import AccountTier            from './pages/AccountTier'
+import TierRequests           from './pages/TierRequests'
 
 export default function App() {
   const { user } = useAuth()
@@ -48,6 +50,8 @@ export default function App() {
       <Route path="/open-source"          element={<OpenSource />} />
       <Route path="/civic-calendar"      element={<CivicCalendar />} />
       <Route path="/patches-updates"    element={<PatchesUpdates />} />
+      <Route path="/account-tier"       element={<AccountTier />} />
+      <Route path="/tier-requests"      element={<TierRequests />} />
     </Routes>
     </>
   )
