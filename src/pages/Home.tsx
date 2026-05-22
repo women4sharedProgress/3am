@@ -1045,7 +1045,7 @@ export default function Home() {
         <div className="home-tertiary-row">
           <a
             className="home-secondary-card"
-            style={{ background: '#003f8a', textDecoration: 'none' }}
+            style={{ background: '#7BBDE1', textDecoration: 'none' }}
             href="https://www.michigan.gov/sos/elections"
             target="_blank"
             rel="noopener noreferrer"
@@ -1060,7 +1060,7 @@ export default function Home() {
 
           <a
             className="home-secondary-card"
-            style={{ background: '#003f8a', textDecoration: 'none' }}
+            style={{ background: '#7BBDE1', textDecoration: 'none' }}
             href="https://mvic.sos.state.mi.us/Voter/Index"
             target="_blank"
             rel="noopener noreferrer"
