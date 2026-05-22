@@ -88,3 +88,7 @@ export function adminBillSave(
 ) {
   return post('admin-bill-save', { bill_id, fields, ...options })
 }
+
+export function authChangePassword(current_password: string, new_password: string) {
+  return post('auth-change-password', { current_password, new_password })
+}

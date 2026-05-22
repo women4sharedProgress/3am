@@ -267,10 +267,17 @@ const STATE_FEDERAL_SEATS: Record<string, number> = {
 // Cities with local bill tracking. Expand as jurisdictions are added.
 const TRACKED_CITIES = new Set<string>([])
 
-// Voter / district look-up portal per state. Add new states here as they are onboarded.
-const LOOKUP_URLS: Record<string, { url: string; label: string }> = {
-  MI: { url: 'https://mvic.sos.state.mi.us/Voter/Index',                     label: 'MI Voter Info' },
-  KS: { url: 'https://www.kssos.org/elections/elections_voterlookup.aspx',   label: 'KS Voter Lookup' },
+// Voter / district portals per state. lookupUrl drives both "Lookup" and "District & Polling" buttons.
+// voterInfoUrl drives the "Voter Info" button and may differ from lookupUrl in some states.
+const STATE_PORTALS: Record<string, { lookupUrl: string; voterInfoUrl: string }> = {
+  MI: {
+    lookupUrl:    'https://mvic.sos.state.mi.us/Voter/Index',
+    voterInfoUrl: 'https://mvic.sos.state.mi.us/Voter/Index',
+  },
+  KS: {
+    lookupUrl:    'https://www.kssos.org/elections/elections_voterlookup.aspx',
+    voterInfoUrl: 'https://www.kssos.org/elections/elections_voterlookup.aspx',
+  },
 }
 
 interface DistrictLookupRow {
@@ -893,11 +900,10 @@ export default function Profile() {
               </div>
 
             </div>
+            <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)', margin: '12px 0', lineHeight: 1.6, fontFamily: "'Nunito', sans-serif" }}>
+              Your address is used for district lookups and is stored only on this device.
+            </p>
           </div>
-
-          <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)', margin: '12px 0', lineHeight: 1.6, fontFamily: "'Nunito', sans-serif" }}>
-            Your address is used for district lookups and is stored only on this device.
-          </p>
 
           {/* ── My District Information ── */}
           <div style={{ flex: '0 1 380px', minWidth: 260 }}>
@@ -953,30 +959,34 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Political Districts header + look-up link */}
+              {/* Political Districts header + look-up links */}
               {(() => {
-                const lookup = data.country === 'United States' ? LOOKUP_URLS[data.state] : undefined
+                const portals = data.country === 'United States' ? STATE_PORTALS[data.state] : undefined
+                const btnStyle = {
+                  fontSize: 11, fontFamily: "'Quicksand', sans-serif", fontWeight: 700,
+                  padding: '4px 9px', borderRadius: 6,
+                  border: '1px solid var(--color-border-medium)',
+                  background: 'var(--color-bg-secondary)',
+                  color: 'var(--color-teal)',
+                  whiteSpace: 'nowrap' as const,
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                }
                 return (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <label style={{ ...labelStyle, marginBottom: 0 }}>Political Districts</label>
-                    {lookup && (
-                      <a
-                        href={lookup.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          fontSize: 11, fontFamily: "'Quicksand', sans-serif", fontWeight: 700,
-                          padding: '4px 9px', borderRadius: 6,
-                          border: '1px solid var(--color-border-medium)',
-                          background: 'var(--color-bg-secondary)',
-                          color: 'var(--color-teal)',
-                          whiteSpace: 'nowrap',
-                          textDecoration: 'none',
-                          display: 'inline-block',
-                        }}
-                      >
-                        {lookup.label}
-                      </a>
+                  <div>
+                    <label style={labelStyle}>Political Districts</label>
+                    {portals && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                        <a href={portals.lookupUrl} target="_blank" rel="noopener noreferrer" style={btnStyle}>
+                          {data.state} Lookup
+                        </a>
+                        <a href={portals.voterInfoUrl} target="_blank" rel="noopener noreferrer" style={btnStyle}>
+                          {data.state} Voter Info
+                        </a>
+                        <a href={portals.lookupUrl} target="_blank" rel="noopener noreferrer" style={btnStyle}>
+                          {data.state} District &amp; Polling
+                        </a>
+                      </div>
                     )}
                   </div>
                 )

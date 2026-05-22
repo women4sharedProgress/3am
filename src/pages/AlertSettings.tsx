@@ -4,6 +4,7 @@ import ThemeToggle from '../components/ThemeToggle'
 import { ISSUE_LABELS } from '../lib/constants'
 import { useAuth } from '../contexts/AuthContext'
 import { syncAlertSettings, subscribeToPush, unsubscribeFromPush } from '../lib/notificationClient'
+import { authChangePassword } from '../lib/authApi'
 import { userKey } from '../lib/userKey'
 import {
   type GreetingPrefs, DEFAULT_GREETING, GREETING_STORAGE_KEY,
@@ -239,6 +240,10 @@ export default function AlertSettings() {
   const [kwInput, setKwInput]   = useState('')
   const [pushStatus, setPushStatus] = useState<PushPermission>(getPushStatus)
   const kwRef = useRef<HTMLInputElement>(null)
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
+  const [pwStatus, setPwStatus] = useState<'idle' | 'saving' | 'ok' | 'err'>('idle')
+  const [pwError, setPwError] = useState('')
+
   const [greeting, setGreeting] = useState<GreetingPrefs>(() => {
     try {
       const raw = localStorage.getItem(userKey(GREETING_STORAGE_KEY))
@@ -315,6 +320,25 @@ export default function AlertSettings() {
     patch({ keywords: cfg.keywords.filter(k => k !== kw) })
   }
 
+  async function handleChangePassword() {
+    if (pwForm.next !== pwForm.confirm) {
+      setPwStatus('err'); setPwError('New passwords do not match'); return
+    }
+    if (pwForm.next.length < 8) {
+      setPwStatus('err'); setPwError('Password must be at least 8 characters'); return
+    }
+    setPwStatus('saving'); setPwError('')
+    const res = await authChangePassword(pwForm.current, pwForm.next)
+    if (res.ok) {
+      setPwStatus('ok')
+      setPwForm({ current: '', next: '', confirm: '' })
+      setTimeout(() => setPwStatus('idle'), 3000)
+    } else {
+      setPwStatus('err')
+      setPwError(res.error ?? 'Failed to change password')
+    }
+  }
+
   const dim = !cfg.enabled
 
   return (
@@ -351,9 +375,19 @@ export default function AlertSettings() {
 
         {/* ── Header ── */}
         <div style={{ marginBottom: 4 }}>
-          <h1 style={{ fontFamily: "'Quicksand', sans-serif", fontSize: 28, fontWeight: 700, margin: '0 0 4px', color: 'var(--page-title)' }}>
-            Alert Settings
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <h1 style={{ fontFamily: "'Quicksand', sans-serif", fontSize: 28, fontWeight: 700, margin: 0, color: 'var(--page-title)' }}>
+              Alert Settings
+            </h1>
+            {user && (
+              <span style={{
+                fontSize: 11, fontFamily: "'Quicksand', sans-serif", fontWeight: 700,
+                padding: '3px 9px', borderRadius: 20,
+                background: 'rgba(79,66,98,.25)', border: '1px solid rgba(79,66,98,.5)',
+                color: 'var(--color-text-secondary)',
+              }}>Tier {user.tier}</span>
+            )}
+          </div>
           <p style={{ fontSize: 13, color: 'var(--page-subtitle)', margin: 0, lineHeight: 1.5 }}>
             Control what you get notified about, when, and how.
           </p>
@@ -788,6 +822,59 @@ export default function AlertSettings() {
             )
           })()}
         </Section>
+
+        {/* ── Security ── */}
+        {user && (
+          <Section title="Security">
+            <p style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-secondary)', margin: '0 0 14px', lineHeight: 1.5 }}>
+              Change your password. You'll need your current password to confirm.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {(['current', 'next', 'confirm'] as const).map((field, i) => (
+                <div key={field}>
+                  <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>
+                    {field === 'current' ? 'Current password' : field === 'next' ? 'New password' : 'Confirm new password'}
+                  </div>
+                  <input
+                    type="password"
+                    value={pwForm[field]}
+                    onChange={e => setPwForm(p => ({ ...p, [field]: e.target.value }))}
+                    onKeyDown={e => e.key === 'Enter' && i === 2 && handleChangePassword()}
+                    style={{
+                      width: '100%', boxSizing: 'border-box',
+                      fontFamily: "'Nunito', sans-serif", fontSize: 13,
+                      padding: '8px 12px', borderRadius: 8,
+                      border: '1.5px solid var(--color-border-light)',
+                      background: 'var(--color-bg-secondary)',
+                      color: 'var(--color-text-primary)',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
+              ))}
+              {pwStatus === 'err' && (
+                <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: '#E97132' }}>{pwError}</div>
+              )}
+              {pwStatus === 'ok' && (
+                <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: '#00B050' }}>Password changed successfully.</div>
+              )}
+              <button
+                onClick={handleChangePassword}
+                disabled={pwStatus === 'saving' || !pwForm.current || !pwForm.next || !pwForm.confirm}
+                style={{
+                  fontFamily: "'Nunito', sans-serif", fontSize: 13, fontWeight: 700,
+                  padding: '8px 18px', borderRadius: 20, border: 'none',
+                  background: '#4F4262', color: 'white', alignSelf: 'flex-start',
+                  cursor: pwStatus === 'saving' ? 'default' : 'pointer',
+                  opacity: (!pwForm.current || !pwForm.next || !pwForm.confirm || pwStatus === 'saving') ? 0.6 : 1,
+                  transition: 'opacity .15s',
+                }}
+              >
+                {pwStatus === 'saving' ? 'Saving…' : 'Change Password'}
+              </button>
+            </div>
+          </Section>
+        )}
 
         {/* ── Save confirmation ── */}
         <p style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)', textAlign: 'center', margin: '4px 0' }}>
