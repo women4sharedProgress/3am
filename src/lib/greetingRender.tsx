@@ -15,7 +15,7 @@ const SOLID: Partial<Record<GreetingColor, string>> = {
   navy:    '#002868',
   demblue: '#003F87',
   brown:   '#8B4513',
-  yellow:  '#E6C200',
+  yellow:  '#FFC000',
 }
 
 export function renderGreeting(text: string, color: GreetingColor, isDark: boolean): ReactNode {
