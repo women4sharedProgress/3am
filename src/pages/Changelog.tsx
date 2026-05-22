@@ -298,15 +298,15 @@ export default function Changelog() {
         <h1 style={{
           fontFamily: "'Quicksand', sans-serif",
           fontSize: 28, fontWeight: 700,
-          margin: '0 0 4px', color: 'var(--page-title)',
+          margin: '0 0 4px', color: '#B597D5',
         }}>
           Change Log
         </h1>
-        <p style={{ fontSize: 14, color: 'var(--page-subtitle)', margin: '0 0 6px', lineHeight: 1.6 }}>
+        <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', margin: '0 0 6px', lineHeight: 1.6 }}>
           Live bill updates · entries fall off after {CUTOFF_DAYS} days
         </p>
         {!loading && (
-          <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '0 0 28px' }}>
+          <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)', margin: '0 0 28px' }}>
             {totalUpdates} update{totalUpdates !== 1 ? 's' : ''} in the last {CUTOFF_DAYS} days
           </p>
         )}
@@ -445,16 +445,6 @@ export default function Changelog() {
                         }}>{b.stage_note}</div>
                       )}
                     </div>
-
-                    {/* Description */}
-                    {b.bill_desc && (
-                      <div style={{
-                        fontFamily: "'Nunito', sans-serif",
-                        fontSize: 13,
-                        color: 'var(--color-text-secondary)',
-                        lineHeight: 1.6,
-                      }}>{b.bill_desc}</div>
-                    )}
 
                     {/* Urgency + issue tags */}
                     {(urgency || issueList.length > 0) && (

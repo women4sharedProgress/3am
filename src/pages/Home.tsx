@@ -538,24 +538,6 @@ export default function Home() {
     return () => document.removeEventListener('mousedown', close)
   }, [])
 
-  // Check for new patch notes and set green indicator
-  useEffect(() => {
-    const lastSeen = localStorage.getItem('wsp-patches-last-seen') ?? ''
-    supabase
-      .from('patch_notes')
-      .select('created_at')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const latest = data[0].created_at as string
-          if (!lastSeen || latest > lastSeen) setHasNewPatches(true)
-        }
-      })
-    const onSeen = () => setHasNewPatches(false)
-    window.addEventListener('patches-seen', onSeen)
-    return () => window.removeEventListener('patches-seen', onSeen)
-  }, [])
 
   // Fetch local_official_roles for the user's state
   useEffect(() => {
@@ -665,7 +647,6 @@ export default function Home() {
   const scurryPositions = useRef<Array<{ x: number; y: number; rot: number }>>([])
   const scurryTimers   = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  const [hasNewPatches, setHasNewPatches] = useState(false)
   const [theme, setTheme] = useState(() => localStorage.getItem('wsp-theme') ?? 'dark')
   const [greetingPrefs, setGreetingPrefs] = useState<GreetingPrefs>(() => {
     try {
@@ -998,12 +979,8 @@ export default function Home() {
 
           <button
             className="home-secondary-card"
-            style={{ background: hasNewPatches ? '#00B050' : '#4F4262' }}
-            onClick={() => {
-              localStorage.setItem('wsp-patches-last-seen', new Date().toISOString())
-              setHasNewPatches(false)
-              navigate('/patches-updates')
-            }}
+            style={{ background: '#4F4262' }}
+            onClick={() => navigate('/patches-updates')}
             aria-label="Patches and updates"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
