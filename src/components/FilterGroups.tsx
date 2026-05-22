@@ -5,6 +5,7 @@ interface FilterGroupsProps {
   active: ActiveFilters
   onChange: (group: keyof ActiveFilters, value: string) => void
   hideTiming?: boolean
+  committees?: string[]
 }
 
 function Chip({ group, value, active, label, children, onChange }: {
@@ -26,7 +27,7 @@ function Chip({ group, value, active, label, children, onChange }: {
   )
 }
 
-export default function FilterGroups({ active, onChange, hideTiming }: FilterGroupsProps) {
+export default function FilterGroups({ active, onChange, hideTiming, committees }: FilterGroupsProps) {
   return (
     <div className="filter-groups">
 
@@ -47,6 +48,18 @@ export default function FilterGroups({ active, onChange, hideTiming }: FilterGro
             <Chip group="city" value="all" active={active.city} onChange={onChange}>All cities</Chip>
             {CITY_FILTERS.map(city => (
               <Chip key={city} group="city" value={city} active={active.city} onChange={onChange}>{city}</Chip>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {(active.level === 'federal' || active.level === 'michigan') && committees && committees.length > 0 && (
+        <div className="filter-group filter-group-city">
+          <span className="fg-label fg-indent">↳ Committee</span>
+          <div className="chips">
+            <Chip group="committee" value="all" active={active.committee} onChange={onChange}>All committees</Chip>
+            {committees.map(c => (
+              <Chip key={c} group="committee" value={c} active={active.committee} onChange={onChange}>{c}</Chip>
             ))}
           </div>
         </div>

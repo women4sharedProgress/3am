@@ -22,7 +22,7 @@ function watchMovementEnabled(): boolean {
 
 const DEFAULT_FILTERS: ActiveFilters = {
   level: 'all', timing: 'all', impact: 'all', issue: 'all',
-  policy: 'all', office: 'all', city: 'all', search: '',
+  policy: 'all', office: 'all', city: 'all', committee: 'all', search: '',
 }
 
 const BTN: React.CSSProperties = {
@@ -109,6 +109,10 @@ export default function Watching() {
   const watchBills   = bills.filter(b => watchIds.has(b.id))
   const filtered     = filterBills(watchBills, active)
   const showActivity = watchMovementEnabled()
+  const committees   = [...new Set(
+    watchBills.filter(b => b.level === 'federal' || b.level === 'michigan')
+      .map(b => b.committee).filter((c): c is string => !!c)
+  )].sort()
 
   return (
     <div style={{ paddingTop: 44 }}>
@@ -160,7 +164,7 @@ export default function Watching() {
       </div>
 
       <Header stateName="Watching" bills={watchBills} onSearch={q => handleFilterChange('search', q)} />
-      <FilterGroups active={active} onChange={handleFilterChange} />
+      <FilterGroups active={active} onChange={handleFilterChange} committees={committees} />
 
       {!loading && showActivity && watchBills.length > 0 && (
         <BillActivity bills={watchBills} label="Watch Activity" />

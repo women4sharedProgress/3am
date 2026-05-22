@@ -12,7 +12,7 @@ import type React from 'react'
 
 const DEFAULT_FILTERS: ActiveFilters = {
   level: 'all', timing: 'all', impact: 'all', issue: 'all',
-  policy: 'all', office: 'all', city: 'all', search: '',
+  policy: 'all', office: 'all', city: 'all', committee: 'all', search: '',
 }
 
 const BTN: React.CSSProperties = {
@@ -79,6 +79,10 @@ export default function Archive() {
 
   const archiveBills = bills.filter(b => archiveIds.has(b.id))
   const filtered     = filterBills(archiveBills, active)
+  const committees   = [...new Set(
+    archiveBills.filter(b => b.level === 'federal' || b.level === 'michigan')
+      .map(b => b.committee).filter((c): c is string => !!c)
+  )].sort()
 
   return (
     <div style={{ paddingTop: 44 }}>
@@ -122,7 +126,7 @@ export default function Archive() {
       </div>
 
       <Header stateName="Archive" bills={archiveBills} onSearch={q => handleFilterChange('search', q)} />
-      <FilterGroups active={active} onChange={handleFilterChange} />
+      <FilterGroups active={active} onChange={handleFilterChange} committees={committees} />
 
       {loading && <div className="loading">Loading bills…</div>}
       {error   && <div className="empty">Error loading bills: {error}</div>}

@@ -68,6 +68,7 @@ export function filterBills(bills: Bill[], active: ActiveFilters): Bill[] {
     if (active.issue !== 'all' && !b.issues.includes(active.issue)) return false
     if (active.policy !== 'all' && policyCategory(b.policy_bias) !== active.policy) return false
     if (active.office !== 'all' && b.ratify_office !== active.office) return false
+    if (active.committee !== 'all' && b.committee !== active.committee) return false
     return true
   })
 }

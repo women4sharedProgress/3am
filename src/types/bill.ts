@@ -33,6 +33,7 @@ export interface Bill {
   verified_by?: string | null
   verified_at?: string | null
   extension?: string | null
+  committee?: string | null
 }
 
 export interface ActiveFilters {
@@ -43,5 +44,6 @@ export interface ActiveFilters {
   policy: string
   office: string
   city: string
+  committee: string
   search: string
 }

@@ -21,7 +21,7 @@ function sessionRange(s: string): [Date, Date] {
 
 const DEFAULT_FILTERS: ActiveFilters = {
   level: 'all', timing: 'enacted', impact: 'all', issue: 'all',
-  policy: 'all', office: 'all', city: 'all', search: '',
+  policy: 'all', office: 'all', city: 'all', committee: 'all', search: '',
 }
 
 const BTN: React.CSSProperties = {
