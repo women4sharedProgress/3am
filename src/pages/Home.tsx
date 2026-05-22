@@ -985,33 +985,29 @@ export default function Home() {
         <div className="home-secondary-row">
 
           <button
-            className="home-secondary-card" style={{ background: '#4F4262', position: 'relative' }}
+            className="home-secondary-card"
+            style={{ background: hasNewPatches ? '#00B050' : '#4F4262' }}
+            onClick={() => {
+              localStorage.setItem('wsp-patches-last-seen', new Date().toISOString())
+              setHasNewPatches(false)
+              navigate('/patches-updates')
+            }}
+            aria-label="Patches and updates"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="white" strokeWidth="2" fill="none"/>
+              <line x1="8" y1="8" x2="16" y2="8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="12" x2="16" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="16" x2="13" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span className="home-secondary-label">Updates</span>
+          </button>
+
+          <button
+            className="home-secondary-card" style={{ background: '#4F4262' }}
             onClick={() => navigate('/civic-calendar')}
             aria-label="Civic Calendar — elections and registration deadlines"
           >
-            {/* Patch indicator square — click navigates to Patches & Updates and marks seen */}
-            <span
-              onClick={e => {
-                e.stopPropagation()
-                localStorage.setItem('wsp-patches-last-seen', new Date().toISOString())
-                setHasNewPatches(false)
-                navigate('/patches-updates')
-              }}
-              aria-label={hasNewPatches ? 'New updates available — view patches' : 'View patches & updates'}
-              title={hasNewPatches ? 'New updates available' : 'Patches & Updates'}
-              style={{
-                position: 'absolute',
-                top: 6,
-                right: 6,
-                width: 9,
-                height: 9,
-                borderRadius: 2,
-                background: hasNewPatches ? '#00B050' : '#7B5EA7',
-                flexShrink: 0,
-                cursor: 'pointer',
-                display: 'block',
-              }}
-            />
             <CivicCalendarIcon size={20} color="#008080" />
             <span className="home-secondary-label">Civic Calendar</span>
           </button>
