@@ -984,10 +984,10 @@ export default function Home() {
             aria-label="Patches and updates"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="3" stroke="white" strokeWidth="2" fill="none"/>
-              <line x1="8" y1="8" x2="16" y2="8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="12" x2="16" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="16" x2="13" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="#8B4513" strokeWidth="2" fill="none"/>
+              <line x1="8" y1="8" x2="16" y2="8" stroke="#8B4513" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="12" x2="16" y2="12" stroke="#8B4513" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="16" x2="13" y2="16" stroke="#8B4513" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <span className="home-secondary-label">Updates</span>
           </button>
@@ -1002,12 +1002,12 @@ export default function Home() {
           </button>
 
           <button
-            className="home-secondary-card" style={{ background: '#B597D5' }}
+            className="home-secondary-card" style={{ background: '#2D1B4E' }}
             onClick={() => navigate('/about')}
             aria-label="About Women for Shared Progress"
           >
-            <AboutIcon size={20} color="#2D1B4E" />
-            <span className="home-secondary-label" style={{ color: '#2D1B4E' }}>About</span>
+            <AboutIcon size={20} color="#B597D5" />
+            <span className="home-secondary-label" style={{ color: '#B597D5' }}>About</span>
           </button>
 
 
