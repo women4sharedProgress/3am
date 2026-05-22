@@ -1235,8 +1235,15 @@ export default function Home() {
                       senator  = filtered.find(o => o.role === 'State Senator')        ?? blank('State Senator', 'state')
                       houseRep = filtered.find(o => o.role === 'State Representative') ?? blank('State Representative', 'state')
                     }
-                    // Non-district officials first, then senator, then rep
-                    return [...others, senator, houseRep]
+                    // Insert senator + rep after Lt. Governor (before AG, SoS, etc.)
+                    const ltGovIdx = others.findIndex(o => o.role === 'Lieutenant Governor')
+                    const insertAt = ltGovIdx >= 0 ? ltGovIdx + 1 : others.length
+                    return [
+                      ...others.slice(0, insertAt),
+                      senator,
+                      houseRep,
+                      ...others.slice(insertAt),
+                    ]
                   }
 
                   // local — unchanged
