@@ -28,7 +28,7 @@ export function renderGreeting(text: string, color: GreetingColor, isDark: boole
   if (color === 'rainbow') {
     return (
       <span style={{
-        background: 'linear-gradient(to bottom, #ff0000, #ff7700, #ffee00, #00cc00, #0055ff, #4b0082, #8800ee)',
+        background: 'linear-gradient(to bottom, #ff0000 0% 14.3%, #ff7700 14.3% 28.6%, #ffee00 28.6% 42.9%, #00cc00 42.9% 57.1%, #0055ff 57.1% 71.4%, #4b0082 71.4% 85.7%, #8800ee 85.7% 100%)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',

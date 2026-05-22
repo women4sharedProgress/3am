@@ -330,13 +330,10 @@ export default function Profile() {
   const [cityMismatch, setCityMismatch]         = useState<string | null>(null)
   const [lookupRows, setLookupRows]             = useState<DistrictLookupRow[]>([])
   const [lookupStatus, setLookupStatus]         = useState<'idle' | 'loading' | 'done'>('idle')
-  const [lookupSubmitting, setLookupSubmitting] = useState(false)
   const [lookupVerifiedIds, setLookupVerifiedIds] = useState<Set<string>>(new Set())
-  const [lookupMessage, setLookupMessage]       = useState('')
   const [countyChoices, setCountyChoices]       = useState<string[]>([])
   const saveTimer        = useRef<ReturnType<typeof setTimeout> | null>(null)
   const dbSyncTimer      = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const msgTimer         = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Prevents DB sync from firing on programmatic data loads (mount, auth restore).
   // Only actual user edits should push to the DB.
   const skipNextDbSync   = useRef(true)
@@ -485,11 +482,6 @@ export default function Profile() {
 
   function dismissElection() { setPendingElection(null) }
 
-  function showMsg(msg: string) {
-    setLookupMessage(msg)
-    if (msgTimer.current) clearTimeout(msgTimer.current)
-    msgTimer.current = setTimeout(() => setLookupMessage(''), 4000)
-  }
 
   function applyLookupRow(row: DistrictLookupRow, onlyEmpty = false) {
     setData(prev => {
@@ -548,44 +540,6 @@ export default function Profile() {
     }
   }
 
-  async function handleDistrictSubmit() {
-    if (!user) return
-    const zip = data.zip.replace(/\D/g, '').slice(0, 5)
-    if (zip.length !== 5) return
-    setLookupSubmitting(true)
-    setLookupMessage('')
-    try {
-      const { error } = await supabase
-        .from('district_lookup')
-        .upsert({
-          zip,
-          state:                  data.state                  || null,
-          county:                 data.county                 || null,
-          congressional_district: data.congressional_district || null,
-          state_senate_district:  data.state_senate_district  || null,
-          state_house_district:   data.state_house_district   || null,
-          county_commissioner:    data.county_commissioner    || null,
-          jurisdiction:           data.jurisdiction            || null,
-          ward:                   data.ward                   || null,
-          precinct:               data.precinct               || null,
-          village:                data.village                || null,
-          circuit_court:          data.circuit_court          || null,
-          probate_court:          data.probate_court          || null,
-          district_court:         data.district_court         || null,
-          school_district:        data.school_district        || null,
-          submitted_by:           user.username,
-          updated_at:             new Date().toISOString(),
-        }, { onConflict: 'zip,submitted_by' })
-      if (error) throw error
-      showMsg('Submitted. Thank you!')
-      void fetchLookupData(zip)
-    } catch (e) {
-      console.warn('[district] submit error:', e)
-      showMsg('Submit failed — try again.')
-    } finally {
-      setLookupSubmitting(false)
-    }
-  }
 
   async function handleDistrictVerify(id: string) {
     if (!user) return
@@ -614,7 +568,6 @@ export default function Profile() {
     setCountyChoices([])
     setLookupRows([])
     setLookupStatus('idle')
-    setLookupMessage('')
   }
 
   function handleZipBlur() {
@@ -659,7 +612,6 @@ export default function Profile() {
     }
     setLookupRows([])
     setLookupStatus('idle')
-    setLookupMessage('')
     void fetchLookupData(zip)
     const effectiveState = fieldStore.state.provenance === 'empty' && state ? state : data.state
     const effectiveCity  = fieldStore.city.provenance  === 'empty' && city  ? city  : data.city
@@ -909,7 +861,7 @@ export default function Profile() {
           <div style={{ flex: '0 1 380px', minWidth: 260 }}>
             <div style={{
               background: 'var(--color-card, #fff)',
-              border: data.confirmed ? '4px solid #00B050' : '1px solid var(--color-border-light)',
+              border: '1px solid var(--color-border-light)',
               borderRadius: 12,
               padding: '24px 20px',
               display: 'flex',
@@ -1155,7 +1107,6 @@ export default function Profile() {
                 const best = lookupRows[0] ?? null
                 const isVerifiedByMe = best ? lookupVerifiedIds.has(best.id) : false
                 const isMyRow = best ? best.submitted_by === user?.username : false
-                const hasMySubmission = lookupRows.some(r => r.submitted_by === user?.username)
 
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1189,17 +1140,6 @@ export default function Profile() {
                             : `Community data · ${best.verification_count} ${best.verification_count === 1 ? 'verification' : 'verifications'}${lookupRows.length > 1 ? ` · ${lookupRows.length} submissions` : ''}`}
                         </div>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          <button
-                            type="button"
-                            onClick={() => applyLookupRow(best)}
-                            style={{
-                              padding: '6px 12px', borderRadius: 6, border: 'none',
-                              cursor: 'pointer', background: '#1a7a72', color: '#fff',
-                              fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
-                            }}
-                          >
-                            Apply this data
-                          </button>
                           {user && !isVerifiedByMe && !isMyRow && !best.admin_verified && (
                             <button
                               type="button"
@@ -1222,56 +1162,15 @@ export default function Profile() {
                         </div>
                       </div>
                     )}
-                    {user && hasZip && (
-                      <button
-                        type="button"
-                        disabled={lookupSubmitting}
-                        onClick={() => void handleDistrictSubmit()}
-                        style={{
-                          padding: '8px 14px', borderRadius: 8,
-                          border: '1px solid var(--color-border-medium)',
-                          cursor: lookupSubmitting ? 'not-allowed' : 'pointer',
-                          background: 'var(--color-bg-secondary)',
-                          color: 'var(--color-teal)',
-                          fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 12,
-                          width: '100%',
-                        }}
-                      >
-                        {lookupSubmitting ? 'Submitting…' : hasMySubmission ? 'Update my district data' : 'Submit my district data'}
-                      </button>
-                    )}
                     {!user && hasZip && (
                       <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic', fontFamily: "'Nunito', sans-serif" }}>
                         Sign in to submit or verify district data.
-                      </div>
-                    )}
-                    {lookupMessage && (
-                      <div style={{
-                        fontSize: 12, fontFamily: "'Nunito', sans-serif",
-                        color: lookupMessage.includes('fail') ? '#C00000' : '#00B050',
-                      }}>
-                        {lookupMessage}
                       </div>
                     )}
                   </div>
                 )
               })()}
 
-              {/* Verification */}
-              <div>
-                <label style={labelStyle}>Verification</label>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={data.confirmed}
-                    onChange={e => setData(prev => ({ ...prev, confirmed: e.target.checked }))}
-                    style={{ marginTop: 3, width: 16, height: 16, cursor: 'pointer', accentColor: '#00B050', flexShrink: 0 }}
-                  />
-                  <span style={{ fontSize: 14, lineHeight: 1.5, color: 'var(--color-text-primary)', fontFamily: "'Nunito', sans-serif" }}>
-                    Confirm this information is correct
-                  </span>
-                </label>
-              </div>
 
             </div>
           </div>
