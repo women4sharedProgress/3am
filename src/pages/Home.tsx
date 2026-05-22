@@ -1002,12 +1002,12 @@ export default function Home() {
           </button>
 
           <button
-            className="home-secondary-card" style={{ background: '#2D1B4E' }}
+            className="home-secondary-card" style={{ background: '#4F4262' }}
             onClick={() => navigate('/about')}
             aria-label="About Women for Shared Progress"
           >
-            <AboutIcon size={20} color="#B597D5" />
-            <span className="home-secondary-label" style={{ color: '#B597D5' }}>About</span>
+            <AboutIcon size={20} color="#C97FFF" />
+            <span className="home-secondary-label" style={{ color: 'white' }}>About</span>
           </button>
 
 
