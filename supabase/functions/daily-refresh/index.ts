@@ -312,7 +312,7 @@ interface CongressMember {
 
 function getChamber(member: CongressMember): 'Senate' | 'House' | null {
   const terms = member.terms?.item ?? []
-  const latest = terms[0]
+  const latest = terms[terms.length - 1]  // terms are oldest-first; last = current
   if (!latest) return null
   const ct = (latest.chamber ?? '').toLowerCase()
   if (ct.includes('senate')) return 'Senate'
@@ -322,7 +322,7 @@ function getChamber(member: CongressMember): 'Senate' | 'House' | null {
 
 function getDistrict(member: CongressMember): string | null {
   const terms = member.terms?.item ?? []
-  const latest = terms[0]
+  const latest = terms[terms.length - 1]  // terms are oldest-first; last = current
   const d = latest?.district ?? member.district
   if (d == null) return null
   return String(d)
@@ -458,6 +458,33 @@ Deno.serve(async (_req: Request) => {
 
   const ts = new Date().toISOString()
   const ok = !federalResult.error && !repResult.error
+
+  // Write patch note summary
+  const summaryParts: string[] = []
+  if (!federalResult.error) {
+    summaryParts.push(`${federalResult.updated} federal bill${federalResult.updated !== 1 ? 's' : ''} updated`)
+    if (federalResult.pending > 0) summaryParts.push(`${federalResult.pending} pending review`)
+  } else {
+    summaryParts.push('Federal bills skipped')
+  }
+  if (!repResult.error) {
+    summaryParts.push(`${repResult.upserted} representatives synced`)
+  }
+  const summary = summaryParts.length > 0
+    ? summaryParts.join(' · ') + '.'
+    : 'Nightly pull completed.'
+
+  supabase.from('patch_notes').insert({
+    pull_date: ts.split('T')[0],
+    summary,
+    details: {
+      federal_bills:   federalResult,
+      michigan_bills:  michiganResult,
+      representatives: repResult,
+    },
+  }).then(({ error: pnErr }) => {
+    if (pnErr) console.error('[daily-refresh] patch_notes insert failed:', pnErr.message)
+  })
 
   return new Response(
     JSON.stringify({

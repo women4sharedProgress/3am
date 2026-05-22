@@ -20,6 +20,7 @@ import EnactedLegislation      from './pages/EnactedLegislation'
 import ResetPassword           from './pages/ResetPassword'
 import OpenSource             from './pages/OpenSource'
 import CivicCalendar          from './pages/CivicCalendar'
+import PatchesUpdates         from './pages/PatchesUpdates'
 
 export default function App() {
   const { user } = useAuth()
@@ -46,6 +47,7 @@ export default function App() {
       <Route path="/reset-password"       element={<ResetPassword />} />
       <Route path="/open-source"          element={<OpenSource />} />
       <Route path="/civic-calendar"      element={<CivicCalendar />} />
+      <Route path="/patches-updates"    element={<PatchesUpdates />} />
     </Routes>
     </>
   )

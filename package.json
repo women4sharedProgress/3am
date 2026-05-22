@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:mi-legislators": "node --env-file=.env --import tsx/esm scripts/seed-mi-legislators.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
@@ -23,6 +24,7 @@
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.22.3",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-pwa": "^0.21.1",

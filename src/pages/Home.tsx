@@ -25,6 +25,7 @@ interface RepRow {
   chamber: 'Senate' | 'House'
   url: string | null
   email: string | null
+  source: string | null
 }
 
 interface LocalOfficialRow {
@@ -396,7 +397,7 @@ export default function Home() {
   const { user, ready, signOut } = useAuth()
   const navigate                  = useNavigate()
   const [presidentMode, setPresidentMode] = useState<'president' | 'election'>(() =>
-    localStorage.getItem('wsp-president-mode') === 'election' ? 'election' : 'president'
+    localStorage.getItem('wsp-president-mode') === 'president' ? 'president' : 'election'
   )
   const [dbReps, setDbReps]               = useState<RepRow[]>([])
   const [repElectionKeys, setRepElectionKeys] = useState<Set<string>>(() => {
@@ -474,7 +475,7 @@ export default function Home() {
     if (!state) { setDbReps([]); return }
     supabase
       .from('representatives')
-      .select('bioguide_id,name,party,state,district,chamber,url,email')
+      .select('bioguide_id,name,party,state,district,chamber,url,email,source')
       .eq('state', state)
       .then(({ data, error }) => {
         if (!error) setDbReps((data ?? []) as RepRow[])
@@ -523,6 +524,25 @@ export default function Home() {
     const close = () => setLocalFieldDropdownOpen({})
     document.addEventListener('mousedown', close)
     return () => document.removeEventListener('mousedown', close)
+  }, [])
+
+  // Check for new patch notes and set green indicator
+  useEffect(() => {
+    const lastSeen = localStorage.getItem('wsp-patches-last-seen') ?? ''
+    supabase
+      .from('patch_notes')
+      .select('created_at')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const latest = data[0].created_at as string
+          if (!lastSeen || latest > lastSeen) setHasNewPatches(true)
+        }
+      })
+    const onSeen = () => setHasNewPatches(false)
+    window.addEventListener('patches-seen', onSeen)
+    return () => window.removeEventListener('patches-seen', onSeen)
   }, [])
 
   // Fetch local_official_roles for the user's state
@@ -633,6 +653,7 @@ export default function Home() {
   const scurryPositions = useRef<Array<{ x: number; y: number; rot: number }>>([])
   const scurryTimers   = useRef<ReturnType<typeof setTimeout>[]>([])
 
+  const [hasNewPatches, setHasNewPatches] = useState(false)
   const [theme, setTheme] = useState(() => localStorage.getItem('wsp-theme') ?? 'dark')
   const [greetingPrefs, setGreetingPrefs] = useState<GreetingPrefs>(() => {
     try {
@@ -964,10 +985,33 @@ export default function Home() {
         <div className="home-secondary-row">
 
           <button
-            className="home-secondary-card" style={{ background: '#4F4262' }}
+            className="home-secondary-card" style={{ background: '#4F4262', position: 'relative' }}
             onClick={() => navigate('/civic-calendar')}
             aria-label="Civic Calendar — elections and registration deadlines"
           >
+            {/* Patch indicator square — click navigates to Patches & Updates and marks seen */}
+            <span
+              onClick={e => {
+                e.stopPropagation()
+                localStorage.setItem('wsp-patches-last-seen', new Date().toISOString())
+                setHasNewPatches(false)
+                navigate('/patches-updates')
+              }}
+              aria-label={hasNewPatches ? 'New updates available — view patches' : 'View patches & updates'}
+              title={hasNewPatches ? 'New updates available' : 'Patches & Updates'}
+              style={{
+                position: 'absolute',
+                top: 6,
+                right: 6,
+                width: 9,
+                height: 9,
+                borderRadius: 2,
+                background: hasNewPatches ? '#00B050' : '#7B5EA7',
+                flexShrink: 0,
+                cursor: 'pointer',
+                display: 'block',
+              }}
+            />
             <CivicCalendarIcon size={20} color="#008080" />
             <span className="home-secondary-label">Civic Calendar</span>
           </button>
@@ -1075,9 +1119,12 @@ export default function Home() {
 
             <div className="home-district-grid">
               {(['local', 'state', 'national'] as const).map(level => {
+                const blank = (role: string, lvl: 'national' | 'state' | 'local'): Official =>
+                  ({ level: lvl, role, name: '', party: 'other' })
+
                 const officials = (() => {
-                  if (!hasProfileAddr) return []
                   if (level === 'national') {
+                    if (!hasProfileAddr) return [blank('U.S. Senator', 'national'), blank('U.S. Senator', 'national'), blank('U.S. Representative', 'national')]
                     const normDist = (d: string | null | undefined) => {
                       const n = parseInt((d ?? '').replace(/\D/g, ''), 10)
                       return isNaN(n) ? '' : String(n)
@@ -1107,34 +1154,50 @@ export default function Home() {
                       }
                     }
 
-                    // Senators: prefer live DB rows; fall back to officials.ts while DB loads
-                    const dbSenators = dbReps.filter(r => r.chamber === 'Senate')
-                    const senators: Official[] = dbSenators.length > 0
+                    // Senators: federal only, cap at 2, fill with blanks if fewer
+                    const dbSenators = dbReps.filter(r => r.chamber === 'Senate' && r.source !== 'openstates').slice(0, 2)
+                    const filledSenators: Official[] = (dbSenators.length > 0
                       ? dbSenators.map(toOfficial)
                       : stateOfficials.filter(o => o.role === 'U.S. Senator')
+                    ).slice(0, 2)
+                    const senator1 = filledSenators[0] ?? blank('U.S. Senator', 'national')
+                    const senator2 = filledSenators[1] ?? blank('U.S. Senator', 'national')
 
-                    // House: only from DB, matched to user's district
-                    const houseReps: Official[] = userDistrictNorm
+                    // House: federal only, user's district only, cap at 1
+                    const filledHouse = userDistrictNorm
                       ? dbReps
-                          .filter(r => r.chamber === 'House' && normDist(r.district) === userDistrictNorm)
+                          .filter(r => r.chamber === 'House' && r.source !== 'openstates' && normDist(r.district) === userDistrictNorm)
+                          .slice(0, 1)
                           .map(toOfficial)
                       : []
+                    const houseRep = filledHouse[0] ?? blank('U.S. Representative', 'national')
 
-                    return [...senators, ...houseReps]
+                    return [senator1, senator2, houseRep]
                   }
+
+                  if (level === 'state') {
+                    if (!hasProfileAddr) return [blank('State Senator', 'state'), blank('State Representative', 'state')]
+                    const filtered = getOfficialsByState(profileAddr?.state ?? '').filter(o => {
+                      if (o.level !== 'state') return false
+                      if (!o.district) return true
+                      if (o.role === 'State Senator')        return o.district === profileAddr?.state_senate_district
+                      if (o.role === 'State Representative') return o.district === profileAddr?.state_house_district
+                      return true
+                    })
+                    const senator  = filtered.find(o => o.role === 'State Senator')        ?? blank('State Senator', 'state')
+                    const houseRep = filtered.find(o => o.role === 'State Representative') ?? blank('State Representative', 'state')
+                    const others   = filtered.filter(o => o.role !== 'State Senator' && o.role !== 'State Representative')
+                    return [senator, houseRep, ...others]
+                  }
+
+                  // local — unchanged
+                  if (!hasProfileAddr) return []
                   return getOfficialsByState(profileAddr?.state ?? '').filter(o => {
-                    if (o.level !== level) return false
-                    if (level === 'local' && o.city) {
+                    if (o.level !== 'local') return false
+                    if (o.city) {
                       const userCity = (profileAddr?.city ?? '').trim().toUpperCase()
                       if (!userCity || o.city.toUpperCase() !== userCity) return false
                     }
-                    if (!o.district) return true
-                    if (o.role === 'State Senator')
-                      return o.district === profileAddr?.state_senate_district
-                    if (o.role === 'State Representative')
-                      return o.district === profileAddr?.state_house_district
-                    if (o.role === 'County Commissioner')
-                      return o.district === profileAddr?.county_commissioner
                     return true
                   })
                 })()
@@ -1149,8 +1212,16 @@ export default function Home() {
                     {(level !== 'local' || !isLoggedIn || !hasProfileAddr || !profileAddr?.state) && officials.map((o, i) => {
                       const cardKey = `${level}-${i}`
                       const showElection = repElectionKeys.has(cardKey)
+                      const isBlank = !o.name
                       return (
                         <div key={i} className="home-rep-card" data-party={o.party}>
+                          {isBlank ? (
+                            <>
+                              <div className="home-rep-role">{o.role}</div>
+                              <div className="home-rep-no-election" style={{ fontStyle: 'italic' }}>Not yet available</div>
+                            </>
+                          ) : (
+                          <>
                           <div className="home-rep-card-toggle" role="group" aria-label="Card view mode">
                             <button
                               className={!showElection ? 'hrct-active' : ''}
@@ -1213,6 +1284,8 @@ export default function Home() {
                               </div>
                             )
                           })()}
+                          </>
+                          )}
                         </div>
                       )
                     })}
