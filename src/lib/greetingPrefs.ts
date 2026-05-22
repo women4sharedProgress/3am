@@ -52,6 +52,7 @@ export function buildGreetingText(word: GreetingWord, username: string): string 
     word === 'all hail' ? 'All Hail' :
     word === 'be well'  ? 'Be Well'  :
     word.charAt(0).toUpperCase() + word.slice(1)
+  if (word === 'all hail') return `${label} ${username}!`
   return `${label}, ${username}`
 }
 
@@ -64,5 +65,6 @@ export function buildGreetingLines(word: GreetingWord, username: string): [strin
     word === 'all hail' ? 'All Hail' :
     word === 'be well'  ? 'Be Well'  :
     word.charAt(0).toUpperCase() + word.slice(1)
+  if (word === 'all hail') return [`${label}`, `${username}!`]
   return [`${label},`, username]
 }
