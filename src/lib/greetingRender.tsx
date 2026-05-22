@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { GreetingColor } from './greetingPrefs'
 
 const PRIDE   = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#004DFF', '#750787']
-const AM_DARK = ['#CC0000', '#FFFFFF', '#003F87']
+const AM_DARK = ['#CC0000', '#FFFFFF']
 const AM_LITE = ['#CC0000', '#003F87']
 
 const SOLID: Partial<Record<GreetingColor, string>> = {
