@@ -173,7 +173,7 @@ export default function Watching() {
         <div className="empty" style={{ textAlign: 'center', padding: '48px 24px' }}>
           <div style={{ fontSize: 15, marginBottom: 8 }}>No bills being watched yet.</div>
           <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', marginBottom: 20 }}>
-            Open any bill card and tap the orange dot to watch it.
+            Open any bill card and tap the orange dot — selection dot found in the top right corner of policy card — to add it here.
           </div>
           <button onClick={() => navigate('/tracker')} style={{ ...BTN, margin: '0 auto', fontSize: 13, padding: '7px 18px' }}>
             Go to tracker

@@ -131,7 +131,7 @@ export default function Archive() {
         <div className="empty" style={{ textAlign: 'center', padding: '48px 24px' }}>
           <div style={{ fontSize: 15, marginBottom: 8 }}>Your archive is empty.</div>
           <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', marginBottom: 20 }}>
-            Tap the yellow dot on any bill card to archive it. Archived bills are removed from the main tracker and kept here.
+            Tap the yellow dot on any bill card — selection dot found in the top right corner of policy card — to add it here. Archived bills are removed from the main tracker and kept here.
           </div>
           <button onClick={() => navigate('/tracker')} style={{ ...BTN, margin: '0 auto', fontSize: 13, padding: '7px 18px' }}>
             Go to tracker

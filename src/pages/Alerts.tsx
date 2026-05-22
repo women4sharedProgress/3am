@@ -221,7 +221,7 @@ export default function Alerts() {
         <div className="empty" style={{ textAlign: 'center', padding: '48px 24px' }}>
           <div style={{ fontSize: 15, marginBottom: 8 }}>No bills on alert yet.</div>
           <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', marginBottom: 20 }}>
-            Open any bill card in the tracker and tap <strong>Alert</strong> to add it here.
+            Open any bill card in the tracker and tap <strong>Alert</strong> — selection dot found in the top right corner of policy card — to add it here.
           </div>
           <button onClick={() => navigate('/tracker')} style={{
             ...BTN, margin: '0 auto',
