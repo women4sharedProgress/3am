@@ -24,7 +24,6 @@ function formatDate(iso: string): string {
 export default function PatchesUpdates() {
   const [notes, setNotes] = useState<PatchNote[]>([])
   const [loading, setLoading] = useState(true)
-  const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     supabase
@@ -40,15 +39,7 @@ export default function PatchesUpdates() {
     window.dispatchEvent(new CustomEvent('patches-seen'))
   }, [])
 
-  function toggleExpand(id: string) {
-    setExpanded(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
-
-  return (
+return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)' }}>
       <PageTopBar />
 
@@ -113,7 +104,6 @@ export default function PatchesUpdates() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {notes.map(n => {
-            const isOpen = expanded.has(n.id)
             const d = n.details
             return (
               <div key={n.id} style={{
@@ -123,51 +113,28 @@ export default function PatchesUpdates() {
                 borderRadius: 10,
                 padding: '14px 16px',
               }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                  <div>
-                    <div style={{
-                      fontFamily: "'Quicksand', sans-serif",
-                      fontWeight: 700,
-                      fontSize: 12,
-                      color: 'var(--color-text-tertiary)',
-                      letterSpacing: '.3px',
-                      marginBottom: 4,
-                    }}>
-                      {formatDate(n.created_at)}
-                    </div>
-                    <div style={{
-                      fontFamily: "'Nunito', sans-serif",
-                      fontSize: 14,
-                      color: 'var(--color-text-primary)',
-                      lineHeight: 1.5,
-                    }}>
-                      {n.summary}
-                    </div>
+                <div>
+                  <div style={{
+                    fontFamily: "'Quicksand', sans-serif",
+                    fontWeight: 700,
+                    fontSize: 12,
+                    color: 'var(--color-text-tertiary)',
+                    letterSpacing: '.3px',
+                    marginBottom: 4,
+                  }}>
+                    {formatDate(n.created_at)}
                   </div>
-                  {d && (
-                    <button
-                      onClick={() => toggleExpand(n.id)}
-                      style={{
-                        background: '#B597D5',
-                        border: 'none',
-                        borderRadius: 6,
-                        padding: '4px 10px',
-                        cursor: 'pointer',
-                        fontFamily: "'Quicksand', sans-serif",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: '#ffffff',
-                        flexShrink: 0,
-                        marginTop: 2,
-                      }}
-                      aria-expanded={isOpen}
-                    >
-                      {isOpen ? 'Less' : 'Details'}
-                    </button>
-                  )}
+                  <div style={{
+                    fontFamily: "'Nunito', sans-serif",
+                    fontSize: 14,
+                    color: 'var(--color-text-primary)',
+                    lineHeight: 1.5,
+                  }}>
+                    {n.summary}
+                  </div>
                 </div>
 
-                {isOpen && d && (
+                {d && (
                   <div style={{
                     marginTop: 12,
                     paddingTop: 12,
