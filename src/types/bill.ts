@@ -32,6 +32,7 @@ export interface Bill {
   verified?: boolean
   verified_by?: string | null
   verified_at?: string | null
+  extension?: string | null
 }
 
 export interface ActiveFilters {

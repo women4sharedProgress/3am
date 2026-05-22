@@ -50,6 +50,7 @@ export default function AdminBillEdit({ bill, onSave, onCancel, saving }: Props)
     amend:            [...(bill.amend ?? [])],
     issues:           [...(bill.issues ?? [])],
     decisions_json:   JSON.stringify(bill.decisions ?? [], null, 2),
+    extension:        bill.extension ?? '',
   })
   const [jsonErr, setJsonErr] = useState<string | null>(null)
 
@@ -112,6 +113,7 @@ export default function AdminBillEdit({ bill, onSave, onCancel, saving }: Props)
       amend:            f.amend,
       issues:           f.issues,
       decisions,
+      extension:        f.extension.trim() || null,
     })
   }
 
@@ -176,6 +178,14 @@ export default function AdminBillEdit({ bill, onSave, onCancel, saving }: Props)
         <label className="aef-label">Stage note</label>
         <textarea className="aef-input" value={f.stage_note} rows={3}
           onChange={e => set('stage_note', e.target.value)} />
+      </div>
+
+      <div className="aef-field">
+        <label className="aef-label">
+          Extension <span className="aef-hint">(short-term only — leave blank if full-term or none; e.g. "90-day CR through Jun 30, 2026")</span>
+        </label>
+        <input className="aef-input" type="text" value={f.extension}
+          onChange={e => set('extension', e.target.value)} />
       </div>
 
       <div className="aef-field">

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageTopBar from '../components/PageTopBar'
+import { useAuth } from '../contexts/AuthContext'
 
 const wrap: React.CSSProperties = {
   maxWidth: 680,
@@ -67,6 +68,7 @@ const tierLabel: React.CSSProperties = {
 
 export default function About() {
   const navigate = useNavigate()
+  const { user }  = useAuth()
 
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
@@ -160,27 +162,29 @@ export default function About() {
           send comments, ideas, frustrations, bug reports, and kudos.
         </p>
 
-        <button
-          onClick={() => navigate('/open-source')}
-          style={{
-            display: 'block',
-            width: '100%',
-            marginTop: 32,
-            padding: '14px 24px',
-            fontFamily: "'Quicksand', sans-serif",
-            fontSize: 15,
-            fontWeight: 700,
-            letterSpacing: '.4px',
-            color: '#fff',
-            background: '#1a7a72',
-            border: 'none',
-            borderRadius: 10,
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,.2)',
-          }}
-        >
-          Clone &amp; Deploy the 3AM Pipeline
-        </button>
+        {user && (
+          <button
+            onClick={() => navigate('/open-source')}
+            style={{
+              display: 'block',
+              width: '100%',
+              marginTop: 32,
+              padding: '14px 24px',
+              fontFamily: "'Quicksand', sans-serif",
+              fontSize: 15,
+              fontWeight: 700,
+              letterSpacing: '.4px',
+              color: '#fff',
+              background: '#1a7a72',
+              border: 'none',
+              borderRadius: 10,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,.2)',
+            }}
+          >
+            Clone &amp; Deploy the 3AM Pipeline
+          </button>
+        )}
       </div>
     </div>
   )
