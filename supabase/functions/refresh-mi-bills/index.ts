@@ -167,12 +167,14 @@ async function refresh(supabase: ReturnType<typeof createClient>) {
   console.log(`[mi-bills] Session ${session.session_id} (${session.year_start}–${session.year_end})`)
 
   // 2. Master list → bill_number → bill_id lookup
-  const masterResp = await legiScan('getMasterList', { session_id: session.session_id })
+  const masterResp = await legiScan('getMasterList', { id: session.session_id })
   const masterlist  = (masterResp.masterlist ?? {}) as Record<string, { bill_id?: number; number?: string; change_hash?: string; status_date?: string }>
   const lsLookup    = new Map<string, { bill_id: number; status_date: string }>()
   for (const entry of Object.values(masterlist)) {
     if (!entry?.bill_id) continue
-    const norm = (entry.number ?? '').replace(/\s+/g, ' ').trim().toUpperCase()
+    // LegiScan zero-pads senate bills (SB0147) but not house bills (HB4001).
+    // Strip spaces and leading zeros so "SB0147" → "SB147" to match our parsed lookup key.
+    const norm = (entry.number ?? '').replace(/\s+/g, '').replace(/^([A-Z]+)0+(\d)/, '$1$2').toUpperCase()
     lsLookup.set(norm, { bill_id: entry.bill_id, status_date: entry.status_date ?? '' })
   }
   console.log(`[mi-bills] Master list: ${lsLookup.size} bills`)
@@ -196,9 +198,10 @@ async function refresh(supabase: ReturnType<typeof createClient>) {
       continue
     }
 
-    const lsEntry = lsLookup.get(ref.lsNumber)
+    const lookupKey = ref.lsNumber.replace(/\s+/g, '').toUpperCase()
+    const lsEntry = lsLookup.get(lookupKey)
     if (!lsEntry) {
-      console.warn(`[mi-bills] No LegiScan match for "${ref.lsNumber}" (id=${bill.id})`)
+      console.warn(`[mi-bills] No LegiScan match: lookupKey="${lookupKey}" name="${bill.name}" (id=${bill.id})`)
       skipped++
       continue
     }
@@ -206,7 +209,7 @@ async function refresh(supabase: ReturnType<typeof createClient>) {
     // 4. Get full bill details
     let billData: Record<string, unknown>
     try {
-      const resp = await legiScan('getBill', { bill_id: lsEntry.bill_id })
+      const resp = await legiScan('getBill', { id: lsEntry.bill_id })
       billData = (resp.bill ?? {}) as Record<string, unknown>
     } catch (e) {
       console.warn(`[mi-bills] getBill failed bill_id=${lsEntry.bill_id}:`, String(e))
