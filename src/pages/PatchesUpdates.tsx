@@ -58,8 +58,8 @@ return (
             color: 'var(--color-text-secondary)',
             lineHeight: 1.6,
           }}>
-            <strong>For best results:</strong> clear your browser cache and refresh before viewing.
-            <span style={{ color: 'var(--color-text-tertiary)' }}> Ctrl + Shift + Delete (Windows) · Cmd + Shift + Delete (Mac)</span>
+            <strong>For best results:</strong> do a hard refresh to load the latest version.
+            <span style={{ color: 'var(--color-text-tertiary)' }}> Ctrl + Shift + R (Windows) · Cmd + Shift + R (Mac)</span>
           </span>
         </div>
 
