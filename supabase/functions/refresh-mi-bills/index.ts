@@ -191,6 +191,12 @@ async function refresh(supabase: ReturnType<typeof createClient>) {
   const today = new Date(new Date().toDateString())
 
   for (const bill of bills ?? []) {
+    // Enacted bills are immutable — automated pulls cannot revoke enacted status.
+    if ((bill.stage as number) >= MI_STAGE_COUNT) {
+      skipped++
+      continue
+    }
+
     const ref = parseMiBillRef(bill.name ?? '')
     if (!ref) {
       console.warn(`[mi-bills] Cannot parse bill number from: "${bill.name}" (id=${bill.id})`)

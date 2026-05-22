@@ -11,16 +11,12 @@ import ThemeToggle from '../components/ThemeToggle'
 const SESSIONS = [
   { value: 'this-session', label: 'This Session' },
   { value: 'last-session', label: 'Last Session' },
-  { value: 'last-2-years', label: 'Last 2 Years' },
 ]
 
 function sessionRange(s: string): [Date, Date] {
   const now = new Date()
-  switch (s) {
-    case 'this-session': return [new Date('2025-01-01T00:00:00'), now]
-    case 'last-session': return [new Date('2023-01-01T00:00:00'), new Date('2024-12-31T23:59:59')]
-    default:             return [new Date(now.getFullYear() - 2, now.getMonth(), now.getDate()), now]
-  }
+  if (s === 'last-session') return [new Date('2023-01-01T00:00:00'), new Date('2024-12-31T23:59:59')]
+  return [new Date('2025-01-01T00:00:00'), now]
 }
 
 const DEFAULT_FILTERS: ActiveFilters = {
@@ -102,7 +98,7 @@ export default function EnactedLegislation() {
     Object.entries(active).forEach(([k, v]) => {
       if (v && v !== 'all' && v !== '' && v !== 'enacted') url.searchParams.set(k, v)
     })
-    if (session !== 'last-5-years') url.searchParams.set('session', session)
+    if (session !== 'this-session') url.searchParams.set('session', session)
     await navigator.clipboard.writeText(url.toString())
     setCopied(true)
     setTimeout(() => setCopied(false), 1400)
