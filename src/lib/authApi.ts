@@ -76,3 +76,7 @@ export function feedbackSubmit(payload: object) {
 export function crowdVerify(bill_id: number, iter_hash: string) {
   return post('crowd-verify', { bill_id, iter_hash })
 }
+
+export function crowdFlag(bill_id: number, iter_hash: string, action: 'flag' | 'unflag' | 'clear') {
+  return post('crowd-flag', { bill_id, iter_hash, action })
+}

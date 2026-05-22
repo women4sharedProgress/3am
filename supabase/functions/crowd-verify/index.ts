@@ -37,10 +37,12 @@ Deno.serve(async (req: Request) => {
   const verifyCount = count ?? 0
   const crowdVerified = verifyCount >= COMMUNITY_THRESHOLD
 
-  // Once community threshold is reached, record it on the bill row.
-  // This is the "crowd_verified_hash" used to detect subsequent changes.
+  // Once community threshold is reached, record it on the bill row
+  // and auto-clear any error flags for this iteration.
   if (crowdVerified) {
     await supabase.from('bills').update({ crowd_verified_hash: iter_hash }).eq('id', bill_id)
+    await supabase.from('bill_crowd_flags').delete()
+      .eq('bill_id', bill_id).eq('iter_hash', iter_hash)
   }
 
   return json({ ok: true, count: verifyCount, crowd_verified: crowdVerified })

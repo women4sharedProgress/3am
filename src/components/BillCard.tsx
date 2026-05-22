@@ -3,7 +3,7 @@ import { getStatus, setStatus } from '../lib/billStatus'
 import type { BillStatus } from '../lib/billStatus'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { crowdVerify } from '../lib/authApi'
+import { crowdVerify, crowdFlag } from '../lib/authApi'
 
 const AMEND_TOOLTIPS: Record<string, string> = {
   '4th':          '4th Amendment',
@@ -78,12 +78,55 @@ export default function BillCard({ bill }: { bill: Bill }) {
     }
   }
 
+  const flagLsKey = `cf:${bill.id}:${iterHash}`
+  const [flagCount,    setFlagCount]    = useState(0)
+  const [userFlagged,  setUserFlagged]  = useState(() => localStorage.getItem(flagLsKey) === '1')
+  const [flagBusy,     setFlagBusy]     = useState(false)
+
+  useEffect(() => {
+    supabase
+      .from('bill_crowd_flags')
+      .select('id', { count: 'exact', head: true })
+      .eq('bill_id', bill.id)
+      .eq('iter_hash', iterHash)
+      .then(({ count }) => setFlagCount(count ?? 0))
+  }, [bill.id, iterHash])
+
+  async function handleFlag() {
+    if (!user || flagBusy) return
+    const isAdmin = user.role === 'admin' || user.role === 'verifier'
+
+    if (isAdmin) {
+      setFlagBusy(true)
+      try {
+        const res = await crowdFlag(bill.id, iterHash, 'clear')
+        if (res?.ok) { setFlagCount(0); setUserFlagged(false); localStorage.removeItem(flagLsKey) }
+      } finally { setFlagBusy(false) }
+      return
+    }
+
+    const action = userFlagged ? 'unflag' : 'flag'
+    setFlagBusy(true)
+    const next = !userFlagged
+    setUserFlagged(next)
+    if (next) localStorage.setItem(flagLsKey, '1')
+    else       localStorage.removeItem(flagLsKey)
+    try {
+      const res = await crowdFlag(bill.id, iterHash, action)
+      if (res?.count !== undefined) setFlagCount(res.count)
+      if (!res?.user_flagged) { setUserFlagged(false); localStorage.removeItem(flagLsKey) }
+    } finally { setFlagBusy(false) }
+  }
+
   const communityVerified = verifyCount >= 3
   const wasVerified       = crowdHash !== null
   const dotClass = [
     communityVerified || userVerified ? 'cvd-green' : 'cvd-gray',
     wasVerified ? (communityVerified ? 'cvd-ring-teal' : 'cvd-ring-black') : '',
   ].filter(Boolean).join(' ')
+
+  const isAdmin          = user?.role === 'admin' || user?.role === 'verifier'
+  const communityFlagged = flagCount >= 3
 
   function handleStatus(s: NonNullable<BillStatus>) {
     const next: BillStatus = status === s ? null : s
@@ -264,6 +307,26 @@ export default function BillCard({ bill }: { bill: Bill }) {
             ? `I verify this information · ${verifyCount} verifying`
             : 'I verify this information'}
         </span>
+
+        {(user || communityFlagged) && (
+          <button
+            className={`crowd-flag-btn${userFlagged || communityFlagged ? ' crowd-flag-btn--active' : ''}`}
+            onClick={handleFlag}
+            disabled={flagBusy}
+            title={
+              isAdmin
+                ? flagCount > 0 ? `Clear ${flagCount} error flag${flagCount !== 1 ? 's' : ''} (admin)` : 'No active flags'
+                : userFlagged ? 'Remove your error flag' : `Flag as having errors${flagCount > 0 ? ` · ${flagCount} flagged` : ''}`
+            }
+            aria-label={isAdmin ? 'Clear error flags' : userFlagged ? 'Remove error flag' : 'Flag bill as having errors'}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={userFlagged || communityFlagged ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            {flagCount > 0 && <span className="crowd-flag-count">{flagCount}</span>}
+          </button>
+        )}
       </div>
     </div>
   )
