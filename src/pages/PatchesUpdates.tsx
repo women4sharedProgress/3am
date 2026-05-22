@@ -8,7 +8,7 @@ interface PatchNote {
   summary: string
   details: {
     federal_bills?: { updated: number; pending: number; skipped: number; error?: string }
-    michigan_bills?: { updated: number; error?: string }
+    michigan_bills?: { updated: number; pending: number; hearings: number; skipped: number; error?: string }
     representatives?: { upserted: number; error?: string }
   } | null
   created_at: string
@@ -36,9 +36,7 @@ export default function PatchesUpdates() {
         setNotes((data as PatchNote[]) ?? [])
         setLoading(false)
       })
-    // Mark as seen
     localStorage.setItem(SEEN_KEY, new Date().toISOString())
-    // Notify Home to clear the green indicator on next render
     window.dispatchEvent(new CustomEvent('patches-seen'))
   }, [])
 
@@ -54,12 +52,8 @@ export default function PatchesUpdates() {
     <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)' }}>
       <PageTopBar />
 
-      <div style={{
-        maxWidth: 680,
-        margin: '0 auto',
-        padding: '72px 16px 40px',
-      }}>
-        {/* Reminder — no background */}
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '72px 16px 40px' }}>
+
         <div style={{
           padding: '0 4px 20px',
           display: 'flex',
@@ -105,7 +99,7 @@ export default function PatchesUpdates() {
 
         {!loading && notes.length === 0 && (
           <div style={{
-            background: 'var(--color-card, #fff)',
+            background: 'var(--color-bg-secondary)',
             border: '1px solid var(--color-border-light)',
             borderRadius: 10,
             padding: '20px',
@@ -123,8 +117,8 @@ export default function PatchesUpdates() {
             const d = n.details
             return (
               <div key={n.id} style={{
-                background: '#2a2a2a',
-                border: '1px solid #008080',
+                background: 'var(--color-bg-secondary)',
+                border: '1px solid var(--color-border-light)',
                 borderLeft: '4px solid #B597D5',
                 borderRadius: 10,
                 padding: '14px 16px',
@@ -135,7 +129,7 @@ export default function PatchesUpdates() {
                       fontFamily: "'Quicksand', sans-serif",
                       fontWeight: 700,
                       fontSize: 12,
-                      color: '#008080',
+                      color: 'var(--color-text-tertiary)',
                       letterSpacing: '.3px',
                       marginBottom: 4,
                     }}>
@@ -144,7 +138,7 @@ export default function PatchesUpdates() {
                     <div style={{
                       fontFamily: "'Nunito', sans-serif",
                       fontSize: 14,
-                      color: '#e0ddf0',
+                      color: 'var(--color-text-primary)',
                       lineHeight: 1.5,
                     }}>
                       {n.summary}
@@ -154,7 +148,7 @@ export default function PatchesUpdates() {
                     <button
                       onClick={() => toggleExpand(n.id)}
                       style={{
-                        background: '#4F4262',
+                        background: '#B597D5',
                         border: 'none',
                         borderRadius: 6,
                         padding: '4px 10px',
@@ -177,7 +171,7 @@ export default function PatchesUpdates() {
                   <div style={{
                     marginTop: 12,
                     paddingTop: 12,
-                    borderTop: '1px solid #3a3a3a',
+                    borderTop: '1px solid var(--color-border-light)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 6,
@@ -200,7 +194,12 @@ export default function PatchesUpdates() {
                         text={
                           d.michigan_bills.error
                             ? `Skipped — ${d.michigan_bills.error}`
-                            : `${d.michigan_bills.updated} updated`
+                            : [
+                                `${d.michigan_bills.updated} updated`,
+                                d.michigan_bills.pending  ? `${d.michigan_bills.pending} pending review`  : '',
+                                d.michigan_bills.hearings ? `${d.michigan_bills.hearings} escalated to Act Now` : '',
+                                d.michigan_bills.skipped  ? `${d.michigan_bills.skipped} skipped` : '',
+                              ].filter(Boolean).join(' · ')
                         }
                       />
                     )}
@@ -231,10 +230,10 @@ function DetailRow({ label, ok, text }: { label: string; ok: boolean; text: stri
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
       <span style={{
         width: 8, height: 8, borderRadius: 2,
-        background: ok ? '#00B050' : '#C00000',
+        background: ok ? 'var(--color-text-success)' : 'var(--color-text-danger)',
         flexShrink: 0, marginTop: 4,
       }} />
-      <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: '#e0ddf0', lineHeight: 1.5 }}>
+      <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-primary)', lineHeight: 1.5 }}>
         <strong>{label}:</strong> {text}
       </div>
     </div>
