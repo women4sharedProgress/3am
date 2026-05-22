@@ -1162,7 +1162,7 @@ export default function Home() {
                       }
                     }
 
-                    // Senators: cap at 2, fill with blanks if fewer
+                    // Senators: cap at 2, fall back to static
                     const dbSenators = dbNationalReps.filter(r => r.chamber === 'Senate').slice(0, 2)
                     const filledSenators: Official[] = (dbSenators.length > 0
                       ? dbSenators.map(toNationalOfficial)
@@ -1171,53 +1171,62 @@ export default function Home() {
                     const senator1 = filledSenators[0] ?? blank('U.S. Senator', 'national')
                     const senator2 = filledSenators[1] ?? blank('U.S. Senator', 'national')
 
-                    // House: user's district only, cap at 1
-                    const filledHouse = userDistrictNorm
-                      ? dbNationalReps
-                          .filter(r => r.chamber === 'House' && normDist(r.district) === userDistrictNorm)
-                          .slice(0, 1)
-                          .map(toNationalOfficial)
+                    // House: try DB by district, fall back to static by district, blank if no district
+                    const dbHouseMatch = userDistrictNorm
+                      ? dbNationalReps.filter(r => r.chamber === 'House' && normDist(r.district) === userDistrictNorm)
                       : []
-                    const houseRep = filledHouse[0] ?? blank('U.S. Representative', 'national')
+                    const staticHouseMatch = userDistrictNorm
+                      ? stateOfficials.filter(o => o.role === 'U.S. Representative' && normDist(o.district) === userDistrictNorm)
+                      : []
+                    const houseRep: Official = dbHouseMatch.length > 0
+                      ? toNationalOfficial(dbHouseMatch[0])
+                      : staticHouseMatch.length > 0
+                        ? staticHouseMatch[0]
+                        : blank('U.S. Representative', 'national')
 
                     return [senator1, senator2, houseRep]
                   }
 
                   if (level === 'state') {
                     if (!hasProfileAddr) return [blank('State Senator', 'state'), blank('State Representative', 'state')]
+                    const stateOfficials = getOfficialsByState(profileAddr?.state ?? '')
+                    // Non-district officials (Governor, Lt. Governor, AG, SoS, etc.) — always shown
+                    const others = stateOfficials.filter(o =>
+                      o.level === 'state' && !o.district &&
+                      o.role !== 'State Senator' && o.role !== 'State Representative'
+                    )
+                    let senator: Official, houseRep: Official
                     if (dbStateReps.length > 0) {
-                      const normDist = (d: string | null | undefined) => {
+                      const normDistSt = (d: string | null | undefined) => {
                         const n = parseInt((d ?? '').replace(/\D/g, ''), 10)
                         return isNaN(n) ? '' : String(n)
                       }
                       const toStateOfficial = (r: RepRow, role: string): Official => ({
-                        level: 'state',
-                        role,
+                        level: 'state', role,
                         name: normalizeName(r.name),
                         party: r.party.toLowerCase() as OfficialParty,
                         district: r.district ?? undefined,
                         email: r.email ?? undefined,
                         contact_url: r.url ?? undefined,
                       })
-                      const userSenDist  = normDist(profileAddr?.state_senate_district)
-                      const userHouseDist = normDist(profileAddr?.state_house_district)
-                      const dbSen  = userSenDist  ? dbStateReps.find(r => r.chamber === 'Senate' && normDist(r.district) === userSenDist)  : undefined
-                      const dbHouse = userHouseDist ? dbStateReps.find(r => r.chamber === 'House'  && normDist(r.district) === userHouseDist) : undefined
-                      const senator  = dbSen   ? toStateOfficial(dbSen,  'State Senator')       : blank('State Senator', 'state')
-                      const houseRep = dbHouse ? toStateOfficial(dbHouse, 'State Representative') : blank('State Representative', 'state')
-                      return [senator, houseRep]
+                      const userSenDist  = normDistSt(profileAddr?.state_senate_district)
+                      const userHouseDist = normDistSt(profileAddr?.state_house_district)
+                      const dbSen   = userSenDist   ? dbStateReps.find(r => r.chamber === 'Senate' && normDistSt(r.district) === userSenDist)   : undefined
+                      const dbHouse = userHouseDist ? dbStateReps.find(r => r.chamber === 'House'  && normDistSt(r.district) === userHouseDist) : undefined
+                      senator  = dbSen   ? toStateOfficial(dbSen,  'State Senator')        : blank('State Senator', 'state')
+                      houseRep = dbHouse ? toStateOfficial(dbHouse, 'State Representative') : blank('State Representative', 'state')
+                    } else {
+                      const filtered = stateOfficials.filter(o => {
+                        if (o.level !== 'state') return false
+                        if (o.role === 'State Senator')        return o.district === profileAddr?.state_senate_district
+                        if (o.role === 'State Representative') return o.district === profileAddr?.state_house_district
+                        return false
+                      })
+                      senator  = filtered.find(o => o.role === 'State Senator')        ?? blank('State Senator', 'state')
+                      houseRep = filtered.find(o => o.role === 'State Representative') ?? blank('State Representative', 'state')
                     }
-                    const filtered = getOfficialsByState(profileAddr?.state ?? '').filter(o => {
-                      if (o.level !== 'state') return false
-                      if (!o.district) return true
-                      if (o.role === 'State Senator')        return o.district === profileAddr?.state_senate_district
-                      if (o.role === 'State Representative') return o.district === profileAddr?.state_house_district
-                      return true
-                    })
-                    const senator  = filtered.find(o => o.role === 'State Senator')        ?? blank('State Senator', 'state')
-                    const houseRep = filtered.find(o => o.role === 'State Representative') ?? blank('State Representative', 'state')
-                    const others   = filtered.filter(o => o.role !== 'State Senator' && o.role !== 'State Representative')
-                    return [senator, houseRep, ...others]
+                    // Non-district officials first, then senator, then rep
+                    return [...others, senator, houseRep]
                   }
 
                   // local — unchanged
@@ -1248,7 +1257,17 @@ export default function Home() {
                           {isBlank ? (
                             <>
                               <div className="home-rep-role">{o.role}</div>
-                              <div className="home-rep-no-election" style={{ fontStyle: 'italic' }}>Not yet available</div>
+                              {(o.level === 'national' || o.level === 'state') ? (
+                                <div className="home-rep-no-election" style={{ fontStyle: 'italic', fontSize: 12 }}>
+                                  Set your district in{' '}
+                                  <button
+                                    onClick={() => navigate('/profile')}
+                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-teal)', fontFamily: 'inherit', fontSize: 'inherit', textDecoration: 'underline' }}
+                                  >My Profile</button>
+                                </div>
+                              ) : (
+                                <div className="home-rep-no-election" style={{ fontStyle: 'italic' }}>Not yet available</div>
+                              )}
                             </>
                           ) : (
                           <>
