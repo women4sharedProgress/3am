@@ -125,7 +125,7 @@ export default function PatchesUpdates() {
               <div key={n.id} style={{
                 background: '#2a2a2a',
                 border: '1px solid #008080',
-                borderLeft: '4px solid #2D1B4E',
+                borderLeft: '4px solid #B597D5',
                 borderRadius: 10,
                 padding: '14px 16px',
               }}>
