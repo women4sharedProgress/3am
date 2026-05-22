@@ -243,6 +243,9 @@ export default function AlertSettings() {
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' })
   const [pwStatus, setPwStatus] = useState<'idle' | 'saving' | 'ok' | 'err'>('idle')
   const [pwError, setPwError] = useState('')
+  const [isDark, setIsDark] = useState(
+    () => !['light', 'outline', 'dots'].includes(localStorage.getItem('wsp-theme') ?? 'dark')
+  )
 
   const [greeting, setGreeting] = useState<GreetingPrefs>(() => {
     try {
@@ -284,6 +287,15 @@ export default function AlertSettings() {
       document.documentElement.removeAttribute('data-theme')
       document.documentElement.removeAttribute('data-page')
     }
+  }, [])
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const theme = document.documentElement.getAttribute('data-theme') ?? 'dark'
+      setIsDark(!['light', 'outline', 'dots'].includes(theme))
+    })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -721,9 +733,6 @@ export default function AlertSettings() {
         {/* ── Greeting preferences ── */}
         <Section title="Greeting preferences">
           {(() => {
-            const isDark = !['light', 'outline', 'dots'].includes(
-              document.documentElement.getAttribute('data-theme') ?? 'dark'
-            )
             const chipBase: React.CSSProperties = {
               fontFamily: "'Nunito', sans-serif", fontSize: 13, fontWeight: 600,
               padding: '5px 12px', borderRadius: 20, cursor: 'pointer',
