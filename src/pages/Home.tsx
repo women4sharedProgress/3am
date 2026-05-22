@@ -1411,7 +1411,7 @@ export default function Home() {
                               }
                               return [...map.values()]
                             }
-                            const fieldWrap = (field: string, vals: string[], inputEl: React.ReactNode) => (
+                            const fieldWrap = (field: string, vals: string[], inputEl: React.ReactNode, onOptionSelect?: (v: string) => void) => (
                               <div className="home-local-field-wrap" onMouseDown={e => e.stopPropagation()}>
                                 {inputEl}
                                 {vals.length > 0 && (
@@ -1433,11 +1433,15 @@ export default function Home() {
                                         className="home-local-field-option"
                                         type="button"
                                         onClick={() => {
-                                          upd(field, v)
-                                          setLocalFromDropdown(prev => ({
-                                            ...prev,
-                                            [role]: { ...(prev[role] ?? {}), [field]: true },
-                                          }))
+                                          if (onOptionSelect) {
+                                            onOptionSelect(v)
+                                          } else {
+                                            upd(field, v)
+                                            setLocalFromDropdown(prev => ({
+                                              ...prev,
+                                              [role]: { ...(prev[role] ?? {}), [field]: true },
+                                            }))
+                                          }
                                           setLocalFieldDropdownOpen(prev => ({ ...prev, [role]: null }))
                                         }}
                                       >
@@ -1518,7 +1522,35 @@ export default function Home() {
                                           upd('name', e.target.value)
                                           if (fromDropdown.name) setLocalFromDropdown(prev => ({ ...prev, [role]: { ...prev[role], name: false } }))
                                         }}
-                                      />
+                                      />,
+                                      (v) => {
+                                        const match = otherEntries.find(o => o.name === v)
+                                        if (match) {
+                                          setLocalForms(prev => ({
+                                            ...prev,
+                                            [role]: {
+                                              name:      match.name,
+                                              phone:     match.phone     ?? '',
+                                              email:     match.email     ?? '',
+                                              since:     match.since     ?? '',
+                                              term_ends: match.term_ends ?? '',
+                                            },
+                                          }))
+                                          setLocalFromDropdown(prev => ({
+                                            ...prev,
+                                            [role]: {
+                                              name:      true,
+                                              phone:     !!match.phone,
+                                              email:     !!match.email,
+                                              since:     !!match.since,
+                                              term_ends: !!match.term_ends,
+                                            },
+                                          }))
+                                        } else {
+                                          upd('name', v)
+                                          setLocalFromDropdown(prev => ({ ...prev, [role]: { ...(prev[role] ?? {}), name: true } }))
+                                        }
+                                      }
                                     )}
                                     {fieldWrap('phone', uniqueVals('phone'),
                                       <input
