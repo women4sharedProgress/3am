@@ -453,23 +453,6 @@ export default function Profile() {
     })
   }
 
-  function revertField(field: AutofillField) {
-    const now = new Date().toISOString()
-    const prev_val = fieldStore[field].previous_value
-    setData(prev => ({ ...prev, [field]: prev_val, confirmed: false }))
-    setFieldStore(prev => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        current_value: prev_val,
-        previous_value: prev[field].current_value,
-        provenance: prev_val ? 'manual' : 'empty',
-        source: 'revert',
-        timestamp: now,
-      },
-    }))
-  }
-
   function acceptElection() {
     if (!pendingElection) return
     const updates: Partial<Record<AutofillField, { value: string; provenance: Provenance; source: string }>> = {}
@@ -801,11 +784,6 @@ export default function Profile() {
                   <option value="" />
                   {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
-                {fieldStore.state.previous_value && (
-                  <button onClick={() => revertField('state')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
-                    ↩ revert to {fieldStore.state.previous_value}
-                  </button>
-                )}
               </div>
 
               <div>
@@ -828,11 +806,6 @@ export default function Profile() {
                   <input id="prof-county" style={inputStyle} type="text" autoComplete="off"
                     value={data.county} onChange={e => set('county', e.target.value)} />
                 )}
-                {fieldStore.county.previous_value && (
-                  <button onClick={() => revertField('county')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
-                    ↩ revert to {fieldStore.county.previous_value}
-                  </button>
-                )}
               </div>
 
               <div>
@@ -843,11 +816,6 @@ export default function Profile() {
                   <div style={{ fontSize: 12, color: '#b8860b', marginTop: 4 }}>
                     ZIP suggests {cityMismatch}
                   </div>
-                )}
-                {fieldStore.city.previous_value && (
-                  <button onClick={() => revertField('city')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
-                    ↩ revert to {fieldStore.city.previous_value}
-                  </button>
                 )}
               </div>
 
@@ -950,11 +918,6 @@ export default function Profile() {
                   inputMode="numeric" maxLength={2}
                   value={data.congressional_district}
                   onChange={e => set('congressional_district', normalizeDistrict(e.target.value))} />
-                {fieldStore.congressional_district.previous_value && (
-                  <button onClick={() => revertField('congressional_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
-                    ↩ revert to {fieldStore.congressional_district.previous_value}
-                  </button>
-                )}
               </div>
 
               {config.unicameral ? (
@@ -964,11 +927,6 @@ export default function Profile() {
                     inputMode="numeric" maxLength={3}
                     value={data.state_senate_district}
                     onChange={e => set('state_senate_district', normalizeDistrict(e.target.value))} />
-                  {fieldStore.state_senate_district.previous_value && (
-                    <button onClick={() => revertField('state_senate_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
-                      ↩ revert to {fieldStore.state_senate_district.previous_value}
-                    </button>
-                  )}
                 </div>
               ) : (
                 <>
@@ -978,11 +936,6 @@ export default function Profile() {
                       inputMode="numeric" maxLength={3}
                       value={data.state_senate_district}
                       onChange={e => set('state_senate_district', normalizeDistrict(e.target.value))} />
-                    {fieldStore.state_senate_district.previous_value && (
-                      <button onClick={() => revertField('state_senate_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
-                        ↩ revert to {fieldStore.state_senate_district.previous_value}
-                      </button>
-                    )}
                   </div>
                   <div>
                     <label style={tealLabelStyle} htmlFor="dist-sh">State {config.houseName} District</label>
@@ -990,11 +943,6 @@ export default function Profile() {
                       inputMode="numeric" maxLength={3}
                       value={data.state_house_district}
                       onChange={e => set('state_house_district', normalizeDistrict(e.target.value))} />
-                    {fieldStore.state_house_district.previous_value && (
-                      <button onClick={() => revertField('state_house_district')} style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, color: 'var(--color-text-tertiary)', padding: 0, fontFamily: "'Nunito', sans-serif" }}>
-                        ↩ revert to {fieldStore.state_house_district.previous_value}
-                      </button>
-                    )}
                   </div>
                 </>
               )}
