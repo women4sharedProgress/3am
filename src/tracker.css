@@ -403,6 +403,119 @@ body {
 .od-council { background: var(--office-council); }
 .od-county  { background: var(--office-county); }
 
+/* ── Tier 3 admin UI ──────────────────────────────────────────── */
+
+/* Make room for admin edit button in the policy bar area */
+.bill--admin .card-top-tags { right: 70px; }
+
+.admin-edit-btn {
+  position: absolute; top: 10px; right: 38px;
+  background: rgba(255,255,255,0.18); border: none; cursor: pointer;
+  color: rgba(255,255,255,0.7); padding: 4px 5px; border-radius: 4px;
+  display: flex; align-items: center; z-index: 2; transition: all 0.15s; line-height: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+.admin-edit-btn:hover { background: rgba(255,255,255,0.38); color: #ffffff; }
+
+/* Admin verify row in footer */
+.admin-verify-center {
+  display: flex; align-items: center; gap: 6px; cursor: pointer;
+}
+.admin-verify-check {
+  width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; accent-color: #00B050;
+}
+.admin-verify-text {
+  font-family: 'Nunito', sans-serif; font-size: 11px;
+  color: var(--color-text-tertiary); line-height: 1.4; user-select: none;
+  display: flex; align-items: center; gap: 4px;
+}
+.admin-verified-icon {
+  font-size: 12px; font-weight: 700; color: #00B050; line-height: 1;
+}
+
+/* Admin edit form */
+.aef-form {
+  padding: 4px 0 8px;
+  border-top: 1px solid var(--color-border-light);
+  margin-top: 8px;
+}
+.aef-field {
+  margin-bottom: 10px;
+}
+.aef-row {
+  display: flex; gap: 10px; margin-bottom: 10px;
+}
+.aef-half { flex: 1; min-width: 0; margin-bottom: 0; }
+.aef-label {
+  display: block; font-family: var(--font-calibri); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;
+  color: var(--color-text-tertiary); margin-bottom: 3px;
+}
+.aef-hint {
+  font-size: 9px; text-transform: none; letter-spacing: 0; font-weight: 400;
+  color: var(--color-text-tertiary); opacity: 0.75;
+}
+.aef-input {
+  width: 100%; box-sizing: border-box;
+  background: var(--color-bg-secondary); border: 1px solid var(--color-border-light);
+  color: var(--color-text-primary); border-radius: 4px; padding: 5px 7px;
+  font-family: inherit; font-size: 12px; line-height: 1.5; resize: vertical;
+  transition: border-color 0.15s;
+}
+.aef-input:focus { outline: none; border-color: #7c5cbf; }
+.aef-input--sm { resize: none; height: 28px; padding: 3px 7px; }
+.aef-input--mono { font-family: 'Courier New', monospace; font-size: 11px; }
+.aef-input--err { border-color: #cc3333; }
+.aef-err-msg {
+  font-size: 11px; color: #cc3333; margin-top: 3px;
+}
+.aef-select {
+  width: 100%; box-sizing: border-box;
+  background: var(--color-bg-secondary); border: 1px solid var(--color-border-light);
+  color: var(--color-text-primary); border-radius: 4px; padding: 5px 7px;
+  font-family: inherit; font-size: 12px; cursor: pointer;
+}
+.aef-select:focus { outline: none; border-color: #7c5cbf; }
+.aef-range {
+  width: 100%; accent-color: #7c5cbf; cursor: pointer;
+}
+.aef-stage-dates {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.aef-stage-date-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.aef-stage-name {
+  font-size: 11px; color: var(--color-text-tertiary);
+  width: 100px; flex-shrink: 0;
+}
+.aef-checks {
+  display: flex; flex-wrap: wrap; gap: 6px 12px;
+}
+.aef-check-item {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--color-text-secondary); cursor: pointer;
+}
+.aef-check-item input[type="checkbox"] { accent-color: #7c5cbf; cursor: pointer; }
+.aef-actions {
+  display: flex; gap: 8px; padding-top: 6px;
+  border-top: 1px solid var(--color-border-light); margin-top: 8px;
+}
+.aef-save-btn {
+  background: #7c5cbf; color: #fff; border: none; border-radius: 6px;
+  padding: 6px 16px; font-size: 12px; font-family: inherit;
+  cursor: pointer; transition: background 0.15s;
+}
+.aef-save-btn:hover:not(:disabled) { background: #6a4da8; }
+.aef-save-btn:disabled { opacity: 0.6; cursor: default; }
+.aef-cancel-btn {
+  background: none; color: var(--color-text-tertiary); border: 1px solid var(--color-border-light);
+  border-radius: 6px; padding: 6px 14px; font-size: 12px; font-family: inherit;
+  cursor: pointer; transition: color 0.15s;
+}
+.aef-cancel-btn:hover:not(:disabled) { color: var(--color-text-primary); }
+.aef-cancel-btn:disabled { opacity: 0.6; cursor: default; }
+
 /* Pipeline */
 .pipeline-section { margin-bottom: 0.75rem; }
 .pipeline-head {

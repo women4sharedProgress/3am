@@ -48,8 +48,15 @@ function downloadCsv(bills: Bill[]) {
 
 export default function TrackerPage() {
   const navigate = useNavigate()
-  const { bills, loading, error } = useBills(['MI', 'US'])
+  const { bills: rawBills, loading, error } = useBills(['MI', 'US'])
+  const [bills, setBills] = useState<Bill[]>(rawBills)
   const [active, setActive]       = useState<ActiveFilters>(DEFAULT_FILTERS)
+
+  useEffect(() => setBills(rawBills), [rawBills])
+
+  function handleBillUpdate(updated: Bill) {
+    setBills(prev => prev.map(b => b.id === updated.id ? updated : b))
+  }
   const [busy, setBusy]           = useState(false)
   const [copied, setCopied]       = useState(false)
   const [archivedIds, setArchivedIds] = useState<Set<number>>(() => getIdsByStatus('archive'))
@@ -219,7 +226,7 @@ export default function TrackerPage() {
           </div>
           {filtered.length === 0
             ? <div className="empty">No bills match these filters.</div>
-            : filtered.map(b => <BillCard key={b.id} bill={b} />)
+            : filtered.map(b => <BillCard key={b.id} bill={b} onUpdate={handleBillUpdate} />)
           }
         </>
       )}

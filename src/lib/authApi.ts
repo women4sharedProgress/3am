@@ -80,3 +80,11 @@ export function crowdVerify(bill_id: number, iter_hash: string) {
 export function crowdFlag(bill_id: number, iter_hash: string, action: 'flag' | 'unflag' | 'clear') {
   return post('crowd-flag', { bill_id, iter_hash, action })
 }
+
+export function adminBillSave(
+  bill_id: number,
+  fields: Record<string, unknown>,
+  options?: { verify?: boolean; unverify?: boolean },
+) {
+  return post('admin-bill-save', { bill_id, fields, ...options })
+}

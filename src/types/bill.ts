@@ -29,6 +29,9 @@ export interface Bill {
   created_at: string
   updated_at: string
   crowd_verified_hash?: string | null
+  verified?: boolean
+  verified_by?: string | null
+  verified_at?: string | null
 }
 
 export interface ActiveFilters {

@@ -55,7 +55,14 @@ function downloadCsv(bills: Bill[]) {
 
 export default function EnactedLegislation() {
   const navigate = useNavigate()
-  const { bills, loading, error } = useBills(['MI', 'US'])
+  const { bills: rawBills, loading, error } = useBills(['MI', 'US'])
+  const [bills, setBills] = useState<Bill[]>(rawBills)
+
+  useEffect(() => setBills(rawBills), [rawBills])
+
+  function handleBillUpdate(updated: Bill) {
+    setBills(prev => prev.map(b => b.id === updated.id ? updated : b))
+  }
   const [active, setActive] = useState<ActiveFilters>(DEFAULT_FILTERS)
   const [session, setSession] = useState('this-session')
   const [copied, setCopied] = useState(false)
@@ -221,7 +228,7 @@ export default function EnactedLegislation() {
           </div>
           {filtered.length === 0
             ? <div className="empty">No enacted bills match these filters.</div>
-            : filtered.map(b => <BillCard key={b.id} bill={b} />)
+            : filtered.map(b => <BillCard key={b.id} bill={b} onUpdate={handleBillUpdate} />)
           }
         </>
       )}
