@@ -38,9 +38,11 @@ export function renderGreeting(text: string, color: GreetingColor, isDark: boole
     )
   }
   if (color === 'merica') {
+    // 13 stripes, 7 red × 10% + 6 white × 5% = 100%; red anchored at top and bottom
+    const stripes = 'linear-gradient(180deg, #CC0000 0% 10%, #FFFFFF 10% 15%, #CC0000 15% 25%, #FFFFFF 25% 30%, #CC0000 30% 40%, #FFFFFF 40% 45%, #CC0000 45% 55%, #FFFFFF 55% 60%, #CC0000 60% 70%, #FFFFFF 70% 75%, #CC0000 75% 85%, #FFFFFF 85% 90%, #CC0000 90% 100%)'
     return (
       <span style={{
-        backgroundImage: 'linear-gradient(#002868, #002868), repeating-linear-gradient(180deg, #CC0000, #CC0000 7.69%, #FFFFFF 7.69%, #FFFFFF 15.38%)',
+        backgroundImage: `linear-gradient(#002868, #002868), ${stripes}`,
         backgroundSize: '40% 54%, 100% 100%',
         backgroundPosition: '0 0, 0 0',
         backgroundRepeat: 'no-repeat, no-repeat',
