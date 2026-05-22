@@ -72,3 +72,7 @@ export function profileSave(profile: object) {
 export function feedbackSubmit(payload: object) {
   return post('feedback-submit', payload)
 }
+
+export function crowdVerify(bill_id: number, iter_hash: string) {
+  return post('crowd-verify', { bill_id, iter_hash })
+}

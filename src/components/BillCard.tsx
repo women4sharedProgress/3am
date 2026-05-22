@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { getStatus, setStatus } from '../lib/billStatus'
 import type { BillStatus } from '../lib/billStatus'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
+import { crowdVerify } from '../lib/authApi'
 
 const AMEND_TOOLTIPS: Record<string, string> = {
   '4th':          '4th Amendment',
@@ -34,10 +36,54 @@ import { OFFICE_META } from '../lib/constants'
 import Pipeline from './Pipeline'
 import Decisions from './Decisions'
 
+function billIterHash(bill: Bill): string {
+  let h = 5381
+  const s = `${bill.stage}:${bill.name}:${bill.stage_note ?? ''}`
+  for (let i = 0; i < s.length; i++) h = Math.imul(h, 33) ^ s.charCodeAt(i)
+  return (h >>> 0).toString(16).padStart(8, '0')
+}
+
 export default function BillCard({ bill }: { bill: Bill }) {
   const copyBtnRef = useRef<HTMLButtonElement>(null)
   const { user } = useAuth()
   const [status, setLocalStatus] = useState<BillStatus>(() => getStatus(bill.id))
+
+  const iterHash = billIterHash(bill)
+  const lsKey    = `cv:${bill.id}:${iterHash}`
+  const [verifyCount,    setVerifyCount]    = useState(0)
+  const [userVerified,   setUserVerified]   = useState(() => localStorage.getItem(lsKey) === '1')
+  const [verifyBusy,     setVerifyBusy]     = useState(false)
+  const [crowdHash,      setCrowdHash]      = useState(bill.crowd_verified_hash ?? null)
+
+  useEffect(() => {
+    supabase
+      .from('bill_crowd_verifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('bill_id', bill.id)
+      .eq('iter_hash', iterHash)
+      .then(({ count }) => setVerifyCount(count ?? 0))
+  }, [bill.id, iterHash])
+
+  async function handleVerify() {
+    if (!user || userVerified || verifyBusy) return
+    setVerifyBusy(true)
+    setUserVerified(true)
+    localStorage.setItem(lsKey, '1')
+    try {
+      const res = await crowdVerify(bill.id, iterHash)
+      if (res?.count !== undefined) setVerifyCount(res.count)
+      if (res?.crowd_verified) setCrowdHash(iterHash)
+    } finally {
+      setVerifyBusy(false)
+    }
+  }
+
+  const communityVerified = verifyCount >= 3
+  const wasVerified       = crowdHash !== null
+  const dotClass = [
+    communityVerified || userVerified ? 'cvd-green' : 'cvd-gray',
+    wasVerified ? (communityVerified ? 'cvd-ring-teal' : 'cvd-ring-black') : '',
+  ].filter(Boolean).join(' ')
 
   function handleStatus(s: NonNullable<BillStatus>) {
     const next: BillStatus = status === s ? null : s
@@ -199,6 +245,25 @@ export default function BillCard({ bill }: { bill: Bill }) {
             <polyline points="18 15 12 9 6 15"/>
           </svg>
         </button>
+      </div>
+
+      <div className="crowd-verify-row">
+        <button
+          className={`crowd-verify-dot ${dotClass}`}
+          onClick={handleVerify}
+          disabled={!user || userVerified || verifyBusy}
+          title={!user ? 'Sign in to verify' : userVerified ? 'You verified this' : 'I verify this information'}
+          aria-label={!user ? 'Sign in to verify' : userVerified ? 'You verified this' : 'Verify this information'}
+        />
+        <span className="crowd-verify-label">
+          {communityVerified
+            ? `Community verified · ${verifyCount} verification${verifyCount !== 1 ? 's' : ''}`
+            : userVerified
+            ? verifyCount > 1 ? `You + ${verifyCount - 1} other${verifyCount - 1 !== 1 ? 's' : ''} verifying` : 'You verified this'
+            : verifyCount > 0
+            ? `I verify this information · ${verifyCount} verifying`
+            : 'I verify this information'}
+        </span>
       </div>
     </div>
   )

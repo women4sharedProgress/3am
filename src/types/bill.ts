@@ -28,6 +28,7 @@ export interface Bill {
   decisions: Decision[]
   created_at: string
   updated_at: string
+  crowd_verified_hash?: string | null
 }
 
 export interface ActiveFilters {

@@ -45,27 +45,6 @@ function downloadCsv(bills: Bill[]) {
   URL.revokeObjectURL(url)
 }
 
-function openEmailDigest(bills: Bill[]) {
-  const d = new Date()
-  const date = `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleDateString('en-US', { month: 'short' })} ${String(d.getFullYear()).slice(2)}`
-  const subject = `3AM Pipeline Digest ${date}`
-  const divider = '—'.repeat(40)
-  const body = [
-    `3AM Pipeline Digest — ${date}`,
-    `${bills.length} bill${bills.length !== 1 ? 's' : ''} shown`,
-    '', divider, '',
-    ...bills.flatMap((b, i) => [
-      `${i + 1}. ${b.name}`,
-      `   Level: ${b.level} | Urgency: ${b.urgency}`,
-      b.introduced ? `   Introduced: ${b.introduced}` : null,
-      b.supporters ? `   Supporters: ${b.supporters}` : null,
-      b.blockers   ? `   Blockers: ${b.blockers}`     : null,
-      b.stage_note ? `   Status: ${b.stage_note}`     : null,
-      '',
-    ].filter((l): l is string => l !== null)),
-  ].join('\n')
-  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-}
 
 export default function TrackerPage() {
   const navigate = useNavigate()
@@ -190,13 +169,34 @@ export default function TrackerPage() {
             </svg>
             {copied ? 'Copied!' : 'Copy Link'}
           </button>
-          <button onClick={() => openEmailDigest(filtered)} style={BTN} aria-label="Email digest">
+          <a
+            href="https://www.legislature.mi.gov/bills"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ ...BTN, textDecoration: 'none' }}
+            aria-label="Michigan Legislature bills"
+          >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-              <polyline points="22,6 12,13 2,6"/>
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
             </svg>
-            Email Digest
-          </button>
+            MI Legislature
+          </a>
+          <a
+            href="https://www.congress.gov/browse-legislation/bills"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ ...BTN, textDecoration: 'none' }}
+            aria-label="Congress.gov bills"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Congress.gov
+          </a>
         </div>
         <ThemeToggle />
       </div>

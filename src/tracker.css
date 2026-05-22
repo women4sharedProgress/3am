@@ -357,6 +357,27 @@ body {
   line-height: 1;
 }
 .bill-scroll-top:hover { color: var(--color-text-primary); }
+
+/* ── Crowd verification row ───────────────────────────────────── */
+.crowd-verify-row {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--color-border-light);
+}
+.crowd-verify-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  background: var(--color-text-tertiary); border: none; padding: 0; cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.crowd-verify-dot:disabled { cursor: default; }
+.crowd-verify-dot.cvd-green  { background: #00B050; }
+.crowd-verify-dot.cvd-gray   { background: var(--color-text-tertiary); }
+.crowd-verify-dot.cvd-ring-black { box-shadow: 0 0 0 3px #000; }
+.crowd-verify-dot.cvd-ring-teal  { box-shadow: 0 0 0 3px #1a7a72; }
+.crowd-verify-label {
+  font-family: 'Nunito', sans-serif; font-size: 11px;
+  color: var(--color-text-tertiary); line-height: 1.4; cursor: default;
+}
 .office-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
 .od-gov     { background: var(--office-gov); }
 .od-mis     { background: var(--office-mi-s); }
