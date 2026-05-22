@@ -19,6 +19,9 @@ const SOLID: Partial<Record<GreetingColor, string>> = {
 }
 
 export function renderGreeting(text: string, color: GreetingColor, isDark: boolean): ReactNode {
+  if (color === 'blackwhite') {
+    return <span style={{ color: isDark ? '#FFFFFF' : '#111111' }}>{text}</span>
+  }
   if (color in SOLID) {
     return <span style={{ color: SOLID[color] }}>{text}</span>
   }
