@@ -695,6 +695,13 @@
   align-items: flex-start;
 }
 
+.home-tertiary-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  justify-content: center;
+}
+
 .home-secondary-card {
   width: 82px;
   height: 88px;
