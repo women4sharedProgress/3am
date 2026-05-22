@@ -785,6 +785,10 @@ export default function AlertSettings() {
                       >
                         {value === 'default'
                           ? <span style={{ color: greeting.color === value ? '#B597D5' : 'var(--color-text-secondary)' }}>{label}</span>
+                          : value === 'america'
+                          ? <span style={{ background: '#808080', borderRadius: 10, padding: '1px 8px', display: 'inline-block', fontWeight: 700 }}>
+                              {renderGreeting(label, value, isDark)}
+                            </span>
                           : <span style={{ fontWeight: 700 }}>{renderGreeting(label, value, isDark)}</span>
                         }
                       </button>

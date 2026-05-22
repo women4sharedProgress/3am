@@ -4,6 +4,7 @@ export type GreetingWord =
 
 export type GreetingColor = 'default' | 'rainbow' | 'pride' | 'america'
   | 'purple' | 'bright' | 'green' | 'blue' | 'teal'
+  | 'red' | 'navy' | 'demblue' | 'brown'
 
 export type GreetingSize = 'small' | 'big'
 
@@ -34,8 +35,12 @@ export const GREETING_COLORS: { value: GreetingColor; label: string }[] = [
   { value: 'purple',  label: 'Purple'  },
   { value: 'bright',  label: 'Bright'  },
   { value: 'green',   label: 'Green'   },
-  { value: 'blue',    label: 'Blue'    },
+  { value: 'blue',    label: 'Sky'     },
   { value: 'teal',    label: 'Teal'    },
+  { value: 'red',     label: 'Red'     },
+  { value: 'navy',    label: 'Navy'    },
+  { value: 'demblue', label: 'Blue'    },
+  { value: 'brown',   label: 'Brown'   },
 ]
 
 export function buildGreetingText(word: GreetingWord, username: string): string | null {
