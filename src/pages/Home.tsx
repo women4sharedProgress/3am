@@ -977,30 +977,6 @@ export default function Home() {
         {/* ── Secondary row — 8 tiles ──────────────────── */}
         <div className="home-secondary-row">
 
-          <button
-            className="home-secondary-card"
-            style={{ background: '#4F4262' }}
-            onClick={() => navigate('/patches-updates')}
-            aria-label="Patches and updates"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="3" stroke="white" strokeWidth="2" fill="none"/>
-              <line x1="8" y1="8" x2="16" y2="8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="12" x2="16" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="16" x2="13" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <span className="home-secondary-label">Updates</span>
-          </button>
-
-          <button
-            className="home-secondary-card" style={{ background: '#4F4262' }}
-            onClick={() => navigate('/civic-calendar')}
-            aria-label="Civic Calendar — elections and registration deadlines"
-          >
-            <CivicCalendarIcon size={20} color="#008080" />
-            <span className="home-secondary-label">Civic Calendar</span>
-          </button>
-
           <a
             className="home-secondary-card"
             style={{ background: '#003f8a', textDecoration: 'none' }}
@@ -1030,6 +1006,30 @@ export default function Home() {
             </svg>
             <span className="home-secondary-label">MI District &amp; Polling</span>
           </a>
+
+          <button
+            className="home-secondary-card"
+            style={{ background: '#4F4262' }}
+            onClick={() => navigate('/patches-updates')}
+            aria-label="Patches and updates"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="white" strokeWidth="2" fill="none"/>
+              <line x1="8" y1="8" x2="16" y2="8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="12" x2="16" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="16" x2="13" y2="16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span className="home-secondary-label">Updates</span>
+          </button>
+
+          <button
+            className="home-secondary-card" style={{ background: '#4F4262' }}
+            onClick={() => navigate('/civic-calendar')}
+            aria-label="Civic Calendar — elections and registration deadlines"
+          >
+            <CivicCalendarIcon size={20} color="#008080" />
+            <span className="home-secondary-label">Civic Calendar</span>
+          </button>
 
           <button
             className="home-secondary-card" style={{ background: '#B597D5' }}
