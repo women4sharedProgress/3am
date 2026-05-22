@@ -122,7 +122,7 @@ Deno.serve(async (_req) => {
       name,
       party:      normalizeParty(row[col('current_party')] ?? ''),
       state:      'MI',
-      district:   chamber === 'House' ? district : null,
+      district:   district || null,
       chamber,
       url:        firstUrl(row[col('links')] ?? ''),
       photo_url:  row[col('image')]?.trim() || null,
@@ -145,7 +145,7 @@ Deno.serve(async (_req) => {
   for (let i = 0; i < records.length; i += CHUNK) {
     const chunk = records.slice(i, i + CHUNK)
     const { error } = await supabase
-      .from('representatives')
+      .from('representatives_state')
       .upsert(chunk, { onConflict: 'bioguide_id' })
     if (error) {
       console.error(`Upsert error (chunk ${i}–${i + CHUNK}):`, error.message)

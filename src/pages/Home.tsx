@@ -399,7 +399,8 @@ export default function Home() {
   const [presidentMode, setPresidentMode] = useState<'president' | 'election'>(() =>
     localStorage.getItem('wsp-president-mode') === 'president' ? 'president' : 'election'
   )
-  const [dbReps, setDbReps]               = useState<RepRow[]>([])
+  const [dbNationalReps, setDbNationalReps] = useState<RepRow[]>([])
+  const [dbStateReps, setDbStateReps]       = useState<RepRow[]>([])
   const [repElectionKeys, setRepElectionKeys] = useState<Set<string>>(() => {
     try {
       const r = localStorage.getItem(userKey('wsp-rep-election-keys'))
@@ -472,14 +473,25 @@ export default function Home() {
 
   useEffect(() => {
     const state = profileAddr?.state?.toUpperCase()
-    if (!state) { setDbReps([]); return }
+    if (!state) { setDbNationalReps([]); setDbStateReps([]); return }
     supabase
-      .from('representatives')
+      .from('representatives_national')
       .select('bioguide_id,name,party,state,district,chamber,url,email,source')
       .eq('state', state)
       .then(({ data, error }) => {
-        if (!error) setDbReps((data ?? []) as RepRow[])
+        if (!error) setDbNationalReps((data ?? []) as RepRow[])
       })
+    if (state === 'MI') {
+      supabase
+        .from('representatives_state')
+        .select('bioguide_id,name,party,state,district,chamber,url,email,source')
+        .eq('state', 'MI')
+        .then(({ data, error }) => {
+          if (!error) setDbStateReps((data ?? []) as RepRow[])
+        })
+    } else {
+      setDbStateReps([])
+    }
   }, [profileAddr?.state])
 
   useEffect(() => {
@@ -1128,7 +1140,7 @@ export default function Home() {
                     const userDistrictNorm = normDist(profileAddr?.congressional_district ?? '')
                     const stateOfficials = getOfficialsByState(profileAddr?.state ?? '')
 
-                    const toOfficial = (r: RepRow): Official => {
+                    const toNationalOfficial = (r: RepRow): Official => {
                       const lastName = r.name.split(',')[0].trim().toLowerCase()
                       const isSenate = r.chamber === 'Senate'
                       const s = stateOfficials.find(o =>
@@ -1150,21 +1162,21 @@ export default function Home() {
                       }
                     }
 
-                    // Senators: federal only, cap at 2, fill with blanks if fewer
-                    const dbSenators = dbReps.filter(r => r.chamber === 'Senate' && r.source !== 'openstates').slice(0, 2)
+                    // Senators: cap at 2, fill with blanks if fewer
+                    const dbSenators = dbNationalReps.filter(r => r.chamber === 'Senate').slice(0, 2)
                     const filledSenators: Official[] = (dbSenators.length > 0
-                      ? dbSenators.map(toOfficial)
+                      ? dbSenators.map(toNationalOfficial)
                       : stateOfficials.filter(o => o.role === 'U.S. Senator')
                     ).slice(0, 2)
                     const senator1 = filledSenators[0] ?? blank('U.S. Senator', 'national')
                     const senator2 = filledSenators[1] ?? blank('U.S. Senator', 'national')
 
-                    // House: federal only, user's district only, cap at 1
+                    // House: user's district only, cap at 1
                     const filledHouse = userDistrictNorm
-                      ? dbReps
-                          .filter(r => r.chamber === 'House' && r.source !== 'openstates' && normDist(r.district) === userDistrictNorm)
+                      ? dbNationalReps
+                          .filter(r => r.chamber === 'House' && normDist(r.district) === userDistrictNorm)
                           .slice(0, 1)
-                          .map(toOfficial)
+                          .map(toNationalOfficial)
                       : []
                     const houseRep = filledHouse[0] ?? blank('U.S. Representative', 'national')
 
@@ -1173,6 +1185,28 @@ export default function Home() {
 
                   if (level === 'state') {
                     if (!hasProfileAddr) return [blank('State Senator', 'state'), blank('State Representative', 'state')]
+                    if (dbStateReps.length > 0) {
+                      const normDist = (d: string | null | undefined) => {
+                        const n = parseInt((d ?? '').replace(/\D/g, ''), 10)
+                        return isNaN(n) ? '' : String(n)
+                      }
+                      const toStateOfficial = (r: RepRow, role: string): Official => ({
+                        level: 'state',
+                        role,
+                        name: normalizeName(r.name),
+                        party: r.party.toLowerCase() as OfficialParty,
+                        district: r.district ?? undefined,
+                        email: r.email ?? undefined,
+                        contact_url: r.url ?? undefined,
+                      })
+                      const userSenDist  = normDist(profileAddr?.state_senate_district)
+                      const userHouseDist = normDist(profileAddr?.state_house_district)
+                      const dbSen  = userSenDist  ? dbStateReps.find(r => r.chamber === 'Senate' && normDist(r.district) === userSenDist)  : undefined
+                      const dbHouse = userHouseDist ? dbStateReps.find(r => r.chamber === 'House'  && normDist(r.district) === userHouseDist) : undefined
+                      const senator  = dbSen   ? toStateOfficial(dbSen,  'State Senator')       : blank('State Senator', 'state')
+                      const houseRep = dbHouse ? toStateOfficial(dbHouse, 'State Representative') : blank('State Representative', 'state')
+                      return [senator, houseRep]
+                    }
                     const filtered = getOfficialsByState(profileAddr?.state ?? '').filter(o => {
                       if (o.level !== 'state') return false
                       if (!o.district) return true

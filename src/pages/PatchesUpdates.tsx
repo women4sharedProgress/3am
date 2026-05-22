@@ -59,25 +59,22 @@ export default function PatchesUpdates() {
         margin: '0 auto',
         padding: '72px 16px 40px',
       }}>
-        {/* Reminder banner */}
+        {/* Reminder — no background */}
         <div style={{
-          background: '#4F4262',
-          borderRadius: 10,
-          padding: '12px 16px',
-          marginBottom: 28,
+          padding: '0 4px 20px',
           display: 'flex',
           alignItems: 'flex-start',
-          gap: 10,
+          gap: 8,
         }}>
-          <span style={{ fontSize: 18, flexShrink: 0 }}>&#128161;</span>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>&#128161;</span>
           <span style={{
             fontFamily: "'Nunito', sans-serif",
-            fontSize: 14,
-            color: '#ffffff',
+            fontSize: 13,
+            color: 'var(--color-text-secondary)',
             lineHeight: 1.6,
           }}>
-            <strong>For best results:</strong> clear your browser cache and refresh the page before viewing.
-            On most browsers: <strong>Ctrl + Shift + Delete</strong> (Windows) or <strong>Cmd + Shift + Delete</strong> (Mac).
+            <strong>For best results:</strong> clear your browser cache and refresh before viewing.
+            <span style={{ color: 'var(--color-text-tertiary)' }}> Ctrl + Shift + Delete (Windows) · Cmd + Shift + Delete (Mac)</span>
           </span>
         </div>
 
@@ -111,10 +108,10 @@ export default function PatchesUpdates() {
             background: 'var(--color-card, #fff)',
             border: '1px solid var(--color-border-light)',
             borderRadius: 10,
-            padding: '20px 20px',
+            padding: '20px',
             fontFamily: "'Nunito', sans-serif",
             fontSize: 14,
-            color: 'var(--color-text-tertiary)',
+            color: 'var(--color-text-secondary)',
           }}>
             No pull logs yet. The first entry will appear after the next nightly refresh.
           </div>
@@ -126,9 +123,9 @@ export default function PatchesUpdates() {
             const d = n.details
             return (
               <div key={n.id} style={{
-                background: 'var(--color-card, #fff)',
-                border: '1px solid var(--color-border-light)',
-                borderLeft: '4px solid #4F4262',
+                background: '#2a2a2a',
+                border: '1px solid #008080',
+                borderLeft: '4px solid #2D1B4E',
                 borderRadius: 10,
                 padding: '14px 16px',
               }}>
@@ -137,10 +134,9 @@ export default function PatchesUpdates() {
                     <div style={{
                       fontFamily: "'Quicksand', sans-serif",
                       fontWeight: 700,
-                      fontSize: 11,
-                      color: '#B597D5',
-                      textTransform: 'uppercase',
-                      letterSpacing: '.5px',
+                      fontSize: 12,
+                      color: '#008080',
+                      letterSpacing: '.3px',
                       marginBottom: 4,
                     }}>
                       {formatDate(n.created_at)}
@@ -148,7 +144,7 @@ export default function PatchesUpdates() {
                     <div style={{
                       fontFamily: "'Nunito', sans-serif",
                       fontSize: 14,
-                      color: 'var(--color-text-primary)',
+                      color: '#e0ddf0',
                       lineHeight: 1.5,
                     }}>
                       {n.summary}
@@ -158,15 +154,15 @@ export default function PatchesUpdates() {
                     <button
                       onClick={() => toggleExpand(n.id)}
                       style={{
-                        background: 'none',
-                        border: '1px solid var(--color-border-light)',
+                        background: '#4F4262',
+                        border: 'none',
                         borderRadius: 6,
-                        padding: '3px 8px',
+                        padding: '4px 10px',
                         cursor: 'pointer',
                         fontFamily: "'Quicksand', sans-serif",
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
-                        color: 'var(--color-text-tertiary)',
+                        color: '#ffffff',
                         flexShrink: 0,
                         marginTop: 2,
                       }}
@@ -181,7 +177,7 @@ export default function PatchesUpdates() {
                   <div style={{
                     marginTop: 12,
                     paddingTop: 12,
-                    borderTop: '1px solid var(--color-border-light)',
+                    borderTop: '1px solid #3a3a3a',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 6,
@@ -238,8 +234,8 @@ function DetailRow({ label, ok, text }: { label: string; ok: boolean; text: stri
         background: ok ? '#00B050' : '#C00000',
         flexShrink: 0, marginTop: 4,
       }} />
-      <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
-        <strong style={{ color: 'var(--color-text-primary)' }}>{label}:</strong> {text}
+      <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 13, color: '#e0ddf0', lineHeight: 1.5 }}>
+        <strong>{label}:</strong> {text}
       </div>
     </div>
   )

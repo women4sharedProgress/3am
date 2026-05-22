@@ -371,104 +371,110 @@ export default function Changelog() {
                     border: '1px solid var(--color-border-light)',
                     borderLeft: `4px solid ${bg}`,
                     borderRadius: 10,
-                    padding: '12px 14px',
+                    padding: '14px 16px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 6,
+                    gap: 10,
                   }}>
 
-                    {/* Row 1: level badge + bill number + datetime */}
+                    {/* Meta row: level + bill number + time */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                       <span style={{
                         background: bg, color: fg,
                         fontFamily: "'Quicksand', sans-serif",
-                        fontSize: 9, fontWeight: 700,
+                        fontSize: 10, fontWeight: 700,
                         textTransform: 'uppercase', letterSpacing: '.07em',
-                        padding: '2px 6px', borderRadius: 5,
+                        padding: '2px 7px', borderRadius: 5,
                         whiteSpace: 'nowrap', flexShrink: 0,
                       }}>{LEVEL_LABEL[b.level]}</span>
                       {num && (
                         <span style={{
                           fontFamily: "'Quicksand', sans-serif",
-                          fontSize: 11, fontWeight: 700,
-                          color: 'var(--color-text-tertiary)',
+                          fontSize: 12, fontWeight: 700,
+                          color: 'var(--color-text-secondary)',
                         }}>{num}</span>
                       )}
                       <span style={{
                         fontFamily: "'Nunito', sans-serif",
-                        fontSize: 11,
-                        color: 'var(--color-text-tertiary)',
+                        fontSize: 12,
+                        color: 'var(--color-text-secondary)',
                         marginLeft: 'auto',
                         whiteSpace: 'nowrap',
                       }}>{fmtDateTime(b.updated_at)}</span>
                     </div>
 
-                    {/* Row 1b: What changed */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{
-                        fontFamily: "'Quicksand', sans-serif",
-                        fontSize: 10, fontWeight: 700,
-                        color: fg,
-                        background: bg,
-                        padding: '2px 7px', borderRadius: 5,
-                        whiteSpace: 'nowrap', flexShrink: 0,
-                      }}>→ {currentStage}</span>
-                      {b.stage_note && (
-                        <span style={{
-                          fontFamily: "'Nunito', sans-serif",
-                          fontSize: 11,
-                          color: 'var(--color-text-tertiary)',
-                          fontStyle: 'italic',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}>{b.stage_note}</span>
-                      )}
-                    </div>
-
-                    {/* Row 2: Bill title */}
+                    {/* Bill title */}
                     <div style={{
                       fontFamily: "'Nunito', sans-serif",
-                      fontSize: 14, fontWeight: 700,
+                      fontSize: 15, fontWeight: 700,
                       color: 'var(--color-text-primary)',
                       lineHeight: 1.4,
                     }}>{title || b.name}</div>
 
-                    {/* Row 3: Urgency */}
-                    {urgency && (
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{
+                    {/* What changed — full text, no truncation */}
+                    <div style={{
+                      background: 'var(--color-bg-secondary)',
+                      borderRadius: 8,
+                      padding: '10px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 6,
+                    }}>
+                      <div style={{
+                        fontFamily: "'Quicksand', sans-serif",
+                        fontSize: 11, fontWeight: 700,
+                        textTransform: 'uppercase', letterSpacing: '.06em',
+                        color: 'var(--color-text-tertiary)',
+                      }}>What changed</div>
+                      <div style={{
+                        fontFamily: "'Quicksand', sans-serif",
+                        fontSize: 15, fontWeight: 700,
+                        color: fg,
+                        background: bg,
+                        display: 'inline-block',
+                        padding: '3px 10px',
+                        borderRadius: 6,
+                        alignSelf: 'flex-start',
+                      }}>→ {currentStage}</div>
+                      {b.stage_note && (
+                        <div style={{
                           fontFamily: "'Nunito', sans-serif",
-                          fontSize: 11, fontWeight: 600,
-                          color: urgency.color,
-                        }}>{urgency.text}</span>
-                      </div>
-                    )}
+                          fontSize: 14,
+                          color: 'var(--color-text-primary)',
+                          lineHeight: 1.55,
+                        }}>{b.stage_note}</div>
+                      )}
+                    </div>
 
-                    {/* Row 4: Description */}
+                    {/* Description */}
                     {b.bill_desc && (
                       <div style={{
                         fontFamily: "'Nunito', sans-serif",
                         fontSize: 13,
                         color: 'var(--color-text-secondary)',
-                        lineHeight: 1.55,
-                        borderTop: '1px solid var(--color-border-light)',
-                        paddingTop: 8,
+                        lineHeight: 1.6,
                       }}>{b.bill_desc}</div>
                     )}
 
-                    {/* Row 5: Issue tags */}
-                    {issueList.length > 0 && (
-                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                    {/* Urgency + issue tags */}
+                    {(urgency || issueList.length > 0) && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        {urgency && (
+                          <span style={{
+                            fontFamily: "'Nunito', sans-serif",
+                            fontSize: 12, fontWeight: 700,
+                            color: urgency.color,
+                          }}>{urgency.text}</span>
+                        )}
                         {issueList.map(issue => (
                           <span key={issue} style={{
                             fontFamily: "'Nunito', sans-serif",
-                            fontSize: 10, fontWeight: 600,
-                            color: 'var(--color-text-tertiary)',
+                            fontSize: 11, fontWeight: 600,
+                            color: 'var(--color-text-secondary)',
                             background: 'var(--color-bg-secondary)',
                             border: '1px solid var(--color-border-light)',
                             borderRadius: 5,
-                            padding: '2px 6px',
+                            padding: '2px 7px',
                             whiteSpace: 'nowrap',
                           }}>{ISSUE_LABELS[issue] ?? issue}</span>
                         ))}
