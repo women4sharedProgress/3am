@@ -47,6 +47,7 @@ export function renderGreeting(text: string, color: GreetingColor, isDark: boole
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
+        WebkitTextStroke: '1px #000000',
       }}>
         {text}
       </span>
