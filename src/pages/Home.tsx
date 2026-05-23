@@ -1067,31 +1067,16 @@ export default function Home() {
           <a
             className="home-secondary-card"
             style={{ background: '#7BBDE1', textDecoration: 'none' }}
-            href="https://www.michigan.gov/sos/elections"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Michigan Voter Information — Michigan SOS elections page"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="2" stroke="#003366" strokeWidth="2" fill="none"/>
-              <path d="M9 12l2 2 4-4" stroke="#003366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI Voter Info</span>
-          </a>
-
-          <a
-            className="home-secondary-card"
-            style={{ background: '#7BBDE1', textDecoration: 'none' }}
             href="https://mvic.sos.state.mi.us/Voter/Index"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Michigan District and Polling lookup"
+            aria-label="Michigan voter information center — district and polling lookup"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#003366" strokeWidth="2" fill="none"/>
               <circle cx="12" cy="9" r="2.5" stroke="#003366" strokeWidth="2" fill="none"/>
             </svg>
-            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI District &amp; Polling</span>
+            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI Lookup</span>
           </a>
         </div>{/* end tertiary row */}
 
