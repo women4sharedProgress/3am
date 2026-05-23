@@ -897,7 +897,7 @@ export default function Home() {
             onClick={() => navigate('/changelog')}
             aria-label="Change Log — update capture"
           >
-            <div className="home-card-icon-wrap"><ChangeLogIcon size={34} /></div>
+            <div className="home-card-icon-wrap"><ChangeLogIcon size={34} color="#C97FFF" /></div>
             <span className="home-card-label">Change Log</span>
             <span className="home-card-desc">Update capture last 30 days</span>
           </button>
