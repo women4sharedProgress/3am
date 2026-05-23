@@ -1342,6 +1342,10 @@ export default function Profile() {
                   { value: 'state_official',    label: 'Elected state official' },
                   { value: 'national_official', label: 'Elected national official' },
                   { value: 'broadcaster',       label: 'Broadcaster / influencer / journalist / media spokesperson' },
+                  { value: 'student',           label: 'Student' },
+                  { value: 'poll_worker',       label: 'Poll worker' },
+                  { value: 'amazing_american',  label: 'Amazing American' },
+                  { value: 'voter',             label: 'Voter' },
                 ].map(({ value, label }) => (
                   <label key={value} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, cursor: 'pointer', fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-primary)' }}>
                     <input

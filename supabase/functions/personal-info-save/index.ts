@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { json, resolveSession, CORS } from '../_shared/auth-utils.ts'
 
-const VALID_ROLES = ['local_official', 'state_official', 'national_official', 'broadcaster', 'verification_volunteer']
+const VALID_ROLES = ['local_official', 'state_official', 'national_official', 'broadcaster', 'verification_volunteer', 'student', 'poll_worker', 'amazing_american', 'voter']
 const VALID_PARTIES = ['Democrat', 'Republican', 'Independent', 'Green', 'Libertarian', 'Other', '']
 
 Deno.serve(async (req: Request) => {
