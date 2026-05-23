@@ -1070,13 +1070,13 @@ export default function Home() {
             href="https://mvic.sos.state.mi.us/Voter/Index"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Michigan voter information center — district and polling lookup"
+            aria-label="Michigan District and Polling lookup"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#003366" strokeWidth="2" fill="none"/>
               <circle cx="12" cy="9" r="2.5" stroke="#003366" strokeWidth="2" fill="none"/>
             </svg>
-            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI Lookup</span>
+            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI District &amp; Polling</span>
           </a>
         </div>{/* end tertiary row */}
 
