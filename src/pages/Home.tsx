@@ -863,7 +863,7 @@ export default function Home() {
           {/* Top-right: Change Log */}
           <button
             className="home-main-card"
-            style={{ background: '#008080' }}
+            style={{ background: '#003F87' }}
             onClick={() => navigate('/changelog')}
             aria-label="Change Log — update capture"
           >
