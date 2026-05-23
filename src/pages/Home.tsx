@@ -1072,15 +1072,15 @@ export default function Home() {
 
           <button
             className="home-secondary-card"
-            style={{ background: isLoggedIn ? '#BBA8D4' : '#4F4262' }}
+            style={{ background: isLoggedIn ? '#BBA8D4' : '#FFC000' }}
             onClick={() => isLoggedIn ? handleSignOut() : navigate('/login')}
             aria-label={isLoggedIn ? `Sign out (${user!.username})` : 'Sign in to your account'}
           >
             {isLoggedIn
               ? <SignOutIcon size={20} color="#4F4262" />
-              : <SignInIcon size={20} color="#BBA8D4" />
+              : <SignInIcon size={20} color="#1a1a18" />
             }
-            <span className="home-secondary-label" style={{ color: isLoggedIn ? '#4F4262' : 'white' }}>
+            <span className="home-secondary-label" style={{ color: isLoggedIn ? '#4F4262' : '#1a1a18' }}>
               {isLoggedIn ? 'Sign Out' : 'Sign In'}
             </span>
           </button>
