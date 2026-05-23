@@ -3,7 +3,7 @@ export interface Decision {
   text: string
 }
 
-export type BillLevel = 'federal' | 'michigan' | 'local'
+export type BillLevel = 'federal' | 'state' | 'local'
 export type Urgency = 'urgent' | 'months' | 'year' | 'stalled'
 
 export interface Bill {
@@ -38,6 +38,7 @@ export interface Bill {
 
 export interface ActiveFilters {
   level: string
+  state: string
   timing: string
   impact: string
   issue: string

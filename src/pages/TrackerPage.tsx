@@ -12,7 +12,7 @@ import BillCard from '../components/BillCard'
 import ThemeToggle from '../components/ThemeToggle'
 
 const DEFAULT_FILTERS: ActiveFilters = {
-  level: 'all', timing: 'all', impact: 'all', issue: 'all',
+  level: 'all', state: 'all', timing: 'all', impact: 'all', issue: 'all',
   policy: 'all', office: 'all', city: 'all', committee: 'all', search: '',
 }
 
@@ -48,7 +48,7 @@ function downloadCsv(bills: Bill[]) {
 
 export default function TrackerPage() {
   const navigate = useNavigate()
-  const { bills: rawBills, loading, error } = useBills(['MI', 'US'])
+  const { bills: rawBills, loading, error } = useBills(['MI', 'KS', 'US'])
   const [bills, setBills] = useState<Bill[]>(rawBills)
   const [active, setActive]       = useState<ActiveFilters>(DEFAULT_FILTERS)
 
@@ -82,7 +82,7 @@ export default function TrackerPage() {
   }
 
   async function fetchAllBills(): Promise<Bill[]> {
-    const { data } = await supabase.from('bills').select('*').in('state', ['MI', 'US']).order('id')
+    const { data } = await supabase.from('bills').select('*').in('state', ['MI', 'KS', 'US']).order('id')
     return (data as Bill[]) ?? []
   }
 
@@ -123,7 +123,7 @@ export default function TrackerPage() {
   const filtered = filterBills(visibleBills, active)
   const committees = [...new Set(
     visibleBills
-      .filter(b => b.level === 'federal' || b.level === 'michigan')
+      .filter(b => b.level === 'federal' || b.level === 'state')
       .map(b => b.committee)
       .filter((c): c is string => !!c)
   )].sort()
@@ -215,7 +215,7 @@ export default function TrackerPage() {
       </div>
 
       <Header
-        stateName="Michigan"
+        stateName="Michigan & Kansas"
         bills={visibleBills}
         onSearch={q => handleFilterChange('search', q)}
       />

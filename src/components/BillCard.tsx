@@ -179,7 +179,7 @@ export default function BillCard({ bill, onUpdate }: { bill: Bill; onUpdate?: (b
     ? <span className="tag tag-fed">🇺🇸 Federal</span>
     : localBill.level === 'local'
     ? <span className="tag tag-local">📍 {localBill.municipality}</span>
-    : <span className="tag tag-mi">Michigan</span>
+    : <span className="tag tag-mi">{{ MI: 'Michigan', KS: 'Kansas' }[localBill.state] ?? localBill.state}</span>
 
   const urgTag = isEnacted(localBill)             ? null
                : localBill.urgency === 'urgent'  ? <span className="tag tag-now">Act now</span>

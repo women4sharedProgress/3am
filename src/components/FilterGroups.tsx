@@ -34,12 +34,23 @@ export default function FilterGroups({ active, onChange, hideTiming, committees 
       <div className="filter-group">
         <span className="fg-label">Level</span>
         <div className="chips">
-          <Chip group="level" value="all"      active={active.level} onChange={onChange}>All</Chip>
-          <Chip group="level" value="federal"  active={active.level} onChange={onChange}>🇺🇸 Federal</Chip>
-          <Chip group="level" value="michigan" active={active.level} onChange={onChange}>Michigan</Chip>
-          <Chip group="level" value="local"    active={active.level} onChange={onChange}>📍 Local</Chip>
+          <Chip group="level" value="all"     active={active.level} onChange={onChange}>All</Chip>
+          <Chip group="level" value="federal" active={active.level} onChange={onChange}>🇺🇸 Federal</Chip>
+          <Chip group="level" value="state"   active={active.level} onChange={onChange}>State</Chip>
+          <Chip group="level" value="local"   active={active.level} onChange={onChange}>📍 Local</Chip>
         </div>
       </div>
+
+      {(active.level === 'all' || active.level === 'state') && (
+        <div className="filter-group filter-group-city">
+          <span className="fg-label fg-indent">↳ State</span>
+          <div className="chips">
+            <Chip group="state" value="all" active={active.state} onChange={onChange}>All states</Chip>
+            <Chip group="state" value="MI"  active={active.state} onChange={onChange}>Michigan</Chip>
+            <Chip group="state" value="KS"  active={active.state} onChange={onChange}>Kansas</Chip>
+          </div>
+        </div>
+      )}
 
       {active.level === 'local' && (
         <div className="filter-group filter-group-city">
@@ -53,7 +64,7 @@ export default function FilterGroups({ active, onChange, hideTiming, committees 
         </div>
       )}
 
-      {(active.level === 'federal' || active.level === 'michigan') && committees && committees.length > 0 && (
+      {(active.level === 'federal' || active.level === 'state') && committees && committees.length > 0 && (
         <div className="filter-group filter-group-city">
           <span className="fg-label fg-indent">↳ Committee</span>
           <div className="chips">
@@ -118,9 +129,11 @@ export default function FilterGroups({ active, onChange, hideTiming, committees 
         <div className="chips">
           <Chip group="office" value="all"          active={active.office} onChange={onChange}>All</Chip>
           <Chip group="office" value="us-senate"    active={active.office} onChange={onChange}><span className="chip-dot" />U.S. Senate</Chip>
-          <Chip group="office" value="governor"     active={active.office} onChange={onChange}><span className="chip-dot" />Governor Whitmer</Chip>
+          <Chip group="office" value="governor"     active={active.office} onChange={onChange}><span className="chip-dot" />Governor</Chip>
           <Chip group="office" value="mi-senate"    active={active.office} onChange={onChange}><span className="chip-dot" />Michigan Senate</Chip>
           <Chip group="office" value="mi-house"     active={active.office} onChange={onChange}><span className="chip-dot" />Michigan House</Chip>
+          <Chip group="office" value="ks-senate"    active={active.office} onChange={onChange}><span className="chip-dot" />Kansas Senate</Chip>
+          <Chip group="office" value="ks-house"     active={active.office} onChange={onChange}><span className="chip-dot" />Kansas House</Chip>
           <Chip group="office" value="committee"    active={active.office} onChange={onChange}><span className="chip-dot" />In Committee</Chip>
           <Chip group="office" value="mayor"        active={active.office} onChange={onChange}><span className="chip-dot" />With Mayor / Exec</Chip>
           <Chip group="office" value="city-council" active={active.office} onChange={onChange}><span className="chip-dot" />City Council</Chip>

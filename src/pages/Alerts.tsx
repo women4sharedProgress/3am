@@ -23,7 +23,7 @@ function alertMovementEnabled(): boolean {
 }
 
 const DEFAULT_FILTERS: ActiveFilters = {
-  level: 'all', timing: 'all', impact: 'all', issue: 'all',
+  level: 'all', state: 'all', timing: 'all', impact: 'all', issue: 'all',
   policy: 'all', office: 'all', city: 'all', committee: 'all', search: '',
 }
 
@@ -80,7 +80,7 @@ function openEmailDigest(bills: Bill[]) {
 
 export default function Alerts() {
   const navigate = useNavigate()
-  const { bills, loading, error } = useBills(['MI', 'US'])
+  const { bills, loading, error } = useBills(['MI', 'KS', 'US'])
   const [active, setActive]   = useState<ActiveFilters>(DEFAULT_FILTERS)
   const [alertIds, setAlertIds] = useState<Set<number>>(() => getIdsByStatus('alert'))
   const [busy, setBusy]       = useState(false)
@@ -143,7 +143,7 @@ export default function Alerts() {
   const filtered      = filterBills(alertBills, active)
   const showActivity  = alertMovementEnabled()
   const committees    = [...new Set(
-    alertBills.filter(b => b.level === 'federal' || b.level === 'michigan')
+    alertBills.filter(b => b.level === 'federal' || b.level === 'state')
       .map(b => b.committee).filter((c): c is string => !!c)
   )].sort()
 

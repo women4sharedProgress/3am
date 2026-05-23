@@ -21,7 +21,7 @@ function watchMovementEnabled(): boolean {
 }
 
 const DEFAULT_FILTERS: ActiveFilters = {
-  level: 'all', timing: 'all', impact: 'all', issue: 'all',
+  level: 'all', state: 'all', timing: 'all', impact: 'all', issue: 'all',
   policy: 'all', office: 'all', city: 'all', committee: 'all', search: '',
 }
 
@@ -75,7 +75,7 @@ function openEmailDigest(bills: Bill[]) {
 
 export default function Watching() {
   const navigate = useNavigate()
-  const { bills, loading, error } = useBills(['MI', 'US'])
+  const { bills, loading, error } = useBills(['MI', 'KS', 'US'])
   const [active, setActive]     = useState<ActiveFilters>(DEFAULT_FILTERS)
   const [watchIds, setWatchIds] = useState<Set<number>>(() => getIdsByStatus('watch'))
   const [copied, setCopied]     = useState(false)
@@ -110,7 +110,7 @@ export default function Watching() {
   const filtered     = filterBills(watchBills, active)
   const showActivity = watchMovementEnabled()
   const committees   = [...new Set(
-    watchBills.filter(b => b.level === 'federal' || b.level === 'michigan')
+    watchBills.filter(b => b.level === 'federal' || b.level === 'state')
       .map(b => b.committee).filter((c): c is string => !!c)
   )].sort()
 

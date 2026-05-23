@@ -3,9 +3,11 @@ export const MICHIGAN_STAGES = ['Introduced', 'Committee', 'First chamber', 'Sec
 export const LOCAL_STAGES    = ['Introduced', 'Committee', 'Public Hearing', 'Vote', 'Mayor / Exec']
 
 export const OFFICE_META: Record<string, { label: string; dotCls: string }> = {
-  'governor':     { label: 'With Governor Whitmer', dotCls: 'od-gov'    },
+  'governor':     { label: 'With Governor',          dotCls: 'od-gov'    },
   'mi-senate':    { label: 'Michigan Senate',        dotCls: 'od-mis'    },
   'mi-house':     { label: 'Michigan House',         dotCls: 'od-mih'    },
+  'ks-senate':    { label: 'Kansas Senate',          dotCls: 'od-mis'    },
+  'ks-house':     { label: 'Kansas House',           dotCls: 'od-mih'    },
   'committee':    { label: 'In Committee',           dotCls: 'od-com'    },
   'us-senate':    { label: 'U.S. Senate',            dotCls: 'od-uss'    },
   'president':    { label: 'President',              dotCls: 'od-pres'   },
@@ -31,4 +33,11 @@ export const ISSUE_LABELS: Record<string, string> = {
 export const CITY_FILTERS = [
   'Detroit', 'Ann Arbor', 'Grand Rapids', 'Lansing',
   'Flint', 'Kalamazoo', 'Kent County',
+  'Wichita', 'Kansas City', 'Topeka', 'Overland Park',
+  'Lawrence', 'Olathe', 'Johnson County',
 ]
+
+export const STATE_NAMES: Record<string, string> = {
+  MI: 'Michigan',
+  KS: 'Kansas',
+}

@@ -9,7 +9,7 @@ const AMEND_OPTIONS = [
 ]
 
 const URGENCY_OPTIONS: Urgency[]  = ['urgent', 'months', 'year', 'stalled']
-const LEVEL_OPTIONS: BillLevel[]  = ['federal', 'michigan', 'local']
+const LEVEL_OPTIONS: BillLevel[]  = ['federal', 'state', 'local']
 
 function stagesFor(level: BillLevel) {
   return level === 'federal' ? FEDERAL_STAGES

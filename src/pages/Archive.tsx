@@ -11,7 +11,7 @@ import ThemeToggle from '../components/ThemeToggle'
 import type React from 'react'
 
 const DEFAULT_FILTERS: ActiveFilters = {
-  level: 'all', timing: 'all', impact: 'all', issue: 'all',
+  level: 'all', state: 'all', timing: 'all', impact: 'all', issue: 'all',
   policy: 'all', office: 'all', city: 'all', committee: 'all', search: '',
 }
 
@@ -46,7 +46,7 @@ function downloadCsv(bills: Bill[]) {
 
 export default function Archive() {
   const navigate = useNavigate()
-  const { bills, loading, error } = useBills(['MI', 'US'])
+  const { bills, loading, error } = useBills(['MI', 'KS', 'US'])
   const [active, setActive]         = useState<ActiveFilters>(DEFAULT_FILTERS)
   const [archiveIds, setArchiveIds] = useState<Set<number>>(() => getIdsByStatus('archive'))
   const [copied, setCopied]         = useState(false)
@@ -80,7 +80,7 @@ export default function Archive() {
   const archiveBills = bills.filter(b => archiveIds.has(b.id))
   const filtered     = filterBills(archiveBills, active)
   const committees   = [...new Set(
-    archiveBills.filter(b => b.level === 'federal' || b.level === 'michigan')
+    archiveBills.filter(b => b.level === 'federal' || b.level === 'state')
       .map(b => b.committee).filter((c): c is string => !!c)
   )].sort()
 

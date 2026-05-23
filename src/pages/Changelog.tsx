@@ -8,7 +8,7 @@ import type React from 'react'
 interface BillUpdate {
   id: number
   name: string
-  level: 'federal' | 'michigan' | 'local'
+  level: 'federal' | 'state' | 'local'
   state: string
   stage: number
   stage_note: string
@@ -19,20 +19,16 @@ interface BillUpdate {
 }
 
 const LEVEL_BG: Record<string, string> = {
-  federal:  '#0c1844',
-  michigan: '#003f8a',
-  local:    '#1a4020',
+  federal: '#0c1844',
+  state:   '#003f8a',
+  local:   '#1a4020',
 }
 const LEVEL_FG: Record<string, string> = {
-  federal:  '#b5d4f4',
-  michigan: '#d4eaff',
-  local:    '#a0d8b0',
+  federal: '#b5d4f4',
+  state:   '#d4eaff',
+  local:   '#a0d8b0',
 }
-const LEVEL_LABEL: Record<string, string> = {
-  federal:  'Federal',
-  michigan: 'Michigan',
-  local:    'Local',
-}
+const STATE_NAMES: Record<string, string> = { MI: 'Michigan', KS: 'Kansas' }
 
 const URGENCY_LABEL: Record<string, { text: string; color: string }> = {
   urgent:  { text: 'Time-sensitive',   color: '#C00000' },
@@ -43,11 +39,17 @@ const URGENCY_LABEL: Record<string, { text: string; color: string }> = {
 
 function stageName(level: string, stage: number): string {
   const stages =
-    level === 'federal'  ? FEDERAL_STAGES  :
-    level === 'michigan' ? MICHIGAN_STAGES :
-    LOCAL_STAGES
+    level === 'federal' ? FEDERAL_STAGES :
+    level === 'local'   ? LOCAL_STAGES :
+    MICHIGAN_STAGES
   if (stage >= stages.length) return 'Enacted'
   return stages[stage] ?? 'Unknown'
+}
+
+function levelLabel(level: string, state: string): string {
+  if (level === 'state') return STATE_NAMES[state] ?? state
+  if (level === 'federal') return 'Federal'
+  return 'Local'
 }
 
 const CUTOFF_DAYS = 30
@@ -101,7 +103,7 @@ function downloadCsv(updates: BillUpdate[]) {
       new Date(b.updated_at).toLocaleString('en-US'),
       num,
       title || b.name,
-      LEVEL_LABEL[b.level] ?? b.level,
+      levelLabel(b.level, b.state),
       stageName(b.level, b.stage),
       b.stage_note ?? '',
       b.urgency ?? '',
@@ -126,7 +128,7 @@ function downloadHtml(updates: BillUpdate[]) {
     const { num, title } = parseName(b.name)
     const bg = LEVEL_BG[b.level] ?? '#333'
     const fg = LEVEL_FG[b.level] ?? '#eee'
-    const label = LEVEL_LABEL[b.level] ?? b.level
+    const label = levelLabel(b.level, b.state)
     const stage = stageName(b.level, b.stage)
     const urgency = URGENCY_LABEL[b.urgency]
     return `<tr>
@@ -386,7 +388,7 @@ export default function Changelog() {
                         textTransform: 'uppercase', letterSpacing: '.07em',
                         padding: '2px 7px', borderRadius: 5,
                         whiteSpace: 'nowrap', flexShrink: 0,
-                      }}>{LEVEL_LABEL[b.level]}</span>
+                      }}>{levelLabel(b.level, b.state)}</span>
                       {num && (
                         <span style={{
                           fontFamily: "'Quicksand', sans-serif",

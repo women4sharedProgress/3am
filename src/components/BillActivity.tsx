@@ -3,19 +3,20 @@ import { FEDERAL_STAGES, MICHIGAN_STAGES, LOCAL_STAGES, ISSUE_LABELS } from '../
 
 // ── Constants (mirror Changelog.tsx) ──────────────────────────────────
 const LEVEL_BG: Record<string, string> = {
-  federal:  '#0c1844',
-  michigan: '#003f8a',
-  local:    '#1a4020',
+  federal: '#0c1844',
+  state:   '#003f8a',
+  local:   '#1a4020',
 }
 const LEVEL_FG: Record<string, string> = {
-  federal:  '#b5d4f4',
-  michigan: '#d4eaff',
-  local:    '#a0d8b0',
+  federal: '#b5d4f4',
+  state:   '#d4eaff',
+  local:   '#a0d8b0',
 }
-const LEVEL_LABEL: Record<string, string> = {
-  federal:  'Federal',
-  michigan: 'Michigan',
-  local:    'Local',
+const STATE_NAMES: Record<string, string> = { MI: 'Michigan', KS: 'Kansas' }
+function levelLabel(bill: Bill): string {
+  if (bill.level === 'state') return STATE_NAMES[bill.state] ?? bill.state
+  if (bill.level === 'federal') return 'Federal'
+  return 'Local'
 }
 const URGENCY_LABEL: Record<string, { text: string; color: string }> = {
   urgent:  { text: 'Time-sensitive',  color: '#C00000' },
@@ -28,9 +29,9 @@ const CUTOFF_MS = 30 * 24 * 60 * 60 * 1000
 
 function stageName(level: string, stage: number): string {
   const stages =
-    level === 'federal'  ? FEDERAL_STAGES :
-    level === 'michigan' ? MICHIGAN_STAGES :
-    LOCAL_STAGES
+    level === 'federal' ? FEDERAL_STAGES :
+    level === 'local'   ? LOCAL_STAGES :
+    MICHIGAN_STAGES
   if (stage >= stages.length) return 'Enacted'
   return stages[stage] ?? 'Unknown'
 }
@@ -172,7 +173,7 @@ export default function BillActivity({ bills, label = 'Recent Activity' }: Props
                         textTransform: 'uppercase', letterSpacing: '.07em',
                         padding: '2px 6px', borderRadius: 4,
                         whiteSpace: 'nowrap', flexShrink: 0,
-                      }}>{LEVEL_LABEL[b.level]}</span>
+                      }}>{levelLabel(b)}</span>
                       {num && (
                         <span style={{
                           fontFamily: "'Quicksand', sans-serif",

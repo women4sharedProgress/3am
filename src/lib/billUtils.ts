@@ -48,6 +48,7 @@ export function filterBills(bills: Bill[], active: ActiveFilters): Bill[] {
       if (!hay.includes(q)) return false
     }
     if (active.level !== 'all' && b.level !== active.level) return false
+    if (active.state !== 'all' && b.state !== 'US' && b.state !== active.state) return false
     if (active.city !== 'all' && b.level === 'local' && b.municipality !== active.city) return false
 
     if (active.timing === 'enacted') {
