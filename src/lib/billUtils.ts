@@ -30,7 +30,7 @@ function enactedWithinDays(bill: Bill, days: number): boolean {
 }
 
 export function policyBarStyle(bias: number): string {
-  if (bias >= 38 && bias <= 62) return 'background:#6600CC'
+  if (bias >= 38 && bias <= 62) return 'background:#4F4262'
   return `background:linear-gradient(to right,var(--bar-lib) ${bias}%,var(--bar-con) ${bias}%)`
 }
 

@@ -846,12 +846,12 @@ export default function Home() {
           {user?.role === 'admin' && (
             <button
               className="home-main-card"
-              style={{ background: '#4F4262' }}
+              style={{ background: '#FFC000' }}
               onClick={() => navigate('/admin')}
               aria-label="Admin panel"
             >
-              <div className="home-card-icon-wrap"><AdminIcon size={34} color="#C97FFF" /></div>
-              <span className="home-card-label">Admin</span>
+              <div className="home-card-icon-wrap"><AdminIcon size={34} color="#1a1a18" /></div>
+              <span className="home-card-label" style={{ color: '#1a1a18' }}>Admin</span>
             </button>
           )}
 
@@ -893,7 +893,7 @@ export default function Home() {
           {/* Change Log */}
           <button
             className="home-main-card"
-            style={{ background: '#1a7a72' }}
+            style={{ background: '#4F4262' }}
             onClick={() => navigate('/changelog')}
             aria-label="Change Log — update capture"
           >
@@ -906,13 +906,13 @@ export default function Home() {
           {isLoggedIn && (
             <button
               className="home-main-card"
-              style={{ background: '#FFC000' }}
+              style={{ background: '#1a7a72' }}
               onClick={() => navigate('/profile')}
               aria-label="My Profile — your account and preferences"
             >
               <div className="home-card-icon-wrap"><ProfileCardIcon size={34} /></div>
-              <span className="home-card-label" style={{ color: '#1a1a18' }}>My Profile</span>
-              <span className="home-card-desc" style={{ color: 'rgba(26,26,24,.75)' }}>Your account</span>
+              <span className="home-card-label">My Profile</span>
+              <span className="home-card-desc">Your account</span>
             </button>
           )}
 
