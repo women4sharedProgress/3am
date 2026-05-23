@@ -46,6 +46,7 @@
   --office-mayor:   #8b4500;
   --office-council: #006666;
   --office-county:  #5a3d1a;
+  --color-teal:     #1a7a72;
 }
 
 @media (prefers-color-scheme: dark) {
