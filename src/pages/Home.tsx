@@ -887,10 +887,13 @@ export default function Home() {
             </button>
           )}
 
+          {/* Spacer: shifts Change Log + My Profile one column right in the admin 3-col grid */}
+          {user?.role === 'admin' && <div aria-hidden="true" />}
+
           {/* Change Log */}
           <button
             className="home-main-card"
-            style={{ background: '#008080' }}
+            style={{ background: '#1a7a72' }}
             onClick={() => navigate('/changelog')}
             aria-label="Change Log — update capture"
           >
@@ -908,8 +911,8 @@ export default function Home() {
               aria-label="My Profile — your account and preferences"
             >
               <div className="home-card-icon-wrap"><ProfileCardIcon size={34} /></div>
-              <span className="home-card-label">My Profile</span>
-              <span className="home-card-desc">Your account</span>
+              <span className="home-card-label" style={{ color: '#1a1a18' }}>My Profile</span>
+              <span className="home-card-desc" style={{ color: 'rgba(26,26,24,.75)' }}>Your account</span>
             </button>
           )}
 
