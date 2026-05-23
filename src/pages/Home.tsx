@@ -906,13 +906,13 @@ export default function Home() {
           {isLoggedIn && (
             <button
               className="home-main-card"
-              style={{ background: '#4F4262' }}
+              style={{ background: '#1a7a72' }}
               onClick={() => navigate('/profile')}
               aria-label="My Profile — your account and preferences"
             >
               <div className="home-card-icon-wrap"><ProfileCardIcon size={34} /></div>
-              <span className="home-card-label">My Profile</span>
-              <span className="home-card-desc">Your account</span>
+              <span className="home-card-label" style={{ color: '#4F4262' }}>My Profile</span>
+              <span className="home-card-desc" style={{ color: 'rgba(79,66,98,.8)' }}>Your account</span>
             </button>
           )}
 
