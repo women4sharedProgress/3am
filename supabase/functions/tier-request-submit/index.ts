@@ -21,15 +21,16 @@ Deno.serve(async (req: Request) => {
   const session = await resolveSession(req, supabase)
   if (!session) return json({ ok: false, error: 'Not signed in' }, 401)
 
-  let body: { request_type?: string; note?: string; contact_email?: string; contact_phone?: string }
+  let body: { request_type?: string; note?: string; contact_email?: string; contact_phone?: string; contact_library_card?: string }
   try { body = await req.json() } catch { return json({ ok: false, error: 'Invalid JSON' }, 400) }
 
-  const { request_type, note, contact_email, contact_phone } = body
+  const { request_type, note, contact_email, contact_phone, contact_library_card } = body
   if (!request_type || !VALID_TYPES.includes(request_type)) {
     return json({ ok: false, error: 'Invalid request type' }, 400)
   }
-  if (!contact_email?.trim()) return json({ ok: false, error: 'Contact email is required' }, 400)
-  if (!contact_phone?.trim()) return json({ ok: false, error: 'Contact phone is required' }, 400)
+  if (!contact_email?.trim() && !contact_phone?.trim() && !contact_library_card?.trim()) {
+    return json({ ok: false, error: 'Provide at least one contact method: email, phone, or library card number.' }, 400)
+  }
 
   // Enforce 50-word note limit server-side
   const words = (note ?? '').split(/\s+/).filter(Boolean)
@@ -49,13 +50,14 @@ Deno.serve(async (req: Request) => {
   }
 
   const { error } = await supabase.from('tier_requests').insert({
-    account_id:    session.id,
-    username:      session.username,
+    account_id:            session.id,
+    username:              session.username,
     request_type,
-    note:          trimmedNote,
-    contact_email: contact_email.trim(),
-    contact_phone: contact_phone.trim(),
-    status:        'pending',
+    note:                  trimmedNote,
+    contact_email:         contact_email?.trim() || null,
+    contact_phone:         contact_phone?.trim() || null,
+    contact_library_card:  contact_library_card?.trim() || null,
+    status:                'pending',
   })
 
   if (error) return json({ ok: false, error: error.message }, 500)

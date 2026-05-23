@@ -50,17 +50,22 @@ Deno.serve(async (req: Request) => {
   const verifiedField = type === 'email' ? 'email_verified' : 'phone_verified'
   await supabase.from('accounts').update({ [verifiedField]: true }).eq('id', session.id)
 
-  // Check if both are now verified → auto-upgrade to tier 4 if tier < 4
+  // Auto-upgrade to tier 4 if any one verification is complete (phone, email, or library card)
   const { data: acct } = await supabase
     .from('accounts')
-    .select('phone_verified, email_verified, tier')
+    .select('phone_verified, email_verified, library_card, tier')
     .eq('id', session.id)
     .single()
 
   let tier_upgraded = false
   let new_tier      = acct?.tier ?? session.tier
 
-  if (acct && acct.phone_verified && acct.email_verified && acct.tier < 4) {
+  const anyVerified = acct && (
+    acct.phone_verified ||
+    acct.email_verified ||
+    (acct.library_card && acct.library_card.trim())
+  )
+  if (anyVerified && acct.tier < 4) {
     await supabase.from('accounts').update({ tier: 4 }).eq('id', session.id)
     tier_upgraded = true
     new_tier      = 4

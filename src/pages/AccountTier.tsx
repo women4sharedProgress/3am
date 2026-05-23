@@ -115,8 +115,9 @@ export default function AccountTier() {
   const [hasReps, setHasReps]     = useState(() => hasRepData())
 
   // Contact info
-  const [email, setEmail]         = useState(() => '')
-  const [phone, setPhone]         = useState('')
+  const [email,       setEmail]       = useState(() => '')
+  const [phone,       setPhone]       = useState('')
+  const [libraryCard, setLibraryCard] = useState('')
 
   // Attestation
   const [attested, setAttested]   = useState(false)
@@ -173,7 +174,7 @@ export default function AccountTier() {
   }), [profile, hasReps])
 
   const profileComplete = Object.values(checks).every(Boolean)
-  const contactComplete = email.trim() !== '' && phone.trim() !== ''
+  const contactComplete = email.trim() !== '' || phone.trim() !== '' || libraryCard.trim() !== ''
   const canShowTiers    = profileComplete && contactComplete && attested
 
   function handleTierClick(tierNum: number) {
@@ -193,7 +194,7 @@ export default function AccountTier() {
     if (!selected || !canShowTiers) return
     setBusy(true)
     setResult(null)
-    const res = await tierRequestSubmit(selected, note, email.trim(), phone.trim())
+    const res = await tierRequestSubmit(selected, note, email.trim(), phone.trim(), libraryCard.trim() || undefined)
     setBusy(false)
     if (res.ok) {
       setSubmitted(prev => new Set([...prev, selected!]))
@@ -266,13 +267,13 @@ export default function AccountTier() {
             Contact information
           </div>
           <p style={{ ...body, marginBottom: 14 }}>
-            Provide contact info so W4SP can reach you about your request. This information is self-verified — you are attesting to its accuracy.
+            Provide at least one way W4SP can reach you about your request. This information is self-verified — you are attesting to its accuracy.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div>
               <label style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)', display: 'block', marginBottom: 4 }}>
-                Email address <span style={{ color: '#E97132' }}>*</span>
+                Email address
               </label>
               <input
                 type="email"
@@ -284,13 +285,24 @@ export default function AccountTier() {
             </div>
             <div>
               <label style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)', display: 'block', marginBottom: 4 }}>
-                Phone number <span style={{ color: '#E97132' }}>*</span>
+                Phone number
               </label>
               <input
                 type="tel"
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 placeholder="(555) 555-5555"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)', display: 'block', marginBottom: 4 }}>
+                Library card number
+              </label>
+              <input
+                value={libraryCard}
+                onChange={e => setLibraryCard(e.target.value)}
+                placeholder="Optional — provide one of the three"
                 style={inputStyle}
               />
             </div>

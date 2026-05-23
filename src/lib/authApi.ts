@@ -93,8 +93,8 @@ export function authChangePassword(current_password: string, new_password: strin
   return post('auth-change-password', { current_password, new_password })
 }
 
-export function tierRequestSubmit(request_type: string, note: string, contact_email: string, contact_phone: string) {
-  return post('tier-request-submit', { request_type, note, contact_email, contact_phone })
+export function tierRequestSubmit(request_type: string, note: string, contact_email: string, contact_phone: string, contact_library_card?: string) {
+  return post('tier-request-submit', { request_type, note, contact_email, contact_phone, contact_library_card })
 }
 
 export function tierRequestList() {

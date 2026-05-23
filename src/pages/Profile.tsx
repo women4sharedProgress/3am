@@ -689,10 +689,11 @@ export default function Profile() {
     setPi(next)
     setPiSaving(true)
     const { first_name, last_name, phone, library_card, party, personal_roles } = next
-    await personalInfoSave({ first_name, last_name, phone, library_card, party, personal_roles }).catch(() => {})
+    const res = await personalInfoSave({ first_name, last_name, phone, library_card, party, personal_roles }).catch(() => ({ ok: false }))
     setPiSaving(false)
     setPiSaved(true)
     setTimeout(() => setPiSaved(false), 2000)
+    if (res.tier_upgraded) await refreshUser()
   }
 
   function toggleRole(role: string) {
@@ -1382,13 +1383,13 @@ export default function Profile() {
               </div>
 
               {/* Tier 4 auto-grant notice */}
-              {!pi.phone_verified || !pi.email_verified ? (
-                <p style={{ marginTop: 14, fontSize: 11, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif", lineHeight: 1.5 }}>
-                  Verify both your phone and email to automatically receive Tier 4 access.
-                </p>
-              ) : user.tier < 4 ? null : (
+              {user.tier >= 4 ? (
                 <p style={{ marginTop: 14, fontSize: 11, color: '#00B050', fontFamily: "'Nunito', sans-serif" }}>
-                  ✓ Both contact methods verified — Tier 4 active.
+                  ✓ Verified — Tier 4 active.
+                </p>
+              ) : (
+                <p style={{ marginTop: 14, fontSize: 11, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif", lineHeight: 1.5 }}>
+                  Verify your email, phone, or save a library card number to automatically receive Tier 4 access.
                 </p>
               )}
             </div>

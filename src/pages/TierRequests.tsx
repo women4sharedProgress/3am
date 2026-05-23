@@ -5,17 +5,18 @@ import { tierRequestList, tierRequestReview } from '../lib/authApi'
 import PageTopBar from '../components/PageTopBar'
 
 interface TierRequest {
-  id:            number
-  account_id:    string
-  username:      string
-  request_type:  string
-  note:          string | null
-  contact_email: string | null
-  contact_phone: string | null
-  status:        'pending' | 'approved' | 'disapproved'
-  created_at:    string
-  reviewed_at:   string | null
-  reviewed_by:   string | null
+  id:                   number
+  account_id:           string
+  username:             string
+  request_type:         string
+  note:                 string | null
+  contact_email:        string | null
+  contact_phone:        string | null
+  contact_library_card: string | null
+  status:               'pending' | 'approved' | 'disapproved'
+  created_at:           string
+  reviewed_at:          string | null
+  reviewed_by:          string | null
 }
 
 const REQUEST_LABELS: Record<string, string> = {
@@ -213,6 +214,11 @@ function RequestCard({
         {req.contact_phone && (
           <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)' }}>
             ☎ {req.contact_phone}
+          </span>
+        )}
+        {req.contact_library_card && (
+          <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+            🏛 {req.contact_library_card}
           </span>
         )}
       </div>
