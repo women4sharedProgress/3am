@@ -755,6 +755,28 @@ export default function Home() {
           <p className="home-header-tagline"><span>Legislation</span><span>Matters</span></p>
         </div>
         <p className="home-header-org">by Women for Shared Progress (W4SP)</p>
+        <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+          <a href="https://www.michigan.gov/sos/elections" target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#7BBDE1', borderRadius: 20, padding: '8px 16px', textDecoration: 'none' }}
+            aria-label="Michigan Voter Information"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke="#003366" strokeWidth="2" fill="none"/>
+              <path d="M9 12l2 2 4-4" stroke="#003366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span style={{ fontFamily: "'Quicksand', sans-serif", fontSize: 13, fontWeight: 700, color: '#1a3a4a', whiteSpace: 'nowrap' }}>MI Voter Info</span>
+          </a>
+          <a href="https://mvic.sos.state.mi.us/Voter/Index" target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#7BBDE1', borderRadius: 20, padding: '8px 16px', textDecoration: 'none' }}
+            aria-label="Michigan District and Polling lookup"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#003366" strokeWidth="2" fill="none"/>
+              <circle cx="12" cy="9" r="2.5" stroke="#003366" strokeWidth="2" fill="none"/>
+            </svg>
+            <span style={{ fontFamily: "'Quicksand', sans-serif", fontSize: 13, fontWeight: 700, color: '#1a3a4a', whiteSpace: 'nowrap' }}>MI District &amp; Polling</span>
+          </a>
+        </div>
       </header>
       <div style={{ position: 'fixed', top: 8, right: 12, zIndex: 100, display: 'flex', alignItems: 'center', gap: 8 }}>
         {isLoggedIn && (
@@ -1065,37 +1087,6 @@ export default function Home() {
 
         </div>{/* end secondary row */}
 
-        {/* ── Third row — MI external links centered ─────── */}
-        <div className="home-tertiary-row">
-          <a
-            className="home-secondary-card"
-            style={{ background: '#7BBDE1', textDecoration: 'none' }}
-            href="https://www.michigan.gov/sos/elections"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Michigan Voter Information — Michigan SOS elections page"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="2" stroke="#003366" strokeWidth="2" fill="none"/>
-              <path d="M9 12l2 2 4-4" stroke="#003366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI Voter Info</span>
-          </a>
-          <a
-            className="home-secondary-card"
-            style={{ background: '#7BBDE1', textDecoration: 'none' }}
-            href="https://mvic.sos.state.mi.us/Voter/Index"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Michigan District and Polling lookup"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#003366" strokeWidth="2" fill="none"/>
-              <circle cx="12" cy="9" r="2.5" stroke="#003366" strokeWidth="2" fill="none"/>
-            </svg>
-            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI District &amp; Polling</span>
-          </a>
-        </div>{/* end tertiary row */}
 
         {/* ── Political district section (logged-in users) ─ */}
         {isLoggedIn && (
