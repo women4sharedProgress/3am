@@ -1070,6 +1070,20 @@ export default function Home() {
             href="https://mvic.sos.state.mi.us/Voter/Index"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Michigan Voter Info"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2" stroke="#003366" strokeWidth="2" fill="none"/>
+              <path d="M7 9h10M7 13h6" stroke="#003366" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI Voter Info</span>
+          </a>
+          <a
+            className="home-secondary-card"
+            style={{ background: '#7BBDE1', textDecoration: 'none' }}
+            href="https://mvic.sos.state.mi.us/Voter/Index"
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label="Michigan District and Polling lookup"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">

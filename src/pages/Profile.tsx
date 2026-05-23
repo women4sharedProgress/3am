@@ -984,12 +984,6 @@ export default function Profile() {
                         <a href={portals.lookupUrl} target="_blank" rel="noopener noreferrer" style={btnStyle}>
                           {data.state} Lookup
                         </a>
-                        <a href={portals.voterInfoUrl} target="_blank" rel="noopener noreferrer" style={btnStyle}>
-                          {data.state} Voter Info
-                        </a>
-                        <a href={portals.lookupUrl} target="_blank" rel="noopener noreferrer" style={btnStyle}>
-                          {data.state} District &amp; Polling
-                        </a>
                       </div>
                     )}
                   </div>
