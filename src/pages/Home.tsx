@@ -889,7 +889,7 @@ export default function Home() {
           {isLoggedIn && (
             <button
               className="home-main-card"
-              style={{ background: '#C00000' }}
+              style={{ background: '#C97FFF' }}
               onClick={() => navigate('/alerts/settings')}
               aria-label="Alert Settings — configure your alerts"
             >
@@ -903,7 +903,7 @@ export default function Home() {
           {isLoggedIn && (
             <button
               className="home-main-card"
-              style={{ background: '#00B050' }}
+              style={{ background: '#C97FFF' }}
               onClick={() => navigate('/profile')}
               aria-label="My Profile — your account and preferences"
             >
