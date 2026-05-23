@@ -872,6 +872,19 @@ export default function Home() {
             <span className="home-card-desc">Update capture last 30 days</span>
           </button>
 
+          {/* Admin card — admin role only, sits left of Alerts & Settings */}
+          {user?.role === 'admin' && (
+            <button
+              className="home-main-card"
+              style={{ background: '#4F4262' }}
+              onClick={() => navigate('/admin')}
+              aria-label="Admin panel"
+            >
+              <div className="home-card-icon-wrap"><AdminIcon size={34} color="#C97FFF" /></div>
+              <span className="home-card-label">Admin</span>
+            </button>
+          )}
+
           {/* Bottom-left: Alert Settings (logged-in only) */}
           {isLoggedIn && (
             <button
@@ -1031,17 +1044,6 @@ export default function Home() {
             <span className="home-secondary-label">Passed Law</span>
             <span className="home-secondary-badge">Check it out</span>
           </button>
-
-          {user?.role === 'admin' && (
-            <button
-              className="home-secondary-card" style={{ background: '#4F4262' }}
-              onClick={() => navigate('/admin')}
-              aria-label="Admin panel"
-            >
-              <AdminIcon size={20} color="#C97FFF" />
-              <span className="home-secondary-label">Admin</span>
-            </button>
-          )}
 
           <button
             className="home-secondary-card"
