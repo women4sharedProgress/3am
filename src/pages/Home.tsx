@@ -115,6 +115,14 @@ function AboutIcon({ size = 20, color = '#2D1B4E' }: IP) {
   )
 }
 
+function AdminIcon({ size = 20, color = '#C97FFF' }: IP) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  )
+}
+
 
 function CivicCalendarIcon({ size = 20, color = 'white' }: IP) {
   return (
@@ -1023,6 +1031,17 @@ export default function Home() {
             <span className="home-secondary-label">Passed Law</span>
             <span className="home-secondary-badge">Check it out</span>
           </button>
+
+          {user?.role === 'admin' && (
+            <button
+              className="home-secondary-card" style={{ background: '#4F4262' }}
+              onClick={() => navigate('/admin')}
+              aria-label="Admin panel"
+            >
+              <AdminIcon size={20} color="#C97FFF" />
+              <span className="home-secondary-label" style={{ color: 'white' }}>Admin</span>
+            </button>
+          )}
 
           <button
             className="home-secondary-card"

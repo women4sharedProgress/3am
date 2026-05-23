@@ -23,6 +23,7 @@ import CivicCalendar          from './pages/CivicCalendar'
 import PatchesUpdates         from './pages/PatchesUpdates'
 import AccountTier            from './pages/AccountTier'
 import TierRequests           from './pages/TierRequests'
+import AdminPanel             from './pages/AdminPanel'
 
 export default function App() {
   const { user } = useAuth()
@@ -52,6 +53,7 @@ export default function App() {
       <Route path="/patches-updates"    element={<PatchesUpdates />} />
       <Route path="/account-tier"       element={<AccountTier />} />
       <Route path="/tier-requests"      element={<TierRequests />} />
+      <Route path="/admin"              element={<AdminPanel />} />
     </Routes>
     </>
   )

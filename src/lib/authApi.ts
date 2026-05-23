@@ -127,3 +127,7 @@ export function verifySend(type: 'email' | 'phone', target: string) {
 export function verifyConfirm(type: 'email' | 'phone', otp: string) {
   return post('verify-confirm', { type, otp })
 }
+
+export function adminFeedbackList() {
+  return post('admin-feedback-list', {})
+}
