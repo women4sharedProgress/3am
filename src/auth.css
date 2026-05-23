@@ -744,7 +744,7 @@
 }
 
 /* Political district section — full available width */
-.home-district-section { margin-top: 8px; align-self: stretch; }
+.home-district-section { margin-top: 8px; width: 100%; max-width: 680px; }
 
 .home-district-heading {
   font-family: 'Quicksand', sans-serif;
@@ -1075,7 +1075,6 @@
 }
 .home-rep-contact-btn {
   display: inline-block;
-  align-self: flex-start;
   margin-top: 4px;
   padding: 5px 12px;
   border-radius: 6px;
