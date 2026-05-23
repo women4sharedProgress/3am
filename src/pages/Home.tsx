@@ -838,11 +838,24 @@ export default function Home() {
 
       <div className="home-content">
 
-        {/* ── Main row: 2×2 grid + stoplight column ───── */}
+        {/* ── Main row: grid + stoplight column ───── */}
         <div className="home-main-row">
-        <div className="home-main-grid">
+        <div className="home-main-grid" style={user?.role === 'admin' ? { gridTemplateColumns: '133px 133px 133px' } : undefined}>
 
-          {/* Top-left: LawTracker — blue left / red right diagonal */}
+          {/* Admin card — admin role only, first position */}
+          {user?.role === 'admin' && (
+            <button
+              className="home-main-card"
+              style={{ background: '#4F4262' }}
+              onClick={() => navigate('/admin')}
+              aria-label="Admin panel"
+            >
+              <div className="home-card-icon-wrap"><AdminIcon size={34} color="#C97FFF" /></div>
+              <span className="home-card-label">Admin</span>
+            </button>
+          )}
+
+          {/* LawTracker — blue left / red right diagonal */}
           <button
             className="home-main-card"
             onClick={() => navigate('/tracker')}
@@ -860,7 +873,7 @@ export default function Home() {
             <span className="home-card-desc">Browse active legislation</span>
           </button>
 
-          {/* Top-right: Change Log */}
+          {/* Change Log */}
           <button
             className="home-main-card"
             style={{ background: '#003F87' }}
@@ -872,20 +885,7 @@ export default function Home() {
             <span className="home-card-desc">Update capture last 30 days</span>
           </button>
 
-          {/* Admin card — admin role only, sits left of Alerts & Settings */}
-          {user?.role === 'admin' && (
-            <button
-              className="home-main-card"
-              style={{ background: '#4F4262' }}
-              onClick={() => navigate('/admin')}
-              aria-label="Admin panel"
-            >
-              <div className="home-card-icon-wrap"><AdminIcon size={34} color="#C97FFF" /></div>
-              <span className="home-card-label">Admin</span>
-            </button>
-          )}
-
-          {/* Bottom-left: Alert Settings (logged-in only) */}
+          {/* Alert Settings (logged-in only) */}
           {isLoggedIn && (
             <button
               className="home-main-card"
@@ -899,7 +899,7 @@ export default function Home() {
             </button>
           )}
 
-          {/* Bottom-right: My Profile (logged-in only) */}
+          {/* My Profile (logged-in only) */}
           {isLoggedIn && (
             <button
               className="home-main-card"
