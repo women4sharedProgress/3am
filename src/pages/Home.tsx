@@ -115,7 +115,7 @@ function AboutIcon({ size = 20, color = '#2D1B4E' }: IP) {
   )
 }
 
-function AdminIcon({ size = 20, color = '#C97FFF' }: IP) {
+function AdminIcon({ size = 20, color = '#BBA8D4' }: IP) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -897,7 +897,7 @@ export default function Home() {
             onClick={() => navigate('/changelog')}
             aria-label="Change Log — update capture"
           >
-            <div className="home-card-icon-wrap"><ChangeLogIcon size={34} color="#C97FFF" /></div>
+            <div className="home-card-icon-wrap"><ChangeLogIcon size={34} color="#BBA8D4" /></div>
             <span className="home-card-label">Change Log</span>
             <span className="home-card-desc">Update capture last 30 days</span>
           </button>
@@ -1008,10 +1008,10 @@ export default function Home() {
             aria-label="Patches and updates"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="3" stroke="#C97FFF" strokeWidth="2" fill="none"/>
-              <line x1="8" y1="8" x2="16" y2="8" stroke="#C97FFF" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="12" x2="16" y2="12" stroke="#C97FFF" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="16" x2="13" y2="16" stroke="#C97FFF" strokeWidth="2" strokeLinecap="round"/>
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="#BBA8D4" strokeWidth="2" fill="none"/>
+              <line x1="8" y1="8" x2="16" y2="8" stroke="#BBA8D4" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="12" x2="16" y2="12" stroke="#BBA8D4" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="16" x2="13" y2="16" stroke="#BBA8D4" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <span className="home-secondary-label">Updates</span>
           </button>
@@ -1021,7 +1021,7 @@ export default function Home() {
             onClick={() => navigate('/civic-calendar')}
             aria-label="Civic Calendar — elections and registration deadlines"
           >
-            <CivicCalendarIcon size={20} color="#C97FFF" />
+            <CivicCalendarIcon size={20} color="#BBA8D4" />
             <span className="home-secondary-label">Civic Calendar</span>
           </button>
 
@@ -1030,7 +1030,7 @@ export default function Home() {
             onClick={() => navigate('/about')}
             aria-label="About Women for Shared Progress"
           >
-            <AboutIcon size={20} color="#C97FFF" />
+            <AboutIcon size={20} color="#BBA8D4" />
             <span className="home-secondary-label">About</span>
           </button>
 
@@ -1040,7 +1040,7 @@ export default function Home() {
             onClick={() => navigate('/enacted-legislation')}
             aria-label="Enacted Legislation"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C97FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#BBA8D4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="7.5 12.5 10.5 15.5 16.5 9"/>
             </svg>
@@ -1056,7 +1056,7 @@ export default function Home() {
           >
             {isLoggedIn
               ? <SignOutIcon size={20} color="#4F4262" />
-              : <SignInIcon size={20} color="#C97FFF" />
+              : <SignInIcon size={20} color="#BBA8D4" />
             }
             <span className="home-secondary-label" style={{ color: isLoggedIn ? '#4F4262' : 'white' }}>
               {isLoggedIn ? 'Sign Out' : 'Sign In'}
