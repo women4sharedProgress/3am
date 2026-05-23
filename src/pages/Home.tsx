@@ -1067,14 +1067,14 @@ export default function Home() {
           <a
             className="home-secondary-card"
             style={{ background: '#7BBDE1', textDecoration: 'none' }}
-            href="https://mvic.sos.state.mi.us/Voter/Index"
+            href="https://www.michigan.gov/sos/elections"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Michigan Voter Info"
+            aria-label="Michigan Voter Information — Michigan SOS elections page"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="4" width="18" height="16" rx="2" stroke="#003366" strokeWidth="2" fill="none"/>
-              <path d="M7 9h10M7 13h6" stroke="#003366" strokeWidth="2" strokeLinecap="round"/>
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke="#003366" strokeWidth="2" fill="none"/>
+              <path d="M9 12l2 2 4-4" stroke="#003366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span className="home-secondary-label" style={{ color: '#1a3a4a' }}>MI Voter Info</span>
           </a>
