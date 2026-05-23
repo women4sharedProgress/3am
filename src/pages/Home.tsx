@@ -992,10 +992,10 @@ export default function Home() {
             aria-label="Patches and updates"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="3" stroke="#8B4513" strokeWidth="2" fill="none"/>
-              <line x1="8" y1="8" x2="16" y2="8" stroke="#8B4513" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="12" x2="16" y2="12" stroke="#8B4513" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="8" y1="16" x2="13" y2="16" stroke="#8B4513" strokeWidth="2" strokeLinecap="round"/>
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="#C97FFF" strokeWidth="2" fill="none"/>
+              <line x1="8" y1="8" x2="16" y2="8" stroke="#C97FFF" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="12" x2="16" y2="12" stroke="#C97FFF" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="8" y1="16" x2="13" y2="16" stroke="#C97FFF" strokeWidth="2" strokeLinecap="round"/>
             </svg>
             <span className="home-secondary-label">Updates</span>
           </button>
@@ -1005,7 +1005,7 @@ export default function Home() {
             onClick={() => navigate('/civic-calendar')}
             aria-label="Civic Calendar — elections and registration deadlines"
           >
-            <CivicCalendarIcon size={20} color="#008080" />
+            <CivicCalendarIcon size={20} color="#C97FFF" />
             <span className="home-secondary-label">Civic Calendar</span>
           </button>
 
@@ -1015,7 +1015,7 @@ export default function Home() {
             aria-label="About Women for Shared Progress"
           >
             <AboutIcon size={20} color="#C97FFF" />
-            <span className="home-secondary-label" style={{ color: 'white' }}>About</span>
+            <span className="home-secondary-label">About</span>
           </button>
 
 
@@ -1024,7 +1024,7 @@ export default function Home() {
             onClick={() => navigate('/enacted-legislation')}
             aria-label="Enacted Legislation"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C97FFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="7.5 12.5 10.5 15.5 16.5 9"/>
             </svg>
@@ -1039,21 +1039,21 @@ export default function Home() {
               aria-label="Admin panel"
             >
               <AdminIcon size={20} color="#C97FFF" />
-              <span className="home-secondary-label" style={{ color: 'white' }}>Admin</span>
+              <span className="home-secondary-label">Admin</span>
             </button>
           )}
 
           <button
             className="home-secondary-card"
-            style={{ background: isLoggedIn ? '#808080' : '#FFC000' }}
+            style={{ background: isLoggedIn ? '#BBA8D4' : '#4F4262' }}
             onClick={() => isLoggedIn ? handleSignOut() : navigate('/login')}
             aria-label={isLoggedIn ? `Sign out (${user!.username})` : 'Sign in to your account'}
           >
             {isLoggedIn
-              ? <SignOutIcon size={20} color="white" />
-              : <SignInIcon size={20} color="#5a3a00" />
+              ? <SignOutIcon size={20} color="#4F4262" />
+              : <SignInIcon size={20} color="#C97FFF" />
             }
-            <span className="home-secondary-label" style={{ color: isLoggedIn ? 'white' : '#1a1a18' }}>
+            <span className="home-secondary-label" style={{ color: isLoggedIn ? '#4F4262' : 'white' }}>
               {isLoggedIn ? 'Sign Out' : 'Sign In'}
             </span>
           </button>
