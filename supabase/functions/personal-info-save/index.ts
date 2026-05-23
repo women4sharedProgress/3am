@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { json, resolveSession, CORS } from '../_shared/auth-utils.ts'
 
-const VALID_ROLES = ['local_official', 'state_official', 'national_official', 'broadcaster', 'verification_volunteer', 'student', 'poll_worker', 'amazing_american', 'voter']
+const VALID_ROLES = ['local_official', 'state_official', 'national_official', 'broadcaster', 'verification_volunteer', 'student', 'poll_worker', 'librarian', 'amazing_american', 'voter']
 const VALID_PARTIES = ['Democrat', 'Republican', 'Independent', 'Green', 'Libertarian', 'Other', '']
 
 Deno.serve(async (req: Request) => {
@@ -41,8 +41,9 @@ Deno.serve(async (req: Request) => {
   if (body.party        !== undefined) update.party        = body.party
   if (body.personal_roles !== undefined) update.personal_roles = roles
 
-  // Changing phone clears phone_verified
-  if (update.phone !== undefined) update.phone_verified = false
+  // Changing phone/library_card clears the corresponding verified flag
+  if (update.phone        !== undefined) update.phone_verified        = false
+  if (update.library_card !== undefined) update.library_card_verified = false
 
   const { error } = await supabase
     .from('accounts')
@@ -54,7 +55,7 @@ Deno.serve(async (req: Request) => {
   // Auto-upgrade to tier 4 if any verification is now complete
   const { data: acct } = await supabase
     .from('accounts')
-    .select('phone_verified, email_verified, library_card, tier')
+    .select('phone_verified, email_verified, library_card_verified, tier')
     .eq('id', session.id)
     .single()
 
@@ -64,7 +65,7 @@ Deno.serve(async (req: Request) => {
   const anyVerified = acct && (
     acct.phone_verified ||
     acct.email_verified ||
-    (acct.library_card && acct.library_card.trim())
+    acct.library_card_verified
   )
   if (anyVerified && acct && acct.tier < 4) {
     await supabase.from('accounts').update({ tier: 4 }).eq('id', session.id)

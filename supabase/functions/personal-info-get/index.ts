@@ -14,7 +14,7 @@ Deno.serve(async (req: Request) => {
 
   const { data, error } = await supabase
     .from('accounts')
-    .select('first_name, last_name, phone, phone_verified, email, email_verified, library_card, party, personal_roles')
+    .select('first_name, last_name, phone, phone_verified, email, email_verified, library_card, library_card_verified, party, personal_roles')
     .eq('id', session.id)
     .single()
 
@@ -28,8 +28,9 @@ Deno.serve(async (req: Request) => {
     phone_verified: data.phone_verified ?? false,
     email:          data.email         ?? '',
     email_verified: data.email_verified ?? false,
-    library_card:   data.library_card  ?? '',
-    party:          data.party         ?? '',
+    library_card:          data.library_card          ?? '',
+    library_card_verified: data.library_card_verified ?? false,
+    party:                 data.party                 ?? '',
     personal_roles: data.personal_roles ?? [],
   })
 })

@@ -343,7 +343,8 @@ export default function Profile() {
   const [pi, setPi] = useState({
     first_name: '', last_name: '', phone: '', email: '',
     phone_verified: false, email_verified: false,
-    library_card: '', party: '', personal_roles: [] as string[],
+    library_card: '', library_card_verified: false,
+    party: '', personal_roles: [] as string[],
   })
   const [piLoaded,    setPiLoaded]    = useState(false)
   const [piSaving,    setPiSaving]    = useState(false)
@@ -395,15 +396,16 @@ export default function Profile() {
     personalInfoGet().then(res => {
       if (res.ok) {
         setPi({
-          first_name:     res.first_name     ?? '',
-          last_name:      res.last_name      ?? '',
-          phone:          res.phone          ?? '',
-          email:          res.email          ?? '',
-          phone_verified: res.phone_verified ?? false,
-          email_verified: res.email_verified ?? false,
-          library_card:   res.library_card   ?? '',
-          party:          res.party          ?? '',
-          personal_roles: res.personal_roles ?? [],
+          first_name:            res.first_name            ?? '',
+          last_name:             res.last_name             ?? '',
+          phone:                 res.phone                 ?? '',
+          email:                 res.email                 ?? '',
+          phone_verified:        res.phone_verified        ?? false,
+          email_verified:        res.email_verified        ?? false,
+          library_card:          res.library_card          ?? '',
+          library_card_verified: res.library_card_verified ?? false,
+          party:                 res.party                 ?? '',
+          personal_roles:        res.personal_roles        ?? [],
         })
       }
       setPiLoaded(true)
@@ -1310,13 +1312,21 @@ export default function Profile() {
               {/* Library card */}
               <div style={{ marginBottom: 12 }}>
                 <label style={piLabelStyle}>Library card number</label>
-                <input
-                  style={piInputStyle}
-                  value={pi.library_card}
-                  placeholder="Optional"
-                  onChange={e => setPi(s => ({ ...s, library_card: e.target.value }))}
-                  onBlur={() => savePiField({ library_card: pi.library_card })}
-                />
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    style={{ ...piInputStyle, flex: 1, minWidth: 160 }}
+                    value={pi.library_card}
+                    placeholder="Optional"
+                    onChange={e => setPi(s => ({ ...s, library_card: e.target.value, library_card_verified: false }))}
+                    onBlur={() => savePiField({ library_card: pi.library_card })}
+                  />
+                  {pi.library_card_verified && (
+                    <span style={{ fontSize: 12, color: '#00B050', fontFamily: "'Nunito', sans-serif", whiteSpace: 'nowrap' }}>✓ Verified</span>
+                  )}
+                  {pi.library_card && !pi.library_card_verified && (
+                    <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif", whiteSpace: 'nowrap', fontStyle: 'italic' }}>Pending librarian verification</span>
+                  )}
+                </div>
               </div>
 
               {/* Party */}
@@ -1344,6 +1354,7 @@ export default function Profile() {
                   { value: 'broadcaster',       label: 'Broadcaster / influencer / journalist / media spokesperson' },
                   { value: 'student',           label: 'Student' },
                   { value: 'poll_worker',       label: 'Poll worker' },
+                  { value: 'librarian',         label: 'Librarian' },
                   { value: 'amazing_american',  label: 'Amazing American' },
                   { value: 'voter',             label: 'Voter' },
                 ].map(({ value, label }) => (
@@ -1393,7 +1404,7 @@ export default function Profile() {
                 </p>
               ) : (
                 <p style={{ marginTop: 14, fontSize: 11, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif", lineHeight: 1.5 }}>
-                  Verify your email, phone, or save a library card number to automatically receive Tier 4 access.
+                  Verify your email, phone, or library card to automatically receive Tier 4 access.
                 </p>
               )}
             </div>
