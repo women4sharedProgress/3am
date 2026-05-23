@@ -839,7 +839,7 @@ export default function Home() {
       <div className="home-content">
 
         {/* ── Main row: grid + stoplight column ───── */}
-        <div className="home-main-row" style={{ flexDirection: 'row-reverse' }}>
+        <div className="home-main-row">
         <div className="home-main-grid" style={user?.role === 'admin' ? { gridTemplateColumns: '133px 133px 133px' } : undefined}>
 
           {/* Admin card — admin role only, first position */}
