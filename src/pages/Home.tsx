@@ -953,16 +953,16 @@ export default function Home() {
 
           <button
             className="home-stoplight-pill"
-            style={{ background: '#BBA8D4' }}
+            style={{ background: '#FFC000' }}
             onClick={() => navigate('/archive')}
             aria-label={`Archive: ${archiveCount} bills`}
           >
-            <div className="home-stoplight-circle" style={{ background: 'rgba(0,0,0,.10)' }}>
-              <ArchiveIcon size={20} color="#4F4262" />
+            <div className="home-stoplight-circle" style={{ background: 'rgba(0,0,0,.14)' }}>
+              <ArchiveIcon size={20} color="#1a1a18" />
             </div>
             <div className="home-stoplight-pill-text">
-              <span className="home-stoplight-pill-label" style={{ color: '#4F4262' }}>Archive</span>
-              <span className="home-stoplight-pill-count" style={{ color: '#4F4262' }}>{archiveCount}</span>
+              <span className="home-stoplight-pill-label" style={{ color: '#1a1a18' }}>Archive</span>
+              <span className="home-stoplight-pill-count" style={{ color: '#1a1a18' }}>{archiveCount}</span>
             </div>
           </button>
 
