@@ -839,7 +839,7 @@ export default function Home() {
       <div className="home-content">
 
         {/* ── Main row: grid + stoplight column ───── */}
-        <div className="home-main-row">
+        <div className="home-main-row" style={{ flexDirection: 'row-reverse' }}>
         <div className="home-main-grid" style={user?.role === 'admin' ? { gridTemplateColumns: '133px 133px 133px' } : undefined}>
 
           {/* Admin card — admin role only, first position */}
@@ -873,23 +873,11 @@ export default function Home() {
             <span className="home-card-desc">Browse active legislation</span>
           </button>
 
-          {/* Change Log */}
-          <button
-            className="home-main-card"
-            style={{ background: '#003F87' }}
-            onClick={() => navigate('/changelog')}
-            aria-label="Change Log — update capture"
-          >
-            <div className="home-card-icon-wrap"><ChangeLogIcon size={34} /></div>
-            <span className="home-card-label">Change Log</span>
-            <span className="home-card-desc">Update capture last 30 days</span>
-          </button>
-
           {/* Alert Settings (logged-in only) */}
           {isLoggedIn && (
             <button
               className="home-main-card"
-              style={{ background: '#C97FFF' }}
+              style={{ background: '#C00000' }}
               onClick={() => navigate('/alerts/settings')}
               aria-label="Alert Settings — configure your alerts"
             >
@@ -899,11 +887,23 @@ export default function Home() {
             </button>
           )}
 
+          {/* Change Log */}
+          <button
+            className="home-main-card"
+            style={{ background: '#008080' }}
+            onClick={() => navigate('/changelog')}
+            aria-label="Change Log — update capture"
+          >
+            <div className="home-card-icon-wrap"><ChangeLogIcon size={34} /></div>
+            <span className="home-card-label">Change Log</span>
+            <span className="home-card-desc">Update capture last 30 days</span>
+          </button>
+
           {/* My Profile (logged-in only) */}
           {isLoggedIn && (
             <button
               className="home-main-card"
-              style={{ background: '#C97FFF' }}
+              style={{ background: '#FFC000' }}
               onClick={() => navigate('/profile')}
               aria-label="My Profile — your account and preferences"
             >
@@ -950,16 +950,16 @@ export default function Home() {
 
           <button
             className="home-stoplight-pill"
-            style={{ background: '#FFC000' }}
+            style={{ background: '#BBA8D4' }}
             onClick={() => navigate('/archive')}
             aria-label={`Archive: ${archiveCount} bills`}
           >
-            <div className="home-stoplight-circle" style={{ background: 'rgba(0,0,0,.14)' }}>
-              <ArchiveIcon size={20} color="#5a3a00" />
+            <div className="home-stoplight-circle" style={{ background: 'rgba(0,0,0,.10)' }}>
+              <ArchiveIcon size={20} color="#4F4262" />
             </div>
             <div className="home-stoplight-pill-text">
-              <span className="home-stoplight-pill-label" style={{ color: '#1a1a18' }}>Archive</span>
-              <span className="home-stoplight-pill-count" style={{ color: '#1a1a18' }}>{archiveCount}</span>
+              <span className="home-stoplight-pill-label" style={{ color: '#4F4262' }}>Archive</span>
+              <span className="home-stoplight-pill-count" style={{ color: '#4F4262' }}>{archiveCount}</span>
             </div>
           </button>
 
