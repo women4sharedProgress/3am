@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { adminFeedbackList, tierRequestList, tierRequestReview } from '../lib/authApi'
+import { adminFeedbackList, adminFeedbackComplete, tierRequestList, tierRequestReview } from '../lib/authApi'
 import PageTopBar from '../components/PageTopBar'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -11,6 +11,7 @@ interface FeedbackRow {
   page_route:     string | null
   account_tier:   number | null
   user_role:      string | null
+  username:       string | null
   feedback_text:  string
   browser:        string | null
   os:             string | null
@@ -18,6 +19,7 @@ interface FeedbackRow {
   active_filters: string | null
   bills_shown:    number | null
   app_version:    string | null
+  completed:      boolean
 }
 
 interface TierRequest {
@@ -67,8 +69,9 @@ export default function AdminPanel() {
   const [requests,  setRequests]  = useState<TierRequest[]>([])
   const [loading,   setLoading]   = useState(true)
   const [error,     setError]     = useState('')
-  const [busy,      setBusy]      = useState<number | null>(null)
-  const [expanded,  setExpanded]  = useState<Set<number>>(new Set())
+  const [busy,        setBusy]        = useState<number | null>(null)
+  const [completing,  setCompleting]  = useState<number | null>(null)
+  const [expanded,    setExpanded]    = useState<Set<number>>(new Set())
 
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
@@ -114,6 +117,15 @@ export default function AdminPanel() {
         : r))
     }
     setBusy(null)
+  }
+
+  async function handleComplete(id: number, completed: boolean) {
+    setCompleting(id)
+    const res = await adminFeedbackComplete(id, completed)
+    if (res.ok) {
+      setFeedback(prev => prev.map(f => f.id === id ? { ...f, completed } : f))
+    }
+    setCompleting(null)
   }
 
   function toggleExpand(id: number) {
@@ -193,14 +205,21 @@ export default function AdminPanel() {
               const open = expanded.has(fb.id)
               return (
                 <div key={fb.id} style={{
-                  border: '1.5px solid var(--color-border-light)',
+                  border: `1.5px solid ${fb.completed ? 'var(--color-border-light)' : 'var(--color-border-light)'}`,
                   borderRadius: 10, padding: '12px 14px', marginBottom: 8,
                   background: 'var(--color-bg-primary)',
+                  opacity: fb.completed ? 0.5 : 1,
+                  transition: 'opacity .2s',
                 }}>
                   {/* Top row */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 4 }}>
+                        {fb.username && (
+                          <span style={{ fontFamily: "'Quicksand', sans-serif", fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                            {fb.username}
+                          </span>
+                        )}
                         <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 11, color: 'var(--color-text-tertiary)' }}>
                           {fmtTime(fb.timestamp)}
                         </span>
@@ -214,9 +233,9 @@ export default function AdminPanel() {
                             T{fb.account_tier}
                           </span>
                         )}
-                        {fb.user_role && fb.user_role !== 'none' && (
-                          <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-                            {fb.user_role}
+                        {fb.completed && (
+                          <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 11, color: '#00B050', fontWeight: 700 }}>
+                            ✓ Done
                           </span>
                         )}
                       </div>
@@ -237,21 +256,36 @@ export default function AdminPanel() {
                     </button>
                   </div>
 
-                  {/* Expanded meta */}
-                  {open && (
-                    <div style={{ marginTop: 10, display: 'flex', gap: 12, flexWrap: 'wrap', borderTop: '1px solid var(--color-border-light)', paddingTop: 8 }}>
-                      {fb.browser    && <MetaChip label="Browser" value={fb.browser} />}
-                      {fb.os         && <MetaChip label="OS" value={fb.os} />}
-                      {fb.screen_size && <MetaChip label="Screen" value={fb.screen_size} />}
-                      {fb.bills_shown != null && <MetaChip label="Bills" value={String(fb.bills_shown)} />}
-                      {fb.app_version && <MetaChip label="Ver" value={fb.app_version} />}
-                      {fb.active_filters && (
-                        <div style={{ width: '100%', fontFamily: "'Nunito', sans-serif", fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-                          Filters: {fb.active_filters}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {/* Actions + meta */}
+                  <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                    <button
+                      disabled={completing === fb.id}
+                      onClick={() => handleComplete(fb.id, !fb.completed)}
+                      style={{
+                        fontFamily: "'Nunito', sans-serif", fontSize: 12, fontWeight: 700,
+                        padding: '4px 12px', borderRadius: 20,
+                        border: `1.5px solid ${fb.completed ? 'var(--color-text-tertiary)' : '#00B050'}`,
+                        background: 'transparent',
+                        color: fb.completed ? 'var(--color-text-tertiary)' : '#00B050',
+                        cursor: completing === fb.id ? 'default' : 'pointer',
+                        opacity: completing === fb.id ? 0.6 : 1,
+                        transition: 'opacity .15s',
+                      }}
+                    >
+                      {fb.completed ? 'Reopen' : 'Mark complete'}
+                    </button>
+
+                    {open && (
+                      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                        {fb.browser    && <MetaChip label="Browser" value={fb.browser} />}
+                        {fb.os         && <MetaChip label="OS" value={fb.os} />}
+                        {fb.screen_size && <MetaChip label="Screen" value={fb.screen_size} />}
+                        {fb.bills_shown != null && <MetaChip label="Bills" value={String(fb.bills_shown)} />}
+                        {fb.app_version && <MetaChip label="Ver" value={fb.app_version} />}
+                        {fb.active_filters && <MetaChip label="Filters" value={fb.active_filters} />}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )
             })}

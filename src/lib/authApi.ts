@@ -131,3 +131,7 @@ export function verifyConfirm(type: 'email' | 'phone', otp: string) {
 export function adminFeedbackList() {
   return post('admin-feedback-list', {})
 }
+
+export function adminFeedbackComplete(id: number, completed = true) {
+  return post('admin-feedback-complete', { id, completed })
+}

@@ -20,7 +20,7 @@ Deno.serve(async (req: Request) => {
   const {
     timestamp, app_version, page_route, account_tier, user_role,
     theme, browser, os, screen_size, session_minutes,
-    active_filters, bills_shown, feedback_text,
+    active_filters, bills_shown, feedback_text, username,
   } = payload
 
   if (!feedback_text || typeof feedback_text !== 'string' || !feedback_text.trim()) {
@@ -41,6 +41,7 @@ Deno.serve(async (req: Request) => {
     active_filters:  active_filters != null ? String(active_filters) : null,
     bills_shown:     bills_shown    != null ? Number(bills_shown)    : null,
     feedback_text:   String(feedback_text).slice(0, 1000),
+    username:        username   != null ? String(username).slice(0, 64) : null,
   })
 
   if (error) return json({ error: error.message }, 500)

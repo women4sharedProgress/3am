@@ -136,6 +136,7 @@ export default function FeedbackButton() {
       active_filters:  null as string | null,
       bills_shown:     null as number | null,
       feedback_text:   text.slice(0, 1000),
+      username:        user?.username ?? null,
     }
     if (import.meta.env.DEV) {
       fetch('/api/feedback-csv', {

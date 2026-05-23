@@ -15,7 +15,7 @@ Deno.serve(async (req: Request) => {
 
   const { data, error } = await supabase
     .from('feedback_submissions')
-    .select('id, timestamp, page_route, account_tier, user_role, feedback_text, browser, os, screen_size, active_filters, bills_shown, app_version')
+    .select('id, timestamp, page_route, account_tier, user_role, username, feedback_text, browser, os, screen_size, active_filters, bills_shown, app_version, completed')
     .order('timestamp', { ascending: false })
     .limit(200)
 
