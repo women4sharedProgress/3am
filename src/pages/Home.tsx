@@ -999,7 +999,7 @@ export default function Home() {
         </div>{/* end main row */}
 
         {/* ── Secondary row — tiles ──────────────────── */}
-        <div className="home-secondary-row">
+        <div className="home-secondary-row" style={{ marginLeft: '11px' }}>
 
           <button
             className="home-secondary-card"
