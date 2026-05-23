@@ -6,7 +6,7 @@ import { getMichiganCounty } from '../lib/michiganCounties'
 import { lookupZipCounty } from '../lib/zipCounty'
 import { getStateConfig } from '../lib/stateDistrictConfig'
 import { supabase } from '../lib/supabase'
-import { profileSave } from '../lib/authApi'
+import { profileSave, personalInfoGet, personalInfoSave, verifySend, verifyConfirm } from '../lib/authApi'
 
 const US_STATES = [
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA',
@@ -305,7 +305,7 @@ interface DistrictLookupRow {
 }
 
 export default function Profile() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [data, setData]                         = useState<ProfileData>(load)
   const [fieldStore, setFieldStore]             = useState<FieldStore>(() => {
     const d = load()
@@ -339,6 +339,23 @@ export default function Profile() {
   const skipNextDbSync   = useRef(true)
   const autofillSourceRef = useRef<string>('')
 
+  // ── Personal info (tier 3+) ──────────────────────────────────────────────
+  const [pi, setPi] = useState({
+    first_name: '', last_name: '', phone: '', email: '',
+    phone_verified: false, email_verified: false,
+    library_card: '', party: '', personal_roles: [] as string[],
+  })
+  const [piLoaded,    setPiLoaded]    = useState(false)
+  const [piSaving,    setPiSaving]    = useState(false)
+  const [piSaved,     setPiSaved]     = useState(false)
+  const [verifyState, setVerifyState] = useState<{
+    type: 'email' | 'phone' | null
+    step: 'idle' | 'sent' | 'confirmed' | 'error'
+    otp: string
+    error: string
+    busy: boolean
+  }>({ type: null, step: 'idle', otp: '', error: '', busy: false })
+
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
     document.documentElement.setAttribute('data-theme', theme)
@@ -371,6 +388,28 @@ export default function Profile() {
     }
     skipNextDbSync.current = false
   }, [data, user])
+
+  // Load personal info for tier 3+ users
+  useEffect(() => {
+    if (!user || user.tier < 3 || piLoaded) return
+    personalInfoGet().then(res => {
+      if (res.ok) {
+        setPi({
+          first_name:     res.first_name     ?? '',
+          last_name:      res.last_name      ?? '',
+          phone:          res.phone          ?? '',
+          email:          res.email          ?? '',
+          phone_verified: res.phone_verified ?? false,
+          email_verified: res.email_verified ?? false,
+          library_card:   res.library_card   ?? '',
+          party:          res.party          ?? '',
+          personal_roles: res.personal_roles ?? [],
+        })
+      }
+      setPiLoaded(true)
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.tier])
 
   // On mount: if a ZIP is already saved, fetch community data for it.
   useEffect(() => {
@@ -644,6 +683,48 @@ export default function Profile() {
   const enough      = hasEnough(data)
   const leg         = data.state ? STATE_LEGISLATURE[data.state] : null
   const cityTracked = !!(data.city && TRACKED_CITIES.has(data.city.toLowerCase()))
+
+  async function savePiField(partial: Partial<typeof pi>) {
+    const next = { ...pi, ...partial }
+    setPi(next)
+    setPiSaving(true)
+    const { first_name, last_name, phone, library_card, party, personal_roles } = next
+    await personalInfoSave({ first_name, last_name, phone, library_card, party, personal_roles }).catch(() => {})
+    setPiSaving(false)
+    setPiSaved(true)
+    setTimeout(() => setPiSaved(false), 2000)
+  }
+
+  function toggleRole(role: string) {
+    const has  = pi.personal_roles.includes(role)
+    const next = has ? pi.personal_roles.filter(r => r !== role) : [...pi.personal_roles, role]
+    void savePiField({ personal_roles: next })
+  }
+
+  async function handleVerifySend(type: 'email' | 'phone') {
+    const target = type === 'email' ? pi.email : pi.phone
+    if (!target.trim()) return
+    setVerifyState(s => ({ ...s, type, step: 'idle', otp: '', error: '', busy: true }))
+    const res = await verifySend(type, target)
+    if (res.ok) {
+      setVerifyState(s => ({ ...s, step: 'sent', busy: false }))
+    } else {
+      setVerifyState(s => ({ ...s, step: 'error', error: res.error ?? 'Failed to send', busy: false }))
+    }
+  }
+
+  async function handleVerifyConfirm(type: 'email' | 'phone') {
+    setVerifyState(s => ({ ...s, busy: true, error: '' }))
+    const res = await verifyConfirm(type, verifyState.otp)
+    if (res.ok) {
+      const update = type === 'email' ? { email_verified: true } : { phone_verified: true }
+      setPi(s => ({ ...s, ...update }))
+      setVerifyState(s => ({ ...s, step: 'confirmed', busy: false }))
+      if (res.tier_upgraded) await refreshUser()
+    } else {
+      setVerifyState(s => ({ ...s, step: 'error', error: res.error ?? 'Invalid code', busy: false }))
+    }
+  }
 
   return (
     <div style={{
@@ -1125,8 +1206,276 @@ export default function Profile() {
 
         </div>
 
+        {/* ── Personal Information (tier 3+) ───────────────────────────── */}
+        {user && user.tier >= 3 && (
+          <div style={{ maxWidth: 480, marginTop: 32 }}>
+            <div style={{
+              border: '1.5px solid var(--color-border-light)',
+              borderRadius: 12,
+              padding: '18px 20px',
+              background: 'var(--color-bg-primary)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                <h2 style={{ fontFamily: "'Quicksand', sans-serif", fontSize: 17, fontWeight: 700, margin: 0, color: '#4f4262' }}>
+                  Personal Information
+                </h2>
+                {piSaved && (
+                  <span style={{ fontSize: 11, fontFamily: "'Quicksand', sans-serif", fontWeight: 700, color: 'var(--color-text-success)' }}>
+                    Saved
+                  </span>
+                )}
+                {piSaving && (
+                  <span style={{ fontSize: 11, fontFamily: "'Nunito', sans-serif", color: 'var(--color-text-tertiary)' }}>
+                    Saving…
+                  </span>
+                )}
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', margin: '0 0 16px', fontFamily: "'Nunito', sans-serif" }}>
+                This information is used for identity verification and is never shared publicly.
+              </p>
+
+              {/* Name row */}
+              <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: 140 }}>
+                  <label style={piLabelStyle}>First name</label>
+                  <input
+                    style={piInputStyle}
+                    value={pi.first_name}
+                    placeholder="First name"
+                    onChange={e => setPi(s => ({ ...s, first_name: e.target.value }))}
+                    onBlur={() => savePiField({ first_name: pi.first_name })}
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 140 }}>
+                  <label style={piLabelStyle}>Last name</label>
+                  <input
+                    style={piInputStyle}
+                    value={pi.last_name}
+                    placeholder="Last name"
+                    onChange={e => setPi(s => ({ ...s, last_name: e.target.value }))}
+                    onBlur={() => savePiField({ last_name: pi.last_name })}
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div style={{ marginBottom: 12 }}>
+                <label style={piLabelStyle}>Phone</label>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    style={{ ...piInputStyle, flex: 1, minWidth: 160 }}
+                    value={pi.phone}
+                    placeholder="e.g. +1 555 000 0000"
+                    onChange={e => setPi(s => ({ ...s, phone: e.target.value, phone_verified: false }))}
+                    onBlur={() => savePiField({ phone: pi.phone })}
+                  />
+                  {pi.phone_verified ? (
+                    <span style={{ fontSize: 12, color: '#00B050', fontFamily: "'Nunito', sans-serif", whiteSpace: 'nowrap' }}>✓ Verified</span>
+                  ) : (
+                    <button
+                      disabled={!pi.phone.trim() || verifyState.busy}
+                      onClick={() => handleVerifySend('phone')}
+                      style={piVerifyBtnStyle}
+                    >Send code</button>
+                  )}
+                </div>
+                <VerifyOtpRow type="phone" state={verifyState} onConfirm={handleVerifyConfirm} onChange={otp => setVerifyState(s => ({ ...s, otp }))} />
+              </div>
+
+              {/* Email */}
+              <div style={{ marginBottom: 12 }}>
+                <label style={piLabelStyle}>Email</label>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    style={{ ...piInputStyle, flex: 1, minWidth: 160 }}
+                    value={pi.email}
+                    placeholder="your@email.com"
+                    onChange={e => setPi(s => ({ ...s, email: e.target.value, email_verified: false }))}
+                    onBlur={() => savePiField({ ...pi, phone: pi.phone })}
+                  />
+                  {pi.email_verified ? (
+                    <span style={{ fontSize: 12, color: '#00B050', fontFamily: "'Nunito', sans-serif", whiteSpace: 'nowrap' }}>✓ Verified</span>
+                  ) : (
+                    <button
+                      disabled={!pi.email.trim() || verifyState.busy}
+                      onClick={() => handleVerifySend('email')}
+                      style={piVerifyBtnStyle}
+                    >Send code</button>
+                  )}
+                </div>
+                <VerifyOtpRow type="email" state={verifyState} onConfirm={handleVerifyConfirm} onChange={otp => setVerifyState(s => ({ ...s, otp }))} />
+              </div>
+
+              {/* Library card */}
+              <div style={{ marginBottom: 12 }}>
+                <label style={piLabelStyle}>Library card number</label>
+                <input
+                  style={piInputStyle}
+                  value={pi.library_card}
+                  placeholder="Optional"
+                  onChange={e => setPi(s => ({ ...s, library_card: e.target.value }))}
+                  onBlur={() => savePiField({ library_card: pi.library_card })}
+                />
+              </div>
+
+              {/* Party */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={piLabelStyle}>Party affiliation</label>
+                <select
+                  style={{ ...piInputStyle, cursor: 'pointer' }}
+                  value={pi.party}
+                  onChange={e => savePiField({ party: e.target.value })}
+                >
+                  <option value="">Select…</option>
+                  {['Democrat', 'Republican', 'Independent', 'Green', 'Libertarian', 'Other'].map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Roles */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ ...piLabelStyle, marginBottom: 8, display: 'block' }}>I am a… (select all that apply)</label>
+                {[
+                  { value: 'local_official',    label: 'Local elected official' },
+                  { value: 'state_official',    label: 'Elected state official' },
+                  { value: 'national_official', label: 'Elected national official' },
+                  { value: 'broadcaster',       label: 'Broadcaster / influencer / journalist / media spokesperson' },
+                ].map(({ value, label }) => (
+                  <label key={value} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, cursor: 'pointer', fontFamily: "'Nunito', sans-serif", fontSize: 13, color: 'var(--color-text-primary)' }}>
+                    <input
+                      type="checkbox"
+                      checked={pi.personal_roles.includes(value)}
+                      onChange={() => toggleRole(value)}
+                      style={{ width: 15, height: 15, accentColor: '#4f4262', cursor: 'pointer' }}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+
+              {/* Volunteer toggle */}
+              <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                  <div>
+                    <div style={{ fontFamily: "'Quicksand', sans-serif", fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                      Verification volunteer
+                    </div>
+                    <div style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2 }}>
+                      I volunteer to be a W4SP verification agent
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleRole('verification_volunteer')}
+                    style={{
+                      fontFamily: "'Quicksand', sans-serif", fontSize: 12, fontWeight: 700,
+                      padding: '5px 16px', borderRadius: 20, border: '1.5px solid',
+                      borderColor: pi.personal_roles.includes('verification_volunteer') ? '#4f4262' : 'var(--color-border-light)',
+                      background: pi.personal_roles.includes('verification_volunteer') ? '#4f4262' : 'transparent',
+                      color: pi.personal_roles.includes('verification_volunteer') ? '#fff' : 'var(--color-text-tertiary)',
+                      cursor: 'pointer', transition: 'all .15s', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {pi.personal_roles.includes('verification_volunteer') ? 'Yes' : 'No'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Tier 4 auto-grant notice */}
+              {!pi.phone_verified || !pi.email_verified ? (
+                <p style={{ marginTop: 14, fontSize: 11, color: 'var(--color-text-tertiary)', fontFamily: "'Nunito', sans-serif", lineHeight: 1.5 }}>
+                  Verify both your phone and email to automatically receive Tier 4 access.
+                </p>
+              ) : user.tier < 4 ? null : (
+                <p style={{ marginTop: 14, fontSize: 11, color: '#00B050', fontFamily: "'Nunito', sans-serif" }}>
+                  ✓ Both contact methods verified — Tier 4 active.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
 
       </div>
+    </div>
+  )
+}
+
+// ── Shared styles for personal info section ───────────────────────────────────
+const piLabelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "'Quicksand', sans-serif",
+  fontSize: 11,
+  fontWeight: 700,
+  color: 'var(--color-text-tertiary)',
+  textTransform: 'uppercase',
+  letterSpacing: '.6px',
+  marginBottom: 4,
+}
+
+const piInputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '7px 10px',
+  borderRadius: 8,
+  border: '1.5px solid var(--color-border-light)',
+  background: 'var(--color-bg-secondary)',
+  color: 'var(--color-text-primary)',
+  fontFamily: "'Nunito', sans-serif",
+  fontSize: 13,
+  boxSizing: 'border-box',
+  outline: 'none',
+}
+
+const piVerifyBtnStyle: React.CSSProperties = {
+  fontFamily: "'Quicksand', sans-serif",
+  fontSize: 12,
+  fontWeight: 700,
+  padding: '5px 14px',
+  borderRadius: 20,
+  border: '1.5px solid #4f4262',
+  background: 'transparent',
+  color: '#4f4262',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+}
+
+// ── OTP entry row ─────────────────────────────────────────────────────────────
+function VerifyOtpRow({
+  type, state, onConfirm, onChange,
+}: {
+  type: 'email' | 'phone'
+  state: { type: 'email' | 'phone' | null; step: string; otp: string; error: string; busy: boolean }
+  onConfirm: (type: 'email' | 'phone') => void
+  onChange: (otp: string) => void
+}) {
+  if (state.type !== type || state.step === 'idle') return null
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      {state.step === 'sent' && (
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <input
+            style={{ ...piInputStyle, width: 120 }}
+            placeholder="6-digit code"
+            maxLength={6}
+            value={state.otp}
+            onChange={e => onChange(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          />
+          <button
+            disabled={state.otp.length !== 6 || state.busy}
+            onClick={() => onConfirm(type)}
+            style={{ ...piVerifyBtnStyle, background: '#4f4262', color: '#fff', opacity: (state.otp.length !== 6 || state.busy) ? 0.5 : 1 }}
+          >
+            Confirm
+          </button>
+        </div>
+      )}
+      {state.step === 'confirmed' && (
+        <span style={{ fontSize: 12, color: '#00B050', fontFamily: "'Nunito', sans-serif" }}>✓ Verified</span>
+      )}
+      {state.step === 'error' && (
+        <span style={{ fontSize: 12, color: '#E97132', fontFamily: "'Nunito', sans-serif" }}>{state.error}</span>
+      )}
     </div>
   )
 }

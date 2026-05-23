@@ -104,3 +104,26 @@ export function tierRequestList() {
 export function tierRequestReview(request_id: number, status: 'approved' | 'disapproved' | 'pending') {
   return post('tier-request-review', { request_id, status })
 }
+
+export function personalInfoGet() {
+  return post('personal-info-get', {})
+}
+
+export function personalInfoSave(payload: {
+  first_name?: string
+  last_name?: string
+  phone?: string
+  library_card?: string
+  party?: string
+  personal_roles?: string[]
+}) {
+  return post('personal-info-save', payload)
+}
+
+export function verifySend(type: 'email' | 'phone', target: string) {
+  return post('verify-send', { type, target })
+}
+
+export function verifyConfirm(type: 'email' | 'phone', otp: string) {
+  return post('verify-confirm', { type, otp })
+}

@@ -14,6 +14,7 @@ interface AuthContextValue {
   signIn:         (username: string, credential: string, mode: 'passcode' | 'password', remember?: boolean) => Promise<{ ok: boolean; error?: string; locked?: boolean; attempts_remaining?: number }>
   signOut:        () => Promise<void>
   checkSensitive: (password: string) => Promise<boolean>
+  refreshUser:    () => Promise<void>
 }
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -72,8 +73,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return res.ok === true
   }, [user])
 
+  const refreshUser = useCallback(async () => {
+    const res = await authValidate()
+    if (res.ok) {
+      localStorage.setItem('wsp-current-user', res.username)
+      if (res.district_info) {
+        localStorage.setItem(`wsp-profile-${res.username}`, JSON.stringify(res.district_info))
+      }
+      setUser({ username: res.username, role: res.role, tier: res.tier })
+    }
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ user, ready, signIn, signOut, checkSensitive }}>
+    <AuthContext.Provider value={{ user, ready, signIn, signOut, checkSensitive, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )
