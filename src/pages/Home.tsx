@@ -838,8 +838,6 @@ export default function Home() {
 
       <div className="home-content">
 
-        {/* ── Wrapper: aligns secondary row's right edge to stoplight's right edge ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
         {/* ── Main row: grid + stoplight column ───── */}
         <div className="home-main-row">
         <div className="home-main-grid" style={user?.role === 'admin' ? { gridTemplateColumns: '133px 133px 133px' } : undefined}>
@@ -1066,7 +1064,6 @@ export default function Home() {
           </button>
 
         </div>{/* end secondary row */}
-        </div>{/* end right-align wrapper */}
 
         {/* ── Third row — MI external links centered ─────── */}
         <div className="home-tertiary-row">
