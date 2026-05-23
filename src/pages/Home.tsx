@@ -1273,7 +1273,9 @@ export default function Home() {
                 })()
 
                 return (
-                  <div key={level} className="home-district-col">
+                  <div key={level} className="home-district-col"
+                    style={(level === 'state' || level === 'national') ? { flex: '0 0 auto', width: 'max-content' } : undefined}
+                  >
                     <div className="home-district-col-header">
                       {level === 'local' && profileAddr?.city
                         ? `Local — ${profileAddr.city.split(' ').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')}`

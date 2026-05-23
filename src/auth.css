@@ -1075,6 +1075,7 @@
 }
 .home-rep-contact-btn {
   display: inline-block;
+  align-self: flex-start;
   margin-top: 4px;
   padding: 5px 12px;
   border-radius: 6px;
