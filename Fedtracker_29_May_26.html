@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<!--
+W4SP_REFRESH_INSTRUCTIONS
+
+When asked to refresh this file:
+1. UPDATE existing bills — check each bill's current status on congress.gov and govtrack.us.
+   Update: stage, stageDates, stageNote, desc, decisions, supporters, blockers, window, urgency, policyBias.
+   DO NOT change: id, amend, issues (unless wrong), level.
+
+2. SEARCH for new bills to ADD — never delete a bill, only update or append.
+   Search sources: congress.gov (119th Congress browse), govtrack.us/congress/bills, ACLU scorecard,
+   EFF action alerts, Democracy Docket, govinfo.gov. Look for:
+   - Bills introduced in 2025 or later that are open to citizen action
+   - Bills that have received a committee vote, floor vote, or new co-sponsors since last refresh
+   - Legal challenges to enacted laws where the outcome is still open
+   New bills get the next available ID (current max + 1).
+
+3. NEVER DELETE a bill. If a bill died, change urgency to "stalled" and update stageNote to explain.
+
+4. After refreshing, update the page title/subtitle date and save as:
+   Fedtracker_DD_Mon_YY.html  (e.g. Fedtracker_30_May_26.html)
+
+5. SOURCE each bill on congress.gov — update SOURCE_URLS if a bill number is corrected.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Federal Legislation Tracker — 29 May 26</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-bg-primary:#ffffff;--color-bg-secondary:#f5f5f3;--color-bg-info:#e6f1fb;--color-bg-success:#eaf3de;--color-bg-danger:#fcebeb;--color-bg-warning:#faeeda;--color-bg-neutral:#f1efe8;
+    --color-text-primary:#1a1a18;--color-text-secondary:#5f5e5a;--color-text-tertiary:#888780;--color-text-info:#0c447c;--color-text-success:#27500a;--color-text-danger:#791f1f;--color-text-warning:#633806;--color-text-neutral:#444441;
+    --color-border-light:rgba(0,0,0,0.1);--color-border-medium:rgba(0,0,0,0.18);
+    --federal-bg:#1b2d56;--federal-text:#c8dff5;
+    --stalled-bg:#e8e6e0;--stalled-text:#888780;--pipe-done:#378add;--pipe-curr:#185fa5;--pipe-future:#c8c7c0;
+    --bar-con:#B81616;--bar-lib:#1A3E9C;--bar-ctr:#5C14B8;
+    --font-calibri:Calibri,'Gill Sans MT','Trebuchet MS',sans-serif;--radius-md:8px;--radius-lg:12px;--radius-pill:20px;--font-sans:system-ui,-apple-system,sans-serif;
+    --office-com:#888780;--office-hou:#1e6b1e;--office-uss:#1b2d56;--office-con:#7a5c00;--office-pres:#7a1515;--office-crt:#5c14b8;
+    --watch-color:#CC5500;--watch-bg:rgba(255,122,0,.13);--archive-color:#888780;
+  }
+  @media(prefers-color-scheme:dark){:root{
+    --color-bg-primary:#1e1e1c;--color-bg-secondary:#272725;--color-bg-info:#042c53;--color-bg-success:#173404;--color-bg-danger:#501313;--color-bg-warning:#412402;--color-bg-neutral:#2c2c2a;
+    --color-text-primary:#f0ede6;--color-text-secondary:#b4b2a9;--color-text-tertiary:#888780;--color-text-info:#b5d4f4;--color-text-success:#c0dd97;--color-text-danger:#f7c1c1;--color-text-warning:#fac775;--color-text-neutral:#d3d1c7;
+    --color-border-light:rgba(255,255,255,0.1);--color-border-medium:rgba(255,255,255,0.18);
+    --federal-bg:#0c2044;--federal-text:#b5d4f4;
+    --stalled-bg:#2c2c2a;--stalled-text:#888780;--pipe-done:#85b7eb;--pipe-curr:#b5d4f4;--pipe-future:#444441;
+    --bar-con:#C84040;--bar-lib:#3060C0;--bar-ctr:#7228CC;
+    --office-com:#aaa9a2;--office-hou:#3aa83a;--office-uss:#6a8fc0;--office-con:#cc9922;--office-pres:#c05050;--office-crt:#9940ff;
+    --watch-color:#FF8833;--watch-bg:rgba(255,136,51,.18);
+  }}
+  body{font-family:var(--font-sans);background:var(--color-bg-secondary);color:var(--color-text-primary);padding:1.5rem 1rem;max-width:920px;margin:0 auto;font-size:15px;line-height:1.6;}
+  .page-header{margin-bottom:1.25rem;}.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}.page-title{font-size:20px;font-weight:500;margin-bottom:3px;}.page-subtitle{font-size:13px;color:var(--color-text-tertiary);}
+  .search-wrap{flex-shrink:0;padding-top:2px;}.search-input{font-family:var(--font-sans);font-size:13px;padding:5px 12px 5px 30px;border-radius:var(--radius-pill);border:1px solid var(--color-border-medium);background:var(--color-bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%23888780' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") no-repeat 10px center;color:var(--color-text-primary);outline:none;width:190px;transition:border-color .15s,width .2s;}.search-input:focus{border-color:var(--federal-bg);width:230px;}.search-input::placeholder{color:var(--color-text-tertiary);}
+  .filter-groups{margin-bottom:1rem;}.filter-group{margin-bottom:7px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}.fg-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);white-space:nowrap;min-width:120px;font-weight:500;padding-top:3px;}.chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{font-size:13px;padding:4px 13px;border-radius:var(--radius-pill);border:1px solid var(--color-border-medium);cursor:pointer;background:var(--color-bg-primary);color:var(--color-text-primary);transition:background .1s,color .1s,border-color .1s;font-family:var(--font-calibri);font-weight:600;display:inline-flex;align-items:center;gap:5px;}.chip:hover{background:var(--color-bg-neutral);border-color:var(--color-text-tertiary);}.chip.active{background:var(--color-text-primary);color:var(--color-bg-primary);border-color:transparent;}.chip.active:hover{filter:brightness(1.15);}
+  .chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}.chip.active .chip-dot{opacity:.7;}
+  .chip[data-f="liberal"] .chip-dot{background:var(--bar-lib);border-radius:2px;}.chip[data-f="center"] .chip-dot{background:var(--bar-ctr);border-radius:2px;}.chip[data-f="conservative"] .chip-dot{background:var(--bar-con);border-radius:2px;}
+  .chip[data-f="committee"] .chip-dot{background:var(--office-com);}.chip[data-f="house"] .chip-dot{background:var(--office-hou);}.chip[data-f="us-senate"] .chip-dot{background:var(--office-uss);}.chip[data-f="conference"] .chip-dot{background:var(--office-con);}.chip[data-f="president"] .chip-dot{background:var(--office-pres);}.chip[data-f="courts"] .chip-dot{background:var(--office-crt);}
+  .chip[data-f="watched"] .chip-dot{background:var(--watch-color);}.chip[data-f="archived"] .chip-dot{background:var(--archive-color);}
+  .count{font-size:12px;color:var(--color-text-tertiary);margin-bottom:.6rem;}
+  .bill{position:relative;overflow:hidden;border:.5px solid var(--color-border-light);border-radius:var(--radius-lg);padding:calc(40px + .65rem) 1.25rem 1rem 1.25rem;margin-bottom:10px;background:var(--color-bg-primary);}
+  .policy-bar{position:absolute;top:0;left:0;right:0;height:40px;}.policy-bar-label{position:absolute;bottom:5px;left:12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.85);font-weight:bold;font-family:var(--font-calibri);pointer-events:none;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.7),0 0 8px rgba(0,0,0,.4);}
+  .copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.18);border:none;cursor:pointer;color:rgba(255,255,255,.7);padding:4px 5px;border-radius:4px;display:flex;align-items:center;z-index:2;transition:all .15s;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.5);}.copy-btn:hover{background:rgba(255,255,255,.38);color:#fff;}.copy-btn.copied{color:#33CC33;background:rgba(255,255,255,.25);}
+  .card-top-tags{position:absolute;top:9px;right:46px;display:flex;gap:6px;align-items:center;z-index:1;flex-wrap:nowrap;}
+  .tag{font-size:13px;padding:3px 10px;border-radius:var(--radius-pill);white-space:nowrap;line-height:1.55;font-weight:400;box-shadow:0 1px 4px rgba(0,0,0,.45),0 0 0 .5px rgba(0,0,0,.12);}
+  .tag-now{background:var(--color-bg-danger);color:var(--color-text-danger);}.tag-months{background:var(--color-bg-warning);color:var(--color-text-warning);}.tag-year{background:var(--color-bg-neutral);color:var(--color-text-neutral);}.tag-stalled{background:rgba(51,204,51,.12);color:#33CC33;}
+  .tag-watch{background:var(--watch-bg);color:var(--watch-color);border:.5px solid rgba(204,85,0,.3);box-shadow:none;}
+  .tag-archive{background:var(--stalled-bg);color:var(--stalled-text);box-shadow:none;}
+  .amend-tag{font-size:11px;padding:1px 6px;border-radius:8px;background:var(--color-bg-secondary);color:var(--color-text-secondary);margin-left:3px;border:.5px solid var(--color-border-light);display:inline-block;vertical-align:middle;}
+  .bill-name{font-size:14px;font-weight:500;color:var(--color-text-primary);line-height:1.4;margin-bottom:.5rem;}.bill-desc{font-size:13px;color:var(--color-text-secondary);line-height:1.65;margin-bottom:.7rem;}
+  .pipeline-section{margin-bottom:.75rem;}.pipeline-head{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);margin-bottom:7px;font-weight:500;}.pipeline{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px;}.pipe-step{display:flex;flex-direction:column;align-items:center;flex:1;min-width:56px;position:relative;}.pipe-step:not(:last-child)::after{content:'';position:absolute;top:4px;left:calc(50% + 6px);right:calc(-50% + 6px);height:1.5px;background:var(--pipe-future);z-index:0;}.pipe-step.done:not(:last-child)::after{background:var(--pipe-done);}.pipe-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--pipe-future);background:var(--color-bg-primary);z-index:1;position:relative;flex-shrink:0;margin-bottom:5px;}.pipe-step.done .pipe-dot{background:var(--pipe-done);border-color:var(--pipe-done);}.pipe-step.curr .pipe-dot{background:var(--pipe-curr);border-color:var(--pipe-curr);box-shadow:0 0 0 3px rgba(24,95,165,.18);}.pipe-step.stalled .pipe-dot{background:var(--stalled-text);border-color:var(--stalled-text);}.pipe-label{font-size:9px;text-align:center;line-height:1.3;color:var(--pipe-future);max-width:62px;word-break:break-word;}.pipe-step.done .pipe-label{color:var(--color-text-tertiary);}.pipe-step.curr .pipe-label{color:var(--pipe-curr);font-weight:600;font-size:10px;}.pipe-step.stalled .pipe-label{color:var(--stalled-text);font-weight:600;font-size:10px;}.pipe-date{font-size:8px;margin-top:2px;font-weight:700;color:var(--pipe-done);text-align:center;white-space:nowrap;}.pipe-step.curr .pipe-date{color:var(--pipe-curr);}.pipe-step.future .pipe-date{color:var(--pipe-future);}.stage-note{font-size:11px;color:var(--color-text-tertiary);margin-top:5px;font-style:italic;}
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:12px;margin-bottom:.75rem;}.meta-grid .lbl{color:var(--color-text-tertiary);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;}.meta-grid .val{color:var(--color-text-secondary);line-height:1.5;}.full-width{grid-column:1/-1;}
+  .deciding-divider{display:flex;align-items:center;gap:8px;margin:.85rem 0 .55rem;}.deciding-divider::before,.deciding-divider::after{content:'';flex:1;height:.5px;background:var(--color-border-light);}.deciding-divider span{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);white-space:nowrap;font-weight:500;}
+  .decision-item{padding:5px 0 5px 14px;font-size:12px;color:var(--color-text-secondary);position:relative;line-height:1.55;border-bottom:.5px solid var(--color-border-light);}.decision-item:last-child{border-bottom:none;}.decision-item::before{content:'\2192';position:absolute;left:0;color:var(--color-text-tertiary);font-size:11px;top:6px;}.decision-label{font-weight:500;color:var(--color-text-primary);}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:.65rem;padding-top:.5rem;border-top:.5px solid var(--color-border-light);}
+  .office-badge{display:flex;align-items:center;gap:4px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);font-family:var(--font-calibri);font-weight:600;}.office-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .od-com{background:var(--office-com);}.od-hou{background:var(--office-hou);}.od-uss{background:var(--office-uss);}.od-con{background:var(--office-con);}.od-pres{background:var(--office-pres);}.od-crt{background:var(--office-crt);}
+  .card-actions{display:flex;gap:6px;align-items:center;}
+  .status-toggle{font-size:11px;padding:3px 10px;border-radius:var(--radius-pill);border:1.5px solid var(--color-border-medium);cursor:pointer;background:var(--color-bg-primary);color:var(--color-text-tertiary);font-family:var(--font-calibri);font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all .15s;line-height:1.4;}
+  .status-toggle:hover{border-color:var(--color-text-tertiary);}
+  .status-toggle.watch-active{background:var(--watch-bg);color:var(--watch-color);border-color:var(--watch-color);}
+  .status-toggle.archive-active{background:var(--stalled-bg);color:var(--stalled-text);border-color:var(--stalled-text);}
+  .s-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:currentColor;}
+  .source-link{font-size:11px;}.source-link a{color:var(--color-text-tertiary);text-decoration:none;border-bottom:1px dashed var(--color-border-medium);}.source-link a:hover{color:var(--color-text-secondary);}
+  .empty{font-size:13px;color:var(--color-text-tertiary);padding:1.5rem 0;text-align:center;}
+  .watched-banner{display:none;background:var(--watch-bg);border:1px solid rgba(204,85,0,.25);border-radius:var(--radius-md);padding:8px 14px;font-size:12px;color:var(--watch-color);margin-bottom:.6rem;font-family:var(--font-calibri);font-weight:600;}
+  .watched-banner.visible{display:block;}
+</style>
+</head>
+<body>
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <div class="page-title">🇺🇸 Federal Legislation Tracker</div>
+      <div class="page-subtitle">119th Congress (2025–2026) &middot; Open to citizen action &middot; Downloaded 29 May 26</div>
+    </div>
+    <div class="search-wrap">
+      <input type="search" id="searchInput" class="search-input" placeholder="Search bills…" autocomplete="off" />
+    </div>
+  </div>
+</div>
+
+<div class="filter-groups" id="filterGroups">
+  <div class="filter-group">
+    <span class="fg-label">My status</span>
+    <div class="chips">
+      <button class="chip active" data-group="status" data-f="active">Active</button>
+      <button class="chip" data-group="status" data-f="watched"><span class="chip-dot"></span>Watched</button>
+      <button class="chip" data-group="status" data-f="archived"><span class="chip-dot"></span>Archived</button>
+      <button class="chip" data-group="status" data-f="all">All</button>
+    </div>
+  </div>
+  <div class="filter-group">
+    <span class="fg-label">Timing</span>
+    <div class="chips">
+      <button class="chip active" data-group="timing" data-f="all">All</button>
+      <button class="chip" data-group="timing" data-f="urgent">Act now</button>
+      <button class="chip" data-group="timing" data-f="months">Months</button>
+      <button class="chip" data-group="timing" data-f="session">Session</button>
+      <button class="chip" data-group="timing" data-f="stalled">Stalled / enacted</button>
+    </div>
+  </div>
+  <div class="filter-group">
+    <span class="fg-label">Constitutional impact</span>
+    <div class="chips">
+      <button class="chip active" data-group="impact" data-f="all">All</button>
+      <button class="chip" data-group="impact" data-f="4th">4th Amendment</button>
+      <button class="chip" data-group="impact" data-f="1st">1st Amendment</button>
+      <button class="chip" data-group="impact" data-f="due">Due process / 14th</button>
+    </div>
+  </div>
+  <div class="filter-group">
+    <span class="fg-label">Main issue</span>
+    <div class="chips">
+      <button class="chip active" data-group="issue" data-f="all">All</button>
+      <button class="chip" data-group="issue" data-f="surveillance">Surveillance &amp; privacy</button>
+      <button class="chip" data-group="issue" data-f="voting">Voting rights</button>
+      <button class="chip" data-group="issue" data-f="immigration">Immigration</button>
+      <button class="chip" data-group="issue" data-f="technology">Technology &amp; AI</button>
+      <button class="chip" data-group="issue" data-f="policing">Policing &amp; justice</button>
+      <button class="chip" data-group="issue" data-f="speech">Press &amp; speech</button>
+      <button class="chip" data-group="issue" data-f="healthcare">Healthcare</button>
+      <button class="chip" data-group="issue" data-f="reproductive">Reproductive rights</button>
+      <button class="chip" data-group="issue" data-f="housing">Housing</button>
+    </div>
+  </div>
+  <div class="filter-group">
+    <span class="fg-label">Policy direction</span>
+    <div class="chips">
+      <button class="chip active" data-group="policy" data-f="all">All</button>
+      <button class="chip" data-group="policy" data-f="liberal"><span class="chip-dot"></span>Liberal</button>
+      <button class="chip" data-group="policy" data-f="center"><span class="chip-dot"></span>Center / mixed</button>
+      <button class="chip" data-group="policy" data-f="conservative"><span class="chip-dot"></span>Conservative</button>
+    </div>
+  </div>
+  <div class="filter-group">
+    <span class="fg-label">Currently with</span>
+    <div class="chips">
+      <button class="chip active" data-group="office" data-f="all">All</button>
+      <button class="chip" data-group="office" data-f="committee"><span class="chip-dot"></span>In Committee</button>
+      <button class="chip" data-group="office" data-f="house"><span class="chip-dot"></span>House Floor</button>
+      <button class="chip" data-group="office" data-f="us-senate"><span class="chip-dot"></span>U.S. Senate</button>
+      <button class="chip" data-group="office" data-f="conference"><span class="chip-dot"></span>Conference</button>
+      <button class="chip" data-group="office" data-f="president"><span class="chip-dot"></span>President</button>
+      <button class="chip" data-group="office" data-f="courts"><span class="chip-dot"></span>Federal Courts</button>
+    </div>
+  </div>
+</div>
+
+<div class="watched-banner" id="watchedBanner"></div>
+<div class="count" id="count"></div>
+<div id="bills"></div>
+
+<script>
+const FEDERAL_STAGES = ["Introduced","Committee","House floor","Senate","Conference","Signed"];
+const OFFICE_META = {
+  "committee": {"label":"In Committee","dotCls":"od-com"},
+  "house":     {"label":"House Floor","dotCls":"od-hou"},
+  "us-senate": {"label":"U.S. Senate","dotCls":"od-uss"},
+  "conference":{"label":"Conference Cmte","dotCls":"od-con"},
+  "president": {"label":"President","dotCls":"od-pres"},
+  "courts":    {"label":"Federal Courts","dotCls":"od-crt"}
+};
+const SOURCE_URLS = {
+  1:  "https://www.congress.gov/bill/119th-congress/senate-bill/4082",
+  2:  "https://www.congress.gov/bill/119th-congress/senate-bill/4082",
+  3:  "https://www.congress.gov/bill/119th-congress/house-bill/4842",
+  4:  "https://www.congress.gov/bill/119th-congress/senate-bill/4142",
+  5:  "https://www.congress.gov/bill/119th-congress/house-bill/22",
+  6:  "https://www.congress.gov/bill/119th-congress/house-bill/4695",
+  7:  "https://www.congress.gov/bill/119th-congress/house-bill/14",
+  8:  "https://www.congress.gov/bill/119th-congress/house-bill/12",
+  9:  "https://www.congress.gov/bill/119th-congress/house-bill/6397",
+  10: "https://www.congress.gov/bill/119th-congress/house-bill/7572",
+  11: "https://www.congress.gov/bill/119th-congress/senate-bill/523",
+  12: "https://www.congress.gov/bill/119th-congress/house-bill/1",
+  13: "https://www.congress.gov/bill/119th-congress/house-bill/6521",
+  14: "https://www.congress.gov/bill/119th-congress/house-bill/6356",
+  15: "https://www.congress.gov/bill/119th-congress/senate-bill/1477",
+  16: "https://www.congress.gov/bill/119th-congress/house-bill/57"
+};
+
+/* ── Watch / Archive state (localStorage) ── */
+var watchedIds  = new Set(JSON.parse(localStorage.getItem('fedtracker_watched')  || '[]'));
+var archivedIds = new Set(JSON.parse(localStorage.getItem('fedtracker_archived') || '[]'));
+function saveState(){
+  localStorage.setItem('fedtracker_watched',  JSON.stringify([...watchedIds]));
+  localStorage.setItem('fedtracker_archived', JSON.stringify([...archivedIds]));
+}
+function toggleWatch(id){
+  if(watchedIds.has(id)){ watchedIds.delete(id); }
+  else { watchedIds.add(id); archivedIds.delete(id); }
+  saveState(); render();
+}
+function toggleArchive(id){
+  if(archivedIds.has(id)){ archivedIds.delete(id); }
+  else { archivedIds.add(id); watchedIds.delete(id); }
+  saveState(); render();
+}
+
+const bills = [
+  {
+    "id": 1,
+    "amend": ["4th"],
+    "urgency": "urgent",
+    "policyBias": 22,
+    "issues": ["surveillance"],
+    "ratifyOffice": "us-senate",
+    "stageDates": ["2023-10","2026-01","2026-04-30",null,null,null],
+    "stage": 3,
+    "stageNote": "45-day extension signed April 30 — hard deadline approximately June 14, 2026. Congress returned from recess May 11-12. Active negotiations ongoing as of late May between reformers (warrant requirement) and intelligence community (clean renewal). No deal announced as of May 29 — roughly 16 days remain.",
+    "name": "FISA Section 702 — 45-Day Extension; Full Deal Due Mid-June",
+    "desc": "The government collects foreign targets' communications abroad — but those sweeps also capture thousands of Americans' texts, emails, and calls each year. The FBI ran 7,413 warrantless searches of American data in 2025 alone, up 35% in one year. Congress has now passed two short-term patches — a 10-day stopgap April 17, then a 45-day extension April 30 — after the House's 3-year renewal was blocked by the Senate because Speaker Johnson attached an unrelated CBDC ban. The core fight: reform advocates (led by Wyden and Lee) want a warrant requirement for any search of Americans' data; intelligence agencies and the White House want a clean long-term renewal with no new constraints. Approximately June 14 is the hard expiration.",
+    "introduced": "House Leadership / Trump White House (clean extension); Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT) leading reform coalition",
+    "supporters": "Trump White House, Speaker Johnson, CIA Director Ratcliffe, FBI Director Patel, Senate Majority Leader Thune — all want an 18-month clean renewal",
+    "blockers": "Rep. Andy Biggs (R-AZ), Rep. Thomas Massie (R-KY), Sen. Ron Wyden (D-OR), Sen. Mike Lee (R-UT), Progressive Caucus — demanding warrant requirements",
+    "window": "~June 14, 2026 — roughly 16 days left. Calls to your senators on warrant requirements are the highest-leverage action right now. Both chambers are back in session.",
+    "decisions": [
+      {"label": "If Senate passes a clean long-term renewal without warrant protections","text": "FBI and NSA keep all existing powers. Warrantless searches of Americans' data continue at 7,000+ per year. The constitutional fight is deferred until the next reauthorization cycle."},
+      {"label": "If reformers force a warrant amendment into the deal","text": "A judge must approve any search of Americans' data collected under 702. Most significant 4th Amendment protection for digital communications in a decade."},
+      {"label": "If no deal is reached by mid-June and 702 lapses","text": "FISA Court certifications may keep existing collection technically alive — but without statutory clarity, telecom providers may halt cooperation. A third short-term patch is the likely fallback."}
+    ]
+  },
+  {
+    "id": 2,
+    "amend": ["4th"],
+    "urgency": "urgent",
+    "policyBias": 50,
+    "issues": ["surveillance"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2026-03",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Senate Judiciary Committee — bipartisan; introduced March 2026; the strongest reform vehicle for FISA negotiations before the ~June 14 deadline",
+    "name": "S. 4082 — Government Surveillance Reform Act (GSRA)",
+    "desc": "The most comprehensive bipartisan surveillance reform bill in Congress. It would require a judge to approve any search of Americans' communications collected under FISA 702; ban the government from buying your location history and browsing data from commercial companies without a warrant; and require the secret FISA Court to publish its legal rulings in redacted form so the public knows how the law is being interpreted. Sen. Wyden and Sen. Lee are the lead sponsors — the same bipartisan pair that has led every major surveillance reform effort since 2013.",
+    "introduced": "Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT); Rep. Warren Davidson (R-OH) & Rep. Zoe Lofgren (D-CA)",
+    "supporters": "130+ civil society organizations, ACLU, EFF, Brennan Center, libertarian Republicans, Progressive Caucus",
+    "blockers": "Senate Intelligence Committee Chair Warner (D-VA), Trump White House, FBI Director Kash Patel, CIA Director Ratcliffe",
+    "window": "~June 14, 2026 — the GSRA is the primary reform vehicle. Must be folded into the FISA reauthorization deal or passed separately before the deadline.",
+    "decisions": [
+      {"label": "If folded into the FISA reauthorization as a compromise deal","text": "Warrant requirement and data broker ban become law together. Most comprehensive surveillance reform since the 1970s."},
+      {"label": "If passed as a standalone bill later in 2026","text": "All reforms enacted intact but on a longer timeline. Less likely given the political calendar."},
+      {"label": "If leadership blocks it from the floor entirely","text": "Surveillance status quo preserved through at least 2027. Data broker loophole stays open. No judicial oversight of U.S. person searches under Section 702."}
+    ]
+  },
+  {
+    "id": 3,
+    "amend": ["4th"],
+    "urgency": "months",
+    "policyBias": 55,
+    "issues": ["surveillance","technology"],
+    "ratifyOffice": "us-senate",
+    "stageDates": ["2023-05","2023-11","2026-04",null,null,null],
+    "stage": 3,
+    "stageNote": "Passed House 219-199 with strong bipartisan support (April 2026) — now in Senate; no floor vote scheduled as of May 2026; strongest leverage as part of the mid-June FISA full-deal negotiations",
+    "name": "Fourth Amendment Is Not For Sale Act (H.R. 4842)",
+    "desc": "Right now the government can skip the entire warrant process by simply buying your location history, browsing records, and personal data from data broker companies using taxpayer money. FBI, ICE, DHS, IRS, and the Secret Service have all done this. DHS signed a $1 billion contract with Palantir to build AI-powered surveillance systems using this purchased data. This bill makes buying your data without a court order illegal for any law enforcement or intelligence agency — closing what privacy advocates call the 'data broker loophole' in the 4th Amendment. Speaker Johnson and Minority Leader Jeffries both voted yes in the House.",
+    "introduced": "Rep. Warren Davidson (R-OH) with bipartisan co-sponsors; Speaker Johnson and Minority Leader Jeffries both voted yes",
+    "supporters": "ACLU, EFF, 123 Republicans + 93 Democrats in the House, privacy advocacy groups, 130+ civil society organizations",
+    "blockers": "FBI Director Kash Patel, DHS, Senate Intelligence Committee leadership, commercial data broker industry",
+    "window": "Spring-Summer 2026 — Senate floor time before October recess; strongest leverage as part of the mid-June FISA full-deal negotiations. Contact your senators.",
+    "decisions": [
+      {"label": "If Senate passes and it is signed into law","text": "Government agencies can no longer purchase Americans' location, browsing, or communications data from commercial brokers without legal authorization."},
+      {"label": "If attached to the FISA reauthorization deal","text": "Data broker ban closes the key loophole as part of a broader surveillance deal. May be narrowed in negotiation but still becomes law."},
+      {"label": "If Senate takes no action this Congress","text": "Government data broker purchases continue. ICE and FBI keep Palantir and Babel Street contracts. Your location history has no warrant protection."}
+    ]
+  },
+  {
+    "id": 4,
+    "amend": ["1st"],
+    "urgency": "stalled",
+    "policyBias": 60,
+    "issues": ["speech"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Reintroduced in 119th Congress (2025) — Senate Judiciary Committee; blocked by Sen. Tom Cotton after Trump called on Republicans to kill this bill; House passed it unanimously in the 118th Congress",
+    "name": "PRESS Act — Federal Shield Law for Journalists",
+    "desc": "There is no federal law protecting journalists from being forced to reveal their sources or having their phones and email records secretly seized by the government. 49 states have shield laws — Congress does not. This bill would stop the government from secretly subpoenaing your email or phone provider to find out who a journalist talked to, and stop federal courts from jailing reporters who refuse to protect their sources. The House passed it unanimously in 2024. One senator's objection — Sen. Tom Cotton — blocked it from becoming law. The Trump administration has since escalated actions against journalists, including subpoenas targeting reporters' phone records.",
+    "introduced": "Sen. Ron Wyden (D-OR), Sen. Mike Lee (R-UT), Sen. Dick Durbin (D-IL); Rep. Jamie Raskin (D-MD) & Rep. Kevin Kiley (R-CA)",
+    "supporters": "120+ news organizations, ACLU, EFF, Society of Professional Journalists, Committee to Protect Journalists, Freedom of the Press Foundation",
+    "blockers": "Sen. Tom Cotton (R-AR), Trump White House — blocked by withholding unanimous consent",
+    "window": "Needs a Senate champion willing to force a floor vote. Year-end spending bill is the most realistic vehicle for passage without unanimous consent.",
+    "decisions": [
+      {"label": "If Cotton's block is overcome and the bill reaches a floor vote","text": "Federal law prohibits government from secretly seizing journalists' phone and email records. Reporters cannot be jailed for protecting sources. First federal shield law in U.S. history."},
+      {"label": "If attached to year-end must-pass legislation","text": "Shield law becomes law without a standalone vote, avoiding the single-senator block."},
+      {"label": "If it remains stalled through 2026","text": "Government can continue secretly surveilling reporters' communications. No statutory protection for a free press at the federal level."}
+    ]
+  },
+  {
+    "id": 5,
+    "amend": ["14th","due"],
+    "urgency": "stalled",
+    "policyBias": 12,
+    "issues": ["voting"],
+    "ratifyOffice": "us-senate",
+    "stageDates": ["2025-01","2026-01","2026-02",null,null,null],
+    "stage": 3,
+    "stageNote": "Passed House 218-213 (Feb 2026) — Senate debate began March 17; filibuster holding with no Democratic crossovers; needs 60 votes, Republicans have 53; companion state-level laws advancing in Florida, Utah, and South Dakota",
+    "name": "H.R. 22 — SAVE America Act (Voter Proof-of-Citizenship)",
+    "desc": "Requires Americans to show a passport, original birth certificate, or naturalization certificate in person to register to vote in federal elections. An estimated 21 million eligible Americans lack ready access to these specific documents, including many elderly voters who were never issued birth certificates. Civil rights organizations warn the bill is designed to create barriers for populations that historically vote Democratic — low-income voters, voters of color, seniors, and young voters. The Senate filibuster currently blocks it with all Democrats opposing and Sen. Lisa Murkowski voting against proceeding. State-level versions are advancing in multiple states simultaneously.",
+    "introduced": "Rep. Chip Roy (R-TX) in House; Senate champion Sen. Mike Lee (R-UT); top Trump White House priority",
+    "supporters": "Trump White House, Heritage Foundation, all but one House Republican, Senate Majority Leader Thune",
+    "blockers": "Senate Democratic caucus (zero crossovers), Sen. Lisa Murkowski (R-AK) voted against proceeding, election officials from both parties",
+    "window": "Senate floor debate ongoing — calls to senators now on whether to break or preserve the filibuster are the highest-leverage action. 60-vote threshold is the current barrier.",
+    "decisions": [
+      {"label": "If Senate filibuster holds","text": "Bill dies this Congress. State-level equivalents — including Kansas HB 2437 — remain the active battleground. The fight shifts to courts challenging those state laws."},
+      {"label": "If Republicans attempt to break or circumvent the filibuster","text": "Could pass with 51 votes. New documentation requirements take effect for all federal elections ahead of the 2026 midterms."},
+      {"label": "If attached to a must-pass vehicle like the budget or NDAA","text": "Would bypass the filibuster entirely. Democrats must oppose the entire vehicle bill to stop it."}
+    ]
+  },
+  {
+    "id": 6,
+    "amend": ["4th"],
+    "urgency": "stalled",
+    "policyBias": 72,
+    "issues": ["technology","surveillance","policing"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-07",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "House Judiciary Committee — introduced July 2025; no hearing scheduled; DHS, FBI, and TSA have all expanded facial recognition use during the period this bill has sat idle",
+    "name": "H.R. 4695 — Facial Recognition Act of 2025",
+    "desc": "A facial recognition match alone cannot be the basis for your arrest. Annual accuracy and bias testing required for all government systems. Mass public face surveillance banned. This bill responds to documented wrongful arrests caused by facial recognition errors — errors that studies show are far more common for Black and Brown faces. DHS signed a $1 billion contract with Palantir that includes AI-powered facial recognition. There is nothing in federal law stopping a police department from building a database of every face that walked past a camera on a public street. As of mid-2026, TSA has expanded facial recognition to 40+ airports without congressional approval.",
+    "introduced": "Rep. Ted Lieu (D-CA), Rep. Yvette Clarke (D-NY), Rep. Jimmy Gomez (D-CA)",
+    "supporters": "ACLU, Color of Change, Center for Democracy & Technology, Brennan Center, disability rights groups",
+    "blockers": "DOJ, FBI, DHS, ICE (all actively expanding facial recognition), Republican House majority, TSA",
+    "window": "Needs a committee hearing scheduled — public pressure on the Judiciary Committee chair is the primary near-term lever. TSA facial recognition expansion makes this increasingly urgent.",
+    "decisions": [
+      {"label": "If hearing is scheduled and full bill passes","text": "Facial recognition match alone cannot justify an arrest. All government systems must pass annual independent bias testing. Mass surveillance of public spaces prohibited nationwide."},
+      {"label": "If a narrower version advances through negotiation","text": "Wrongful-arrest safeguard enacted but no ban on mass surveillance. Agencies keep current systems with new disclosure requirements only."},
+      {"label": "If it remains stalled through January 2027","text": "Dies without a vote. No federal standards for another two years. DHS, FBI, TSA, and local police continue expanding without legal limits or accuracy requirements."}
+    ]
+  },
+  {
+    "id": 7,
+    "amend": ["14th","due"],
+    "urgency": "stalled",
+    "policyBias": 79,
+    "issues": ["voting"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-03",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Introduced March 2025 — all House Democrats co-sponsored; referred to House Judiciary Committee; no hearing scheduled under Republican majority. Senate companion introduced by Durbin and Warnock July 2025. 119th Congress ends January 2027.",
+    "name": "H.R. 14 — John R. Lewis Voting Rights Advancement Act of 2025",
+    "desc": "The Supreme Court's 2013 Shelby County v. Holder decision gutted Section 5 of the Voting Rights Act of 1965 — the provision requiring states with a documented history of voting discrimination to get federal pre-approval before changing voting rules. In the decade since Shelby County, hundreds of new voting restrictions have passed in states that previously required preclearance — and federal courts have been unable to stop most of them before they took effect and affected real elections. H.R. 14 restores the preclearance requirement using an updated formula based on recent voting violations rather than the 1972 formula the Supreme Court struck down. Every House Democrat and 140+ civil rights organizations support it. No committee hearing has been scheduled under Republican House leadership.",
+    "introduced": "Rep. Terri Sewell (D-AL-07) — all House Democrats; Sen. Dick Durbin (D-IL) & Sen. Raphael Warnock (D-GA) in Senate",
+    "supporters": "All 212 House Democrats, NAACP, ACLU, League of Women Voters, 140+ civil rights organizations",
+    "blockers": "Republican House majority; Republican Senate caucus; Senate filibuster (60-vote threshold); legal challenges from states previously subject to preclearance",
+    "window": "119th Congress ends January 2027 — needs a committee hearing and Republican crossovers to advance. Senate filibuster requires 60 votes. Contact your House and Senate members. The 2026 elections are a pressure point — documenting new voting violations strengthens the preclearance record.",
+    "decisions": [
+      {"label": "If a committee hearing is forced and the bill advances","text": "Preclearance requirement restored for jurisdictions with recent voting violations. States must get DOJ or court approval before implementing new voter restrictions. Documented voter suppression — targeted polling place closures, aggressive purges — becomes harder to implement before elections occur."},
+      {"label": "If it dies in committee under Republican leadership","text": "No preclearance restored this Congress. States continue passing voter restriction laws that take effect immediately, with civil rights organizations forced to litigate after each election rather than prevent harm before it occurs."},
+      {"label": "If it becomes part of must-pass legislation in a lame-duck session","text": "Unlikely but possible — would require Democrats to hold leverage in a year-end spending package. Passage without a floor debate would be challenged but difficult to reverse."}
+    ]
+  },
+  {
+    "id": 8,
+    "amend": ["due"],
+    "urgency": "stalled",
+    "policyBias": 85,
+    "issues": ["healthcare","reproductive"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Introduced January 2025; referred to House Energy and Commerce and Judiciary Committees; no hearing under Republican majority; Senate version blocked by filibuster in every prior Congress. As of May 2026, abortion is unavailable in 14 states affecting 17.98 million women of reproductive age.",
+    "name": "H.R. 12 — Women's Health Protection Act of 2025",
+    "desc": "Abortion is now unavailable in 14 states following the Supreme Court's 2022 Dobbs v. Jackson Women's Health Organization decision, leaving 17.98 million women of reproductive age without access to abortion in their home state. H.R. 12 would create a federal statutory right to abortion services — overriding state-level bans and restrictions — through an act of Congress rather than a constitutional interpretation. Unlike Roe v. Wade, a statutory right can be modified by Congress but cannot be overturned by the Supreme Court interpreting the Constitution. The bill also preempts state laws that impose medically unnecessary requirements on abortion providers not imposed on physicians performing other outpatient procedures. 200+ co-sponsors in each chamber; no committee hearing under Republican leadership.",
+    "introduced": "Rep. Judy Chu (D-CA); Sen. Tammy Baldwin (D-WI) in Senate; 200+ co-sponsors in both chambers",
+    "supporters": "Planned Parenthood, ACLU, Reproductive Freedom for All (formerly NARAL), AMA, all Senate/House Democrats, major national medical organizations",
+    "blockers": "Republican House majority; Republican Senate caucus; Senate filibuster (needs 60 votes, 48 current Democratic-caucus supporters); Trump White House",
+    "window": "119th Congress ends January 2027 — Senate filibuster is the primary barrier. The bill would need 12+ Republican Senate votes to overcome the 60-vote threshold. No viable path under current Senate composition.",
+    "decisions": [
+      {"label": "If Senate changes filibuster rules or finds 60 votes","text": "Federal statutory right to abortion services enacted. State bans in 14 states become legally unenforceable for providers. Women in states with total bans regain in-state access."},
+      {"label": "If it remains blocked by filibuster","text": "State bans continue in force. 17.98 million women remain without in-state access. The fight remains entirely at the state level and in federal courts interpreting other constitutional provisions."},
+      {"label": "If a partial-access compromise is negotiated (e.g., 15-week federal floor)","text": "Some access restored in states with total bans, but states with 15-week restrictions continue to ban most abortions. Compromise would likely require 5+ Republican Senate crossovers."}
+    ]
+  },
+  {
+    "id": 9,
+    "amend": ["4th","due"],
+    "urgency": "months",
+    "policyBias": 78,
+    "issues": ["immigration"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "House Judiciary Committee — introduced 2025; no hearing scheduled; ACLU constitutional challenges to detention practices are proceeding in parallel in federal courts as statutory protections have not advanced",
+    "name": "H.R. 6397 — Dignity for Detained Immigrants Act",
+    "desc": "Since 2025, the U.S. has detained over 40,000 immigrants at any given time — a historic high. Documented cases include detention without any immigration court hearing for weeks or months; deportations to third countries individuals have no connection to; and legal residents and even U.S. citizens detained in error with no fast correction process. H.R. 6397 requires a hearing before an immigration judge within 72 hours of initial detention, guarantees access to counsel at the government's expense for detained individuals, and creates a presumption of release unless DHS affirmatively shows the person is a flight risk or danger to the community — the same standard applied in the criminal justice system.",
+    "introduced": "Rep. Pramila Jayapal (D-WA) and House Democratic immigration caucus",
+    "supporters": "ACLU, National Immigration Law Center, RAICES, American Immigration Lawyers Association, faith communities, documented legal residents detained in error",
+    "blockers": "Republican House and Senate majorities; Trump White House; DHS; ICE — the bill would fundamentally limit the administration's current detention practices",
+    "window": "2025-2026 Congress — no legislative path under current Republican majority. ACLU v. ICE constitutional litigation is the most active avenue. Monitor habeas corpus cases in federal district courts for injunctions against indefinite detention without hearings.",
+    "decisions": [
+      {"label": "If enacted","text": "Everyone detained by ICE gets a hearing within 72 hours. Legal residents and U.S. citizens erroneously detained have a fast legal remedy. Indefinite detention without judicial review ends as a statutory matter."},
+      {"label": "If federal courts rule that current detention practices violate due process","text": "Constitutional floor established through litigation rather than legislation — more variable across circuits and more vulnerable to administration appeals, but achievable without Congressional action."},
+      {"label": "If no legislative or judicial action limits detention practices","text": "Indefinite detention without hearings continues. Third-country deportations without notice to family or lawyers continue. Documented cases of U.S. citizens and green card holders held for weeks continue without statutory remedy."}
+    ]
+  },
+  {
+    "id": 10,
+    "amend": ["4th","due"],
+    "urgency": "months",
+    "policyBias": 77,
+    "issues": ["immigration","policing"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2026-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Introduced 2026; House Judiciary Committee; no hearing scheduled; ACLU constitutional challenges to interior checkpoint operations proceeding in federal courts as the legislative path remains blocked under Republican majority",
+    "name": "H.R. 7572 — No Vigilante Checkpoints & Civil Rights Protection Act",
+    "desc": "Since 2025, federal immigration enforcement has conducted interior checkpoints on highways and at transit hubs far from the U.S. border — stopping people based on appearance and perceived ethnicity in documented cases. The 4th Amendment requires a warrant, consent, or an exception for brief stops at the international border itself. Interior checkpoints more than 25 miles from the border require individualized suspicion — yet documented enforcement operations have stopped people based on race, language, and perceived national origin. H.R. 7572 prohibits immigration checkpoints more than 25 miles from the U.S. border without a warrant or consent, requires supervisory authorization for any interior stop, and explicitly bans race, ethnicity, language, or perceived national origin as factors in any immigration enforcement stop.",
+    "introduced": "House Democrats; introduced 2026",
+    "supporters": "ACLU, NAACP, National Immigration Law Center, civil liberties organizations, American Immigration Lawyers Association",
+    "blockers": "Republican House and Senate majorities; Trump administration; DHS; CBP — interior checkpoints are currently a central administration enforcement strategy",
+    "window": "2025-2026 Congress — no legislative path under current majority. Monitor ACLU constitutional challenges to interior checkpoint operations in the 9th and 5th Circuits, where most documented interior checkpoints have occurred.",
+    "decisions": [
+      {"label": "If enacted","text": "Interior immigration checkpoints more than 25 miles from the border require a warrant or consent. Racial profiling explicitly banned as a legal basis for stops. CBP must document the legal basis for each stop."},
+      {"label": "If courts issue injunctions against checkpoint operations based on 4th Amendment violations","text": "Constitutional restrictions on checkpoints take effect through litigation — less comprehensive and more geographically variable than legislation, but achievable without Congress."},
+      {"label": "If no action","text": "Interior immigration checkpoints continue without statutory restrictions. Civil rights organizations document racial profiling in checkpoint operations. Documented stops of U.S. citizens continue without a statutory remedy."}
+    ]
+  },
+  {
+    "id": 11,
+    "amend": ["due"],
+    "urgency": "stalled",
+    "policyBias": 81,
+    "issues": ["healthcare"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Introduced January 2025; Senate Finance Committee; superseded in practical effect by the OBBBA's passage July 4, 2025, which enacted the Medicaid cuts S. 523 was designed to prevent. Focus has shifted to legal challenges and 2026 Senate elections.",
+    "name": "S. 523 — Protect Medicaid Act of 2025",
+    "desc": "Senate Bill 523 would have prohibited changes to Medicaid through the budget reconciliation process — the same process Republicans used in July 2025 to cut Medicaid by an estimated $900 billion over 10 years through the One Big Beautiful Bill Act. The bill was introduced in January 2025 as a preemptive defense; the Republican majority passed the OBBBA through reconciliation anyway, signing it July 4, 2025. S. 523 now serves as a marker bill — a statement of Democratic legislative intent and a model for future Medicaid restoration legislation if the Senate flips in 2026. The OBBBA cuts include work requirements (starting January 2027), quarterly eligibility verification, elimination of retroactive enrollment, and a projected loss of 10 million Americans from Medicaid coverage by 2034.",
+    "introduced": "Sen. Ron Wyden (D-OR) leading; all Senate Democrats co-sponsoring",
+    "supporters": "Senate Democrats, AMA, American Hospital Association, AARP, National Association of Medicaid Directors, state Medicaid directors",
+    "blockers": "Republican Senate majority — has been rendered largely moot by OBBBA passage; restoration requires 60 votes or a Senate majority flip in 2026",
+    "window": "2026 Senate elections are the most direct lever. 20+ state AGs are litigating the OBBBA's Medicaid provisions in federal court — a successful challenge could restore protections without legislation. Monitor court dockets.",
+    "decisions": [
+      {"label": "If Democrats regain Senate control in November 2026","text": "S. 523 or a successor restoration bill becomes viable via reconciliation — the same process used to cut Medicaid. Full or partial restoration of OBBBA Medicaid cuts becomes achievable with 51 votes."},
+      {"label": "If OBBBA Medicaid cuts are struck down in court","text": "S. 523 becomes less urgent — courts restore protections without legislation. But a statutory protection would be more durable and harder to cut again than a court ruling."},
+      {"label": "If OBBBA cuts are upheld and Republicans retain the Senate","text": "10 million Americans lose Medicaid coverage by 2034 as projected. S. 523 remains a model for future legislation, but no near-term legislative path exists."}
+    ]
+  },
+  {
+    "id": 12,
+    "amend": ["due"],
+    "urgency": "months",
+    "policyBias": 13,
+    "issues": ["healthcare","immigration"],
+    "ratifyOffice": "courts",
+    "stageDates": ["2025-01","2025-03","2025-05","2025-06","2025-07","2025-07"],
+    "stage": 6,
+    "stageNote": "✅ SIGNED July 4, 2025 (51-50 Senate vote). ⚖️ LEGAL CHALLENGES ACTIVE: 20+ state AGs sued over Medicaid Spending Clause violations July 2025. First Circuit lifted Planned Parenthood Medicaid injunctions September 2025 — defunding proceeds nationwide. Medicaid work requirements begin January 2027; states implementing verification systems now.",
+    "name": "One Big Beautiful Bill Act (H.R. 1) — Medicaid Cuts & Healthcare Provisions (Enacted; Challenged in Court)",
+    "desc": "The One Big Beautiful Bill Act, signed July 4, 2025, enacted the largest cuts to Medicaid in the program's history — an estimated $900 billion over 10 years — along with deep cuts to SNAP food assistance and new restrictions on Planned Parenthood's ability to receive Medicaid reimbursement. The law passed 51-50 in the Senate with the Vice President casting the tie-breaking vote. Key healthcare provisions: Medicaid work requirements for most adults (starting January 2027); quarterly eligibility verification (up from annually); elimination of retroactive Medicaid enrollment; defunding of Planned Parenthood from Medicaid; and an estimated 10 million people losing coverage by 2034. The law also allocated $170 billion in new immigration enforcement funding. Within weeks of signing, 20+ state AGs filed suit alleging the Medicaid defunding provision is unconstitutional under the Spending Clause. In September 2025, the First Circuit Appeals Court lifted lower-court injunctions protecting Planned Parenthood's Medicaid funding, allowing the defunding to proceed nationwide.",
+    "introduced": "House Republican leadership; all Republicans + 0 Democrats; passed 51-50 in Senate; signed by President Trump July 4, 2025",
+    "supporters": "Trump White House, Republican Congressional majorities, Heritage Foundation, Americans for Prosperity",
+    "blockers": "20+ state AGs (active litigation), ACLU, Planned Parenthood, AMA, American Hospital Association, AARP, Senate Democrats",
+    "window": "Continuous — legal challenges active in multiple circuit courts. Medicaid work requirements begin January 2027 — states are building verification systems now. Monitor the state AG coalition lawsuits and contact your senators about Medicaid oversight hearings.",
+    "decisions": [
+      {"label": "⚖️ CURRENT: Legal challenges active — 20+ AGs suing in multiple circuits","text": "Medicaid Spending Clause challenge is the most legally developed. First Circuit ruled against Planned Parenthood's Medicaid funding Sept 2025. Work requirement challenges pending; work requirements begin January 2027 — injunction before then would be the most consequential near-term outcome."},
+      {"label": "If Medicaid work requirements are struck down before January 2027","text": "Up to 5 million people who would have lost coverage under work requirements keep their Medicaid. Other OBBBA Medicaid provisions (quarterly verification, retroactive enrollment elimination) remain in force unless separately challenged."},
+      {"label": "If all legal challenges fail","text": "All OBBBA healthcare provisions take full effect. Estimated 10 million people lose Medicaid by 2034. SNAP cuts affect millions more. Planned Parenthood defunded from Medicaid nationwide. The largest rollback of the U.S. social safety net since its creation."}
+    ]
+  },
+  {
+    "id": 13,
+    "amend": ["due"],
+    "urgency": "stalled",
+    "policyBias": 76,
+    "issues": ["immigration"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "House Judiciary Committee — introduced 2025; no hearing scheduled; courthouse arrest operations by ICE have continued and expanded in 2025-2026 with documented cases of crime victims, witnesses, and defendants arrested en route to or from court appearances",
+    "name": "H.R. 6521 — Immigration Court Due Process Protection Act",
+    "desc": "Federal law currently allows immigration enforcement officers to arrest people inside courthouses — including witnesses, defendants, and crime victims appearing for non-immigration proceedings. Documented cases include domestic violence survivors having ICE agents waiting for them after protective order hearings; witnesses in criminal prosecutions arrested before testifying; and defendants in pending state cases arrested as they arrived at court. This chilling effect on courthouse access has caused crime witnesses to stop appearing, domestic violence victims to withdraw protection orders rather than risk arrest, and state and local prosecutors to lose cases because key witnesses will no longer appear. H.R. 6521 would ban DHS from arresting anyone inside a courthouse, in its immediate proximity, or in connection with an immigration court appearance.",
+    "introduced": "House Judiciary Democrats; introduced 2025",
+    "supporters": "National Association of Criminal Defense Lawyers, some state and local prosecutors' associations (concern about witness intimidation), ACLU, domestic violence advocacy organizations, National Domestic Violence Hotline",
+    "blockers": "Republican House and Senate majorities; Trump administration; DHS; ICE — courthouse arrests are a documented enforcement tactic",
+    "window": "2025-2026 — no legislative path. Some state supreme courts have issued their own sensitive-location orders protecting courthouse access; federal courts have issued specific case-level protections. Monitor state-level courthouse protection policies and federal case-level orders.",
+    "decisions": [
+      {"label": "If enacted","text": "Immigration enforcement inside or immediately adjacent to courthouses prohibited. Crime victims and witnesses can access courts without risk of arrest. Criminal cases with immigrant witnesses proceed without intimidation. Domestic violence victims can seek protection orders."},
+      {"label": "If courts issue targeted protections for specific courthouse districts","text": "Federal district courts can protect specific courthouses in their jurisdictions — less comprehensive and more geographically variable than legislation, but more immediately achievable."},
+      {"label": "If no action","text": "Courthouse arrest chilling effect continues. Criminal cases are weakened; domestic violence victims withdraw from proceedings; witnesses go underground. State prosecutors in high-immigrant jurisdictions report documented case losses."}
+    ]
+  },
+  {
+    "id": 14,
+    "amend": ["14th","due"],
+    "urgency": "stalled",
+    "policyBias": 72,
+    "issues": ["technology"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "House bill H.R. 6356 in Judiciary Committee; Senate companion S. 3308 in Commerce Committee; no hearings scheduled; FTC has launched limited AI bias enforcement actions under existing law while the comprehensive statute remains pending",
+    "name": "H.R. 6356 / S. 3308 — Artificial Intelligence Civil Rights Act of 2025",
+    "desc": "Artificial intelligence systems are now used to decide who gets a job interview, who qualifies for a mortgage, what credit terms you're offered, whether your insurance claim is approved, and whether you receive prior authorization for a medical procedure — but there is no federal law requiring these systems to be tested for bias before deployment. Documented studies have found AI hiring tools systematically discriminate against women and people of color; AI credit models penalize people in lower-income zip codes regardless of individual creditworthiness; and AI healthcare prior-authorization tools have denied care to Black patients at higher rates than white patients with equivalent medical conditions. This bill requires developers and deployers of AI systems making consequential decisions about housing, employment, credit, education, and healthcare to conduct bias testing before deployment, report results publicly, and provide individuals a private right of action when discriminatory AI causes harm. Federal agencies must also audit AI systems they currently use.",
+    "introduced": "Rep. Yvette Clarke (D-NY); Sen. Ed Markey (D-MA); 50+ co-sponsors in both chambers",
+    "supporters": "ACLU, NAACP, Leadership Conference on Civil and Human Rights, consumer advocacy groups, AI accountability researchers, Algorithmic Justice League",
+    "blockers": "Republican majorities; tech industry lobbying (Google, Microsoft, Amazon, Meta all oppose mandatory bias testing requirements); Chamber of Commerce",
+    "window": "2025-2026 — no hearing scheduled. FTC enforcement actions under existing consumer protection law are the most active avenue for near-term accountability. Monitor FTC AI enforcement actions and European AI Act implementation (which some multinationals must comply with regardless of U.S. law).",
+    "decisions": [
+      {"label": "If enacted","text": "All AI systems used for housing, employment, credit, healthcare, and education decisions must pass bias testing before deployment. People harmed by discriminatory AI have a federal cause of action. Federal agencies must audit their own AI systems within one year."},
+      {"label": "If a narrower version with disclosure only (no private right of action) advances","text": "Testing requirement enacted without individual enforcement. Industry must test and disclose but individuals cannot sue — less deterrent effect, but politically more feasible under current majorities."},
+      {"label": "If no legislation passes","text": "AI discrimination continues without federal testing requirements. FTC can only act on systems where it proves intentional deception — structural bias causing systematic discrimination goes unaddressed."}
+    ]
+  },
+  {
+    "id": 15,
+    "amend": [],
+    "urgency": "stalled",
+    "policyBias": 83,
+    "issues": ["housing"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-04",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Introduced April 2025; Senate Banking Committee; no hearing scheduled; the OBBBA's SNAP and Medicaid cuts are increasing financial pressure on low-income households and worsening housing instability, raising the stakes for housing assistance reform",
+    "name": "S. 1477 — Housing for All Act of 2025",
+    "desc": "The U.S. has a shortage of approximately 7 million housing units. Only about 25% of households who are income-eligible for federal housing assistance — Section 8 vouchers and public housing — actually receive it; there is simply not enough funding. In major cities, eligible families wait 10+ years for a voucher. S. 1477 would make Section 8 housing vouchers an entitlement (like Medicaid) — every household at or below 30% of area median income would be guaranteed a voucher if they qualify. The bill also authorizes $50 billion for a Housing Infrastructure Trust Fund to build 1.5 million new affordable units over 10 years, and conditions federal infrastructure funding on jurisdictions permitting affordable housing near transit and employment centers — a federal zoning reform lever.",
+    "introduced": "Sen. Elizabeth Warren (D-MA); Sen. Jeff Merkley (D-OR); Rep. Alexandria Ocasio-Cortez (D-NY) House companion",
+    "supporters": "National Low Income Housing Coalition, National Alliance to End Homelessness, housing advocacy organizations, urban and suburban mayors, housing developers",
+    "blockers": "Republican majorities; deficit concerns; suburban zoning and property rights advocates; National Association of Home Builders (opposes federal zoning conditions)",
+    "window": "119th Congress ends January 2027 — no hearing scheduled. The 2026 Senate elections are the critical leverage point; housing affordability polling suggests it is a persuadable-voter issue in several competitive states.",
+    "decisions": [
+      {"label": "If enacted","text": "Section 8 becomes an entitlement — every income-eligible household gets a voucher within 30 days of eligibility determination. $50B in new affordable housing construction funding. Cities that exclude affordable housing near transit lose federal infrastructure dollars."},
+      {"label": "If a scaled-back version passes (funding increase without entitlement guarantee)","text": "More vouchers funded without the mandatory eligibility floor — reduces but does not eliminate the waiting list. Politically more feasible with some Republican crossovers possible on housing funding."},
+      {"label": "If no action","text": "7 million unit housing deficit continues growing. Rental costs continue outpacing wage growth. The OBBBA's benefit cuts increase the number of households needing assistance while supply remains constrained."}
+    ]
+  },
+  {
+    "id": 16,
+    "amend": ["due"],
+    "urgency": "months",
+    "policyBias": 13,
+    "issues": ["immigration"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Introduced January 2025; passed House Judiciary Committee in 2025; may advance to the House floor in 2026 as supplemental immigration enforcement legislation; OBBBA already implemented some similar mandatory detention provisions",
+    "name": "H.R. 57 — Ending Catch and Release Act of 2025",
+    "desc": "H.R. 57 would eliminate the standard practice of releasing asylum seekers into the United States while their immigration cases are pending — a policy critics call 'catch and release.' Under current law, immigration judges can release individuals with credible asylum claims on bond if they are not a flight risk or danger. This bill eliminates that option: DHS would be required to detain every person who crosses without authorization or return them to a neighboring country, even if their asylum case is pending. Detaining all unauthorized arrivals simultaneously would require detaining hundreds of thousands of people — far exceeding current detention capacity of approximately 40,000 beds. The bill also expands expedited removal (deportation without a full immigration court hearing) to everyone present in the U.S. without authorization, with limited exceptions. Critics argue this requires mass indefinite detention without individual due process review, in potential violation of international asylum treaty obligations.",
+    "introduced": "Rep. Bob Good (R-VA); Rep. Tom McClintock (R-CA); Senate companion supporters include Sen. Tom Cotton (R-AR)",
+    "supporters": "Republican House majority, Heritage Foundation, Center for Immigration Studies, NumbersUSA, Trump White House — closely aligned with OBBBA immigration enforcement priorities",
+    "blockers": "ACLU, National Immigration Law Center, American Immigration Lawyers Association, faith communities, Refugee Council USA — due process and treaty obligation concerns",
+    "window": "2025-2026 — passed Judiciary Committee; may advance to House floor. OBBBA already implemented related mandatory detention funding; this bill extends detention mandates further. Monitor House floor scheduling.",
+    "decisions": [
+      {"label": "If enacted as written","text": "All unauthorized arrivals detained or returned to a neighboring country while cases are pending. Would require detention facilities for hundreds of thousands beyond current 40,000-bed capacity. International asylum treaty compliance is disputed."},
+      {"label": "If partially enacted through spending riders","text": "Detention funding increased and some release categories restricted without a full statutory mandatory-detention mandate. The OBBBA approach — funding detention expansion — becomes the operative policy without an absolute bar on release."},
+      {"label": "If courts find the mandatory detention provisions violate due process","text": "Courts restore individualized bond hearings. The Zadvydas v. Davis (2001) precedent — limiting indefinite detention of removable individuals — becomes the controlling floor. The bill's operational reach is limited without legislation requiring it."}
+    ]
+  }
+];
+
+const active = {timing:'all',impact:'all',issue:'all',policy:'all',office:'all',status:'active',search:''};
+
+function policyBarStyle(b){
+  if(b>=38&&b<=62)return'background:#6600CC';
+  return'background:linear-gradient(to right,var(--bar-lib) '+b+'%,var(--bar-con) '+b+'%)';
+}
+function policyCategory(b){
+  if(b>=63)return'liberal';
+  if(b<=37)return'conservative';
+  return'center';
+}
+function renderPipeline(bill){
+  var stages=FEDERAL_STAGES;
+  var isStalled=bill.urgency==='stalled';
+  var dates=bill.stageDates||[];
+  var dots=stages.map(function(label,i){
+    var cls='pipe-step';
+    if(i<bill.stage)cls+=' done';
+    if(i===bill.stage&&!isStalled)cls+=' curr';
+    if(i===bill.stage&&isStalled)cls+=' stalled';
+    var dateHtml=dates[i]?'<div class="pipe-date">'+dates[i]+'</div>':'';
+    return'<div class="'+cls+'"><div class="pipe-dot"></div><div class="pipe-label">'+label+dateHtml+'</div></div>';
+  }).join('');
+  return'<div class="pipeline-section"><div class="pipeline-head">Legislative path</div><div class="pipeline">'+dots+'</div><div class="stage-note">'+bill.stageNote+'</div></div>';
+}
+function matches(b){
+  var isWatched=watchedIds.has(b.id);
+  var isArchived=archivedIds.has(b.id);
+  // Status filter — archived items are hidden unless status='archived' or status='all'
+  if(active.status==='active'&&isArchived)return false;
+  if(active.status==='watched'&&(!isWatched||isArchived))return false;
+  if(active.status==='archived'&&!isArchived)return false;
+  // active.status==='all' shows everything
+  // Search
+  if(active.search){
+    var q=active.search.toLowerCase();
+    var hay=(b.name+' '+b.desc+' '+b.issues.join(' ')).toLowerCase();
+    if(hay.indexOf(q)===-1)return false;
+  }
+  var timingVal=active.timing==='session'?'year':active.timing;
+  if(active.timing!=='all'&&b.urgency!==timingVal)return false;
+  if(active.impact!=='all'){
+    var f=active.impact;
+    if(f==='4th'&&b.amend.indexOf('4th')===-1)return false;
+    if(f==='1st'&&b.amend.indexOf('1st')===-1)return false;
+    if(f==='due'&&b.amend.indexOf('due')===-1&&b.amend.indexOf('14th')===-1)return false;
+  }
+  if(active.issue!=='all'&&b.issues.indexOf(active.issue)===-1)return false;
+  if(active.policy!=='all'&&policyCategory(b.policyBias)!==active.policy)return false;
+  if(active.office!=='all'&&b.ratifyOffice!==active.office)return false;
+  return true;
+}
+async function copyCard(id,btn){
+  var b=bills.find(function(x){return x.id===id;});
+  if(!b)return;
+  var divider='—'.repeat(55);
+  var offMeta=OFFICE_META[b.ratifyOffice]||{label:b.ratifyOffice};
+  var lines=[b.name,divider,b.desc,'','LEGISLATIVE STATUS',b.stageNote,'','PUBLIC INFLUENCE WINDOW',b.window,'','INTRODUCED BY',b.introduced,'','KEY SUPPORTERS',b.supporters,'','KEY BLOCKERS',b.blockers,'','WHAT IS BEING DECIDED']
+    .concat(b.decisions.map(function(d){return'  → '+d.label+' — '+d.text;}))
+    .concat(['',divider,'Timing: '+b.urgency+' | Currently with: '+offMeta.label]);
+  try{
+    await navigator.clipboard.writeText(lines.join('\n'));
+    btn.classList.add('copied');btn.title='Copied!';
+    setTimeout(function(){btn.classList.remove('copied');btn.title='Copy card to clipboard';},1400);
+  }catch(e){btn.title='Copy failed';}
+}
+
+var container=document.getElementById('bills');
+var countEl=document.getElementById('count');
+var watchedBanner=document.getElementById('watchedBanner');
+
+function render(){
+  // Update watched-banner
+  var wc=watchedIds.size;
+  if(wc>0&&active.status!=='watched'){
+    watchedBanner.textContent='● '+wc+' bill'+(wc===1?'':'s')+' on your watch list — click "Watched" above to view';
+    watchedBanner.classList.add('visible');
+  } else {
+    watchedBanner.classList.remove('visible');
+  }
+
+  var filtered=bills.filter(matches);
+  var shown=filtered.length;
+  var label=active.status==='archived'?'archived item':'item';
+  countEl.textContent=shown+' '+label+(shown!==1?'s':'')+' shown';
+
+  if(!shown){
+    container.innerHTML='<div class="empty">No bills match these filters.</div>';
+    return;
+  }
+
+  container.innerHTML=filtered.map(function(b){
+    var isWatched=watchedIds.has(b.id);
+    var isArchived=archivedIds.has(b.id);
+    var urgTag=b.urgency==='urgent'
+      ?'<span class="tag tag-now">Act now</span>'
+      :b.urgency==='months'
+        ?'<span class="tag tag-months">Months</span>'
+        :b.urgency==='stalled'
+          ?'<span class="tag tag-stalled">Stalled</span>'
+          :'<span class="tag tag-year">Session</span>';
+    var statusTag=isWatched
+      ?'<span class="tag tag-watch">● Watching</span>'
+      :isArchived
+        ?'<span class="tag tag-archive">● Archived</span>'
+        :'';
+    var amendBadges=b.amend.map(function(a){return'<span class="amend-tag">'+a+'</span>';}).join('');
+    var decisionsHtml=b.decisions.map(function(d){
+      return'<div class="decision-item"><span class="decision-label">'+d.label+'</span> — '+d.text+'</div>';
+    }).join('');
+    var offMeta=OFFICE_META[b.ratifyOffice]||{label:b.ratifyOffice,dotCls:'od-com'};
+    var watchBtnCls='status-toggle'+(isWatched?' watch-active':'');
+    var archiveBtnCls='status-toggle'+(isArchived?' archive-active':'');
+    var watchLabel=isWatched?'● Watching':'Watch';
+    var archiveLabel=isArchived?'● Archived':'Archive';
+    var srcHtml=SOURCE_URLS[b.id]
+      ?'<div class="source-link"><a href="'+SOURCE_URLS[b.id]+'" target="_blank" rel="noopener noreferrer">Official source ↗</a></div>'
+      :'';
+    return'<div class="bill">'
+      +'<div class="policy-bar" style="'+policyBarStyle(b.policyBias)+'"><span class="policy-bar-label">Policy direction</span></div>'
+      +'<div class="card-top-tags">'+urgTag+statusTag+'</div>'
+      +'<button class="copy-btn" onclick="copyCard('+b.id+',this)" title="Copy card to clipboard">'
+        +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>'
+      +'</button>'
+      +'<div class="bill-name">'+b.name+amendBadges+'</div>'
+      +'<div class="bill-desc">'+b.desc+'</div>'
+      +renderPipeline(b)
+      +'<div class="meta-grid">'
+        +'<div><div class="lbl">Public influence window</div><div class="val">'+b.window+'</div></div>'
+        +'<div><div class="lbl">Introduced by</div><div class="val">'+b.introduced+'</div></div>'
+        +'<div><div class="lbl">Key supporters</div><div class="val">'+b.supporters+'</div></div>'
+        +'<div class="full-width"><div class="lbl">Key blockers</div><div class="val">'+b.blockers+'</div></div>'
+      +'</div>'
+      +'<div class="deciding-divider"><span>What is being decided</span></div>'
+      +'<div class="decisions">'+decisionsHtml+'</div>'
+      +'<div class="card-footer">'
+        +'<div class="office-badge"><div class="office-dot '+offMeta.dotCls+'"></div>'+offMeta.label+'</div>'
+        +'<div class="card-actions">'
+          +'<button class="'+watchBtnCls+'" onclick="toggleWatch('+b.id+')"><span class="s-dot"></span>'+watchLabel+'</button>'
+          +'<button class="'+archiveBtnCls+'" onclick="toggleArchive('+b.id+')"><span class="s-dot"></span>'+archiveLabel+'</button>'
+          +srcHtml
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input',function(){
+  active.search=this.value.trim();
+  render();
+});
+document.getElementById('filterGroups').addEventListener('click',function(e){
+  var chip=e.target.closest('[data-group]');
+  if(!chip)return;
+  var group=chip.dataset.group;
+  var val=chip.dataset.f;
+  active[group]=val;
+  document.querySelectorAll('[data-group="'+group+'"]').forEach(function(c){
+    c.classList.toggle('active',c.dataset.f===val);
+  });
+  render();
+});
+render();
+</script>
+</body>
+</html>

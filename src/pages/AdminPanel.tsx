@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { adminFeedbackList, adminFeedbackComplete, tierRequestList, tierRequestReview } from '../lib/authApi'
+import { adminFeedbackList, adminFeedbackComplete, tierRequestList, tierRequestReview, verifierNotesSummary } from '../lib/authApi'
 import PageTopBar from '../components/PageTopBar'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -66,13 +66,15 @@ export default function AdminPanel() {
   const navigate = useNavigate()
   const { user }  = useAuth()
 
-  const [feedback,  setFeedback]  = useState<FeedbackRow[]>([])
-  const [requests,  setRequests]  = useState<TierRequest[]>([])
-  const [loading,   setLoading]   = useState(true)
-  const [error,     setError]     = useState('')
-  const [busy,        setBusy]        = useState<number | null>(null)
-  const [completing,  setCompleting]  = useState<number | null>(null)
-  const [expanded,    setExpanded]    = useState<Set<number>>(new Set())
+  const [feedback,      setFeedback]      = useState<FeedbackRow[]>([])
+  const [requests,      setRequests]      = useState<TierRequest[]>([])
+  const [verifierNotes, setVerifierNotes] = useState<Record<number, { username: string; note: string; updated_at: string }[]>>({})
+  const [loading,       setLoading]       = useState(true)
+  const [error,         setError]         = useState('')
+  const [busy,          setBusy]          = useState<number | null>(null)
+  const [completing,    setCompleting]    = useState<number | null>(null)
+  const [expanded,      setExpanded]      = useState<Set<number>>(new Set())
+  const [vnoteCopied,   setVnoteCopied]   = useState<number | null>(null)
 
   useEffect(() => {
     const theme = localStorage.getItem('wsp-theme') ?? 'dark'
@@ -86,9 +88,10 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!user || user.role !== 'admin') return
-    Promise.all([adminFeedbackList(), tierRequestList()]).then(([fb, tr]) => {
+    Promise.all([adminFeedbackList(), tierRequestList(), verifierNotesSummary()]).then(([fb, tr, vn]) => {
       if (fb.ok) setFeedback(fb.feedback ?? [])
       if (tr.ok) setRequests(tr.requests ?? [])
+      if (vn.ok) setVerifierNotes(vn.summary ?? {})
       if (!fb.ok && !tr.ok) setError(fb.error ?? tr.error ?? 'Failed to load')
       setLoading(false)
     })
@@ -290,6 +293,74 @@ export default function AdminPanel() {
                 </div>
               )
             })}
+          {/* ── Verifier Notes Summary ─────────────────────────────────── */}
+          {Object.keys(verifierNotes).length > 0 && (
+            <>
+              <div style={divider} />
+              <h2 style={sectionH2}>
+                Verifier Notes Summary
+                <span style={{ fontFamily: "'Nunito', sans-serif", fontSize: 12, fontWeight: 400, color: 'var(--color-text-tertiary)', marginLeft: 8 }}>
+                  {Object.values(verifierNotes).reduce((t, ns) => t + ns.length, 0)} notes across {Object.keys(verifierNotes).length} bills
+                </span>
+              </h2>
+              {Object.entries(verifierNotes).map(([billIdStr, notes]) => {
+                const billId = Number(billIdStr)
+                const isCopied = vnoteCopied === billId
+                async function copyBillNotes() {
+                  const text = notes.map(n =>
+                    `[${n.username} · ${new Date(n.updated_at).toLocaleDateString()}]\n${n.note}`
+                  ).join('\n\n───\n\n')
+                  await navigator.clipboard.writeText(text)
+                  setVnoteCopied(billId)
+                  setTimeout(() => setVnoteCopied(null), 1600)
+                }
+                return (
+                  <div key={billId} style={{
+                    marginBottom: 16, padding: '10px 14px',
+                    border: '1px solid var(--color-border-light)',
+                    borderRadius: 10, background: 'var(--color-bg-primary)',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ fontFamily: "'Quicksand', sans-serif", fontWeight: 700, fontSize: 13, color: 'var(--color-text-primary)' }}>
+                        Bill #{billId} · {notes.length} note{notes.length !== 1 ? 's' : ''}
+                      </span>
+                      <button
+                        onClick={copyBillNotes}
+                        style={{
+                          fontSize: 11, padding: '3px 10px', borderRadius: 20,
+                          border: '1px solid var(--color-border-medium)',
+                          background: 'var(--color-bg-secondary)', cursor: 'pointer',
+                          color: 'var(--color-text-secondary)',
+                          fontFamily: "'Quicksand', sans-serif", fontWeight: 600,
+                        }}
+                      >
+                        {isCopied ? '✓ Copied' : 'Copy'}
+                      </button>
+                    </div>
+                    {notes.map((n, i) => (
+                      <div key={i} style={{ marginBottom: 8, fontSize: 12 }}>
+                        <div style={{
+                          fontFamily: "'Quicksand', sans-serif", fontWeight: 700,
+                          fontSize: 11, color: 'var(--color-text-tertiary)',
+                          textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 2,
+                        }}>
+                          {n.username} · {new Date(n.updated_at).toLocaleDateString()}
+                        </div>
+                        <div style={{
+                          color: 'var(--color-text-secondary)',
+                          lineHeight: 1.55, whiteSpace: 'pre-wrap',
+                          padding: '6px 8px', background: 'var(--color-bg-secondary)',
+                          borderRadius: 6,
+                        }}>
+                          {n.note}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })}
+            </>
+          )}
           </>
         )}
       </div>

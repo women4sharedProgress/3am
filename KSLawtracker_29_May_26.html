@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<!--
+W4SP_REFRESH_INSTRUCTIONS
+
+When asked to refresh this file, update the following fields for EVERY bill using
+current information from official government sources (kslegislature.gov for Kansas bills,
+congress.gov for federal bills, city/county sites for local ordinances) and
+reliable news reporting. Cross-check all facts before writing them.
+
+Fields to update on every bill:
+  name         — current official bill number and short title
+  stage        — current stage index (0-based integer; stage === stages.length means enacted/signed)
+  stageDates   — array of date strings for each completed stage (military format: 14 Jan 25)
+  stageNote    — one-sentence plain-English description of current status
+  desc         — updated plain-language summary of what the bill does
+  decisions    — updated list of {label, text} objects describing what is being decided
+  supporters   — current named key supporters (sponsors, advocacy groups, officials)
+  blockers     — current named key blockers (opponents, advocacy groups, officials)
+  window       — updated public influence window (when and how citizens can still act)
+  policyBias   — updated 0-100 integer (0 = most conservative, 100 = most liberal, 50 = center)
+  urgency      — one of: "urgent" | "months" | "year" | "stalled"
+
+DO NOT change:
+  id           — unique bill identifier (never reassign or renumber)
+  level        — "federal" | "state" | "local"
+
+After refreshing all bills, update the page title and subtitle date to today,
+and save the file with today's date in the filename:
+  KSLawtracker_DD_Mon_YY.html   (e.g. KSLawtracker_29_May_26.html)
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kansas Legislation Tracker — 29 May 26</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-bg-primary:#ffffff;--color-bg-secondary:#f5f5f3;--color-bg-info:#e6f1fb;--color-bg-success:#eaf3de;--color-bg-danger:#fcebeb;--color-bg-warning:#faeeda;--color-bg-neutral:#f1efe8;
+    --color-text-primary:#1a1a18;--color-text-secondary:#5f5e5a;--color-text-tertiary:#888780;--color-text-info:#0c447c;--color-text-success:#27500a;--color-text-danger:#791f1f;--color-text-warning:#633806;--color-text-neutral:#444441;
+    --color-border-light:rgba(0,0,0,0.1);--color-border-medium:rgba(0,0,0,0.18);
+    --federal-bg:#1b2d56;--federal-text:#c8dff5;--kansas-bg:#1A3E72;--kansas-text:#FFE066;--local-bg:#2a6b3a;--local-text:#dff0e4;
+    --stalled-bg:#e8e6e0;--stalled-text:#888780;--pipe-done:#378add;--pipe-curr:#185fa5;--pipe-future:#c8c7c0;
+    --bar-con:#B81616;--bar-lib:#1A3E9C;--bar-ctr:#5C14B8;
+    --font-calibri:Calibri,'Gill Sans MT','Trebuchet MS',sans-serif;--radius-md:8px;--radius-lg:12px;--radius-pill:20px;--font-sans:system-ui,-apple-system,sans-serif;
+    --office-gov:#1e6b1e;--office-ks-s:#1A3E72;--office-ks-h:#2E5FA5;--office-com:#888780;--office-us-s:#1b2d56;--office-pres:#7a1515;--office-mayor:#8b4500;--office-council:#006666;--office-county:#5a3d1a;--office-hou:#2d8a2d;--office-con:#7a5c00;--office-crt:#5c14b8;
+  }
+  @media(prefers-color-scheme:dark){:root{--color-bg-primary:#1e1e1c;--color-bg-secondary:#272725;--color-bg-info:#042c53;--color-bg-success:#173404;--color-bg-danger:#501313;--color-bg-warning:#412402;--color-bg-neutral:#2c2c2a;--color-text-primary:#f0ede6;--color-text-secondary:#b4b2a9;--color-text-tertiary:#888780;--color-text-info:#b5d4f4;--color-text-success:#c0dd97;--color-text-danger:#f7c1c1;--color-text-warning:#fac775;--color-text-neutral:#d3d1c7;--color-border-light:rgba(255,255,255,0.1);--color-border-medium:rgba(255,255,255,0.18);--federal-bg:#0c2044;--federal-text:#b5d4f4;--kansas-bg:#0F2850;--kansas-text:#FFE57A;--local-bg:#1a4a26;--local-text:#a0d8b0;--stalled-bg:#2c2c2a;--stalled-text:#888780;--pipe-done:#85b7eb;--pipe-curr:#b5d4f4;--pipe-future:#444441;--bar-con:#C84040;--bar-lib:#3060C0;--bar-ctr:#7228CC;--office-gov:#3aa83a;--office-ks-s:#4a90d9;--office-ks-h:#6aaae0;--office-com:#aaa9a2;--office-us-s:#6a8fc0;--office-pres:#c05050;--office-mayor:#cc7722;--office-council:#009999;--office-county:#a07040;--office-hou:#3aa83a;--office-con:#cc9922;--office-crt:#9940ff;}}}
+  body{font-family:var(--font-sans);background:var(--color-bg-secondary);color:var(--color-text-primary);padding:1.5rem 1rem;max-width:920px;margin:0 auto;font-size:15px;line-height:1.6;}
+  .page-header{margin-bottom:1.25rem;}.page-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}.page-title{font-size:20px;font-weight:500;margin-bottom:3px;}.page-subtitle{font-size:13px;color:var(--color-text-tertiary);}
+  .search-wrap{flex-shrink:0;padding-top:2px;}.search-input{font-family:var(--font-sans);font-size:13px;padding:5px 12px 5px 30px;border-radius:var(--radius-pill);border:1px solid var(--color-border-medium);background:var(--color-bg-primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%23888780' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") no-repeat 10px center;color:var(--color-text-primary);outline:none;width:190px;transition:border-color .15s,width .2s;}.search-input:focus{border-color:var(--kansas-bg);width:230px;}.search-input::placeholder{color:var(--color-text-tertiary);}
+  .filter-group-city{margin-top:-3px;}.fg-indent{padding-left:12px;color:var(--color-text-tertiary);font-size:10px;}.filter-groups{margin-bottom:1rem;}.filter-group{margin-bottom:7px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}.fg-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);white-space:nowrap;min-width:120px;font-weight:500;padding-top:3px;}.chips{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{font-size:13px;padding:4px 13px;border-radius:var(--radius-pill);border:1px solid var(--color-border-medium);cursor:pointer;background:var(--color-bg-primary);color:var(--color-text-primary);transition:background .1s,color .1s,border-color .1s;font-family:var(--font-calibri);font-weight:600;display:inline-flex;align-items:center;gap:5px;}.chip:hover{background:var(--color-bg-neutral);border-color:var(--color-text-tertiary);}.chip.active{background:var(--color-text-primary);color:var(--color-bg-primary);border-color:transparent;}.chip.active:hover{filter:brightness(1.15);}
+  .chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}.chip.active .chip-dot{opacity:.7;}.chip[data-f="liberal"] .chip-dot{background:var(--bar-lib);border-radius:2px;}.chip[data-f="center"] .chip-dot{background:var(--bar-ctr);border-radius:2px;}.chip[data-f="conservative"] .chip-dot{background:var(--bar-con);border-radius:2px;}.chip[data-f="governor"] .chip-dot{background:var(--office-gov);}.chip[data-f="ks-senate"] .chip-dot{background:var(--office-ks-s);}.chip[data-f="ks-house"] .chip-dot{background:var(--office-ks-h);}.chip[data-f="committee"] .chip-dot{background:var(--office-com);}.chip[data-f="us-senate"] .chip-dot{background:var(--office-us-s);}.chip[data-f="mayor"] .chip-dot{background:var(--office-mayor);}.chip[data-f="city-council"] .chip-dot{background:var(--office-council);}.chip[data-f="county-board"] .chip-dot{background:var(--office-county);}
+  .count{font-size:12px;color:var(--color-text-tertiary);margin-bottom:.6rem;}
+  .bill{position:relative;overflow:hidden;border:.5px solid var(--color-border-light);border-radius:var(--radius-lg);padding:calc(40px + .65rem) 1.25rem 1rem 1.25rem;margin-bottom:10px;background:var(--color-bg-primary);}
+  .policy-bar{position:absolute;top:0;left:0;right:0;height:40px;}.policy-bar-label{position:absolute;bottom:5px;left:12px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.85);font-weight:bold;font-family:var(--font-calibri);pointer-events:none;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.7),0 0 8px rgba(0,0,0,.4);}
+  .copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.18);border:none;cursor:pointer;color:rgba(255,255,255,.7);padding:4px 5px;border-radius:4px;display:flex;align-items:center;z-index:2;transition:all .15s;line-height:1;box-shadow:0 1px 4px rgba(0,0,0,.5);}.copy-btn:hover{background:rgba(255,255,255,.38);color:#fff;}.copy-btn.copied{color:#33CC33;background:rgba(255,255,255,.25);}
+  .card-top-tags{position:absolute;top:9px;right:46px;display:flex;gap:6px;align-items:center;z-index:1;flex-wrap:nowrap;}
+  .tag{font-size:13px;padding:3px 10px;border-radius:var(--radius-pill);white-space:nowrap;line-height:1.55;font-weight:400;box-shadow:0 1px 4px rgba(0,0,0,.45),0 0 0 .5px rgba(0,0,0,.12);}.tag-fed{background:var(--federal-bg);color:var(--federal-text);}.tag-ks{background:var(--kansas-bg);color:var(--kansas-text);}.tag-local{background:var(--local-bg);color:var(--local-text);}.tag-now{background:var(--color-bg-danger);color:var(--color-text-danger);}.tag-months{background:var(--color-bg-warning);color:var(--color-text-warning);}.tag-year{background:var(--color-bg-neutral);color:var(--color-text-neutral);}.tag-stalled{background:rgba(51,204,51,.12);color:#33CC33;}
+  .amend-tag{font-size:11px;padding:1px 6px;border-radius:8px;background:var(--color-bg-secondary);color:var(--color-text-secondary);margin-left:3px;border:.5px solid var(--color-border-light);display:inline-block;vertical-align:middle;}
+  .bill-name{font-size:14px;font-weight:500;color:var(--color-text-primary);line-height:1.4;margin-bottom:.5rem;}.bill-desc{font-size:13px;color:var(--color-text-secondary);line-height:1.65;margin-bottom:.7rem;}
+  .office-badge{display:flex;align-items:center;gap:4px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);font-family:var(--font-calibri);font-weight:600;margin-top:.5rem;}.office-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}.od-gov{background:var(--office-gov);}.od-kss{background:var(--office-ks-s);}.od-ksh{background:var(--office-ks-h);}.od-com{background:var(--office-com);}.od-uss{background:var(--office-us-s);}.od-pres{background:var(--office-pres);}.od-mayor{background:var(--office-mayor);}.od-council{background:var(--office-council);}.od-county{background:var(--office-county);}
+  .pipeline-section{margin-bottom:.75rem;}.pipeline-head{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-tertiary);margin-bottom:7px;font-weight:500;}.pipeline{display:flex;align-items:flex-start;overflow-x:auto;padding-bottom:2px;}.pipe-step{display:flex;flex-direction:column;align-items:center;flex:1;min-width:56px;position:relative;}.pipe-step:not(:last-child)::after{content:'';position:absolute;top:4px;left:calc(50% + 6px);right:calc(-50% + 6px);height:1.5px;background:var(--pipe-future);z-index:0;}.pipe-step.done:not(:last-child)::after{background:var(--pipe-done);}.pipe-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--pipe-future);background:var(--color-bg-primary);z-index:1;position:relative;flex-shrink:0;margin-bottom:5px;}.pipe-step.done .pipe-dot{background:var(--pipe-done);border-color:var(--pipe-done);}.pipe-step.curr .pipe-dot{background:var(--pipe-curr);border-color:var(--pipe-curr);box-shadow:0 0 0 3px rgba(24,95,165,.18);}.pipe-step.stalled .pipe-dot{background:var(--stalled-text);border-color:var(--stalled-text);}.pipe-label{font-size:9px;text-align:center;line-height:1.3;color:var(--pipe-future);max-width:62px;word-break:break-word;}.pipe-step.done .pipe-label{color:var(--color-text-tertiary);}.pipe-step.curr .pipe-label{color:var(--pipe-curr);font-weight:600;font-size:10px;}.pipe-step.stalled .pipe-label{color:var(--stalled-text);font-weight:600;font-size:10px;}.pipe-date{font-size:8px;margin-top:2px;font-weight:700;color:var(--pipe-done);text-align:center;white-space:nowrap;}.pipe-step.curr .pipe-date{color:var(--pipe-curr);}.pipe-step.future .pipe-date{color:var(--pipe-future);}.stage-note{font-size:11px;color:var(--color-text-tertiary);margin-top:5px;font-style:italic;}
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:12px;margin-bottom:.75rem;}.meta-grid .lbl{color:var(--color-text-tertiary);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;}.meta-grid .val{color:var(--color-text-secondary);line-height:1.5;}.full-width{grid-column:1/-1;}
+  .deciding-divider{display:flex;align-items:center;gap:8px;margin:.85rem 0 .55rem;}.deciding-divider::before,.deciding-divider::after{content:'';flex:1;height:.5px;background:var(--color-border-light);}.deciding-divider span{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);white-space:nowrap;font-weight:500;}
+  .decision-item{padding:5px 0 5px 14px;font-size:12px;color:var(--color-text-secondary);position:relative;line-height:1.55;border-bottom:.5px solid var(--color-border-light);}.decision-item:last-child{border-bottom:none;}.decision-item::before{content:'\2192';position:absolute;left:0;color:var(--color-text-tertiary);font-size:11px;top:6px;}.decision-label{font-weight:500;color:var(--color-text-primary);}
+  .empty{font-size:13px;color:var(--color-text-tertiary);padding:1.5rem 0;text-align:center;}
+  .source-link{margin-top:.5rem;font-size:11px;}.source-link a{color:var(--color-text-tertiary);text-decoration:none;border-bottom:1px dashed var(--color-border-light);}.source-link a:hover{color:var(--color-text-secondary);}
+</style>
+</head>
+<body>
+<div class="page-header">
+  <div class="page-header-row">
+    <div>
+      <div class="page-title">Kansas &amp; National Legislation Tracker</div>
+      <div class="page-subtitle">Federal, Kansas state &amp; local ordinances &middot; Downloaded 29 May 26</div>
+    </div>
+    <div class="search-wrap">
+      <input type="search" id="searchInput" class="search-input" placeholder="Search bills…" autocomplete="off" />
+    </div>
+  </div>
+</div>
+<div class="filter-groups" id="filterGroups">
+  <div class="filter-group"><span class="fg-label">Level</span><div class="chips"><button class="chip active" data-group="level" data-f="all">All</button><button class="chip" data-group="level" data-f="federal">🇺🇸 Federal</button><button class="chip" data-group="level" data-f="state">Kansas</button><button class="chip" data-group="level" data-f="local">📍 Local</button></div></div>
+  <div class="filter-group filter-group-city"><span class="fg-label fg-indent">↳ City</span><div class="chips"><button class="chip active" data-group="city" data-f="all">All cities</button><button class="chip" data-group="city" data-f="Wichita">Wichita</button><button class="chip" data-group="city" data-f="Lawrence">Lawrence</button><button class="chip" data-group="city" data-f="Topeka">Topeka</button><button class="chip" data-group="city" data-f="Johnson County">Johnson County</button><button class="chip" data-group="city" data-f="Kansas City KS">Kansas City KS</button><button class="chip" data-group="city" data-f="Overland Park">Overland Park</button><button class="chip" data-group="city" data-f="Manhattan">Manhattan</button></div></div>
+  <div class="filter-group"><span class="fg-label">Timing</span><div class="chips"><button class="chip active" data-group="timing" data-f="all">All</button><button class="chip" data-group="timing" data-f="urgent">Act now</button><button class="chip" data-group="timing" data-f="months">Months</button><button class="chip" data-group="timing" data-f="session">Session</button><button class="chip" data-group="timing" data-f="stalled">Stalled / enacted</button></div></div>
+  <div class="filter-group"><span class="fg-label">Constitutional impact</span><div class="chips"><button class="chip active" data-group="impact" data-f="all">All</button><button class="chip" data-group="impact" data-f="4th">4th Amendment</button><button class="chip" data-group="impact" data-f="1st">1st Amendment</button><button class="chip" data-group="impact" data-f="due">Due process / 14th</button></div></div>
+  <div class="filter-group"><span class="fg-label">Main issue</span><div class="chips"><button class="chip active" data-group="issue" data-f="all">All</button><button class="chip" data-group="issue" data-f="surveillance">Surveillance &amp; privacy</button><button class="chip" data-group="issue" data-f="voting">Voting rights</button><button class="chip" data-group="issue" data-f="immigration">Immigration</button><button class="chip" data-group="issue" data-f="technology">Technology &amp; AI</button><button class="chip" data-group="issue" data-f="policing">Policing &amp; justice</button><button class="chip" data-group="issue" data-f="speech">Press &amp; speech</button><button class="chip" data-group="issue" data-f="education">Education</button><button class="chip" data-group="issue" data-f="healthcare">Healthcare</button><button class="chip" data-group="issue" data-f="housing">Housing</button><button class="chip" data-group="issue" data-f="labor">Labor &amp; wages</button></div></div>
+  <div class="filter-group"><span class="fg-label">Policy direction</span><div class="chips"><button class="chip active" data-group="policy" data-f="all">All</button><button class="chip" data-group="policy" data-f="liberal"><span class="chip-dot"></span>Liberal</button><button class="chip" data-group="policy" data-f="center"><span class="chip-dot"></span>Center / mixed</button><button class="chip" data-group="policy" data-f="conservative"><span class="chip-dot"></span>Conservative</button></div></div>
+  <div class="filter-group"><span class="fg-label">Currently with</span><div class="chips"><button class="chip active" data-group="office" data-f="all">All</button><button class="chip" data-group="office" data-f="governor"><span class="chip-dot"></span>Governor Kelly</button><button class="chip" data-group="office" data-f="ks-senate"><span class="chip-dot"></span>Kansas Senate</button><button class="chip" data-group="office" data-f="ks-house"><span class="chip-dot"></span>Kansas House</button><button class="chip" data-group="office" data-f="committee"><span class="chip-dot"></span>In Committee</button><button class="chip" data-group="office" data-f="us-senate"><span class="chip-dot"></span>U.S. Senate</button><button class="chip" data-group="office" data-f="mayor"><span class="chip-dot"></span>With Mayor / Exec</button><button class="chip" data-group="office" data-f="city-council"><span class="chip-dot"></span>City Council</button><button class="chip" data-group="office" data-f="county-board"><span class="chip-dot"></span>County Board</button></div></div>
+</div>
+<div class="count" id="count"></div>
+<div id="bills"></div>
+<script>
+
+const FEDERAL_STAGES  = ["Introduced","Committee","House floor","Senate","Conference","Signed"];
+const KANSAS_STAGES   = ["Introduced","Committee","First chamber","Second chamber","Governor"];
+const LOCAL_STAGES    = ["Introduced","Committee","Public Hearing","Vote","Mayor / Exec"];
+const SOURCE_URLS = {1:"https://www.congress.gov/bill/119th-congress/senate-bill/4082",2:"https://www.congress.gov/bill/119th-congress/senate-bill/4082",3:"https://www.congress.gov/bill/119th-congress/house-bill/4842",4:"https://www.congress.gov/bill/119th-congress/senate-bill/4142",5:"https://www.congress.gov/bill/119th-congress/house-bill/22",6:"https://www.congress.gov/bill/119th-congress/house-bill/4695",7:"https://www.kslegislature.gov/li/b2025_26/measures/sb63/",8:"https://www.kslegislature.gov/li/b2025_26/measures/sb244/",9:"https://www.kslegislature.gov/li/b2025_26/measures/hb2372/",10:"https://www.kslegislature.gov/li/b2025_26/measures/hb2437/",11:"https://www.kslegislature.gov/li/b2025_26/measures/sb4/",12:"https://www.kslegislature.gov/li/b2025_26/measures/sb391/",13:"https://www.kslegislature.gov/li/b2025_26/measures/hcr5004/",14:"https://www.khi.org/articles/week-1-of-the-2026-session/",15:"https://www.wichita.gov/ballotquestion",16:"https://www.kslegislature.gov/li/b2025_26/measures/sb391/",17:"https://www.jocogov.org/department/mental-health",18:"https://www.wycokck.org/departments/sheriff",19:"https://www.kslegislature.gov/li/b2025_26/measures/hb2731/",20:"https://www.kslegislature.gov/li/b2025_26/measures/hb2468/",21:"https://www.kslegislature.gov/li/b2025_26/measures/hb2635/",22:"https://www.kslegislature.gov/li/b2025_26/measures/hb2172/",23:"https://www.kslegislature.gov/li/b2025_26/measures/hb2466/",24:"https://www.kslegislature.gov/li/b2025_26/measures/sb100/",25:"https://www.kslegislature.gov/li/b2025_26/measures/hb2299/"};
+const OFFICE_META     = {"governor":{"label":"With Governor Kelly","dotCls":"od-gov"},"ks-senate":{"label":"Kansas Senate","dotCls":"od-kss"},"ks-house":{"label":"Kansas House","dotCls":"od-ksh"},"committee":{"label":"In Committee","dotCls":"od-com"},"us-senate":{"label":"U.S. Senate","dotCls":"od-uss"},"president":{"label":"President","dotCls":"od-pres"},"mayor":{"label":"With Mayor / Exec","dotCls":"od-mayor"},"city-council":{"label":"City Council","dotCls":"od-council"},"county-board":{"label":"County Board","dotCls":"od-county"}};
+const bills = [
+  {
+    "id": 1,
+    "level": "federal",
+    "amend": ["4th"],
+    "urgency": "urgent",
+    "policyBias": 22,
+    "issues": ["surveillance"],
+    "ratifyOffice": "us-senate",
+    "stageDates": ["2023-10","2026-01","2026-04-30",null,null,null],
+    "stage": 3,
+    "stageNote": "45-day extension signed April 30 — hard deadline approximately June 14, 2026. Congress returned from recess May 11-12. Active negotiations ongoing as of late May between reformers (warrant requirement) and intelligence community (clean renewal). No deal announced as of May 29, 2026 — roughly 16 days remain.",
+    "name": "FISA Section 702 — 45-Day Extension Signed; Full Deal Due Mid-June",
+    "desc": "The government collects foreign targets' communications abroad — but those sweeps also capture thousands of Americans' texts, emails, and calls each year. The FBI ran 7,413 warrantless searches of American data in 2025 alone, up 35% in one year. Congress has now extended 702 twice in short-term patches. Both chambers are home for recess; the full reform-vs-clean-renewal fight resumes in May. Kansans' communications are swept up in these warrantless searches at the same rate as any other state.",
+    "introduced": "House Leadership / Trump White House (clean extension); Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT) leading reform coalition",
+    "supporters": "Trump White House, Speaker Johnson, CIA Director Ratcliffe, FBI Director Patel, Senate Majority Leader Thune — all want an 18-month clean renewal",
+    "blockers": "Rep. Andy Biggs (R-AZ), Rep. Thomas Massie (R-KY), Sen. Ron Wyden (D-OR), Sen. Lee (R-UT), Progressive Caucus — demanding warrant requirements",
+    "window": "~June 14, 2026 — Congress is in session now with roughly 16 days left. Calls to Kansas Senators Marshall and Moran on warrant requirements are the highest-leverage action. Both have historically supported clean renewal — constituent pressure for a warrant amendment matters most right now.",
+    "decisions": [
+      {"label": "If Senate passes a clean long-term renewal without warrant protections","text": "FBI and NSA keep all existing powers. Warrantless searches of Americans' data continue at 7,000+ per year. The constitutional fight is deferred."},
+      {"label": "If reformers force a warrant amendment into the deal","text": "A judge must approve any search of Americans' data collected under 702. Most significant 4th Amendment protection for digital communications in a decade."},
+      {"label": "If no deal is reached by mid-June and 702 lapses again","text": "FISA Court certifications may keep existing collection technically alive — but without statutory clarity, telecom providers may halt cooperation. A third short-term patch becomes the likely fallback."}
+    ]
+  },
+  {
+    "id": 2,
+    "level": "federal",
+    "amend": ["4th"],
+    "urgency": "urgent",
+    "policyBias": 50,
+    "issues": ["surveillance"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2026-03",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Senate Judiciary Committee — bipartisan; introduced March 2026; being pushed as the vehicle for FISA reform before the mid-June deadline",
+    "name": "S. 4082 — Government Surveillance Reform Act (GSRA)",
+    "desc": "The most comprehensive bipartisan surveillance reform bill in Congress. It would require a judge to approve any search of Americans' communications collected under FISA 702; ban the government from buying your location history and browsing data from commercial companies without a warrant; and require the secret FISA Court to publish its legal rulings in redacted form so the public knows how the law is being interpreted.",
+    "introduced": "Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT); Rep. Warren Davidson (R-OH) & Rep. Zoe Lofgren (D-CA)",
+    "supporters": "130+ civil society organizations, ACLU, EFF, Brennan Center, libertarian Republicans, Progressive Caucus",
+    "blockers": "Senate Intelligence Committee Chair Warner (D-VA), Trump White House, FBI Director Kash Patel, CIA Director Ratcliffe",
+    "window": "Mid-June 2026 — the April 30 deadline passed with another short-term patch. The real FISA deal fight resumes when Congress returns May 11-12. The GSRA remains the strongest reform vehicle.",
+    "decisions": [
+      {"label": "If folded into the FISA reauthorization as a compromise deal","text": "Warrant requirement and data broker ban become law together. Most comprehensive surveillance reform since the 1970s."},
+      {"label": "If passed as a standalone bill later in 2026","text": "All reforms enacted intact but on a longer timeline. Less likely given the political calendar."},
+      {"label": "If leadership blocks it from the floor entirely","text": "Surveillance status quo preserved through at least 2027. Data broker loophole stays open. No judicial oversight of U.S. person searches under Section 702."}
+    ]
+  },
+  {
+    "id": 3,
+    "level": "federal",
+    "amend": ["4th"],
+    "urgency": "months",
+    "policyBias": 55,
+    "issues": ["surveillance","technology"],
+    "ratifyOffice": "us-senate",
+    "stageDates": ["2023-05","2023-11","2026-04",null,null,null],
+    "stage": 3,
+    "stageNote": "Passed House 219-199 with strong bipartisan support — now in Senate; no floor vote scheduled as of April 2026",
+    "name": "Fourth Amendment Is Not For Sale Act",
+    "desc": "Right now the government can skip the entire warrant process by simply buying your location history, browsing records, and personal data from data broker companies using taxpayer money. FBI, ICE, DHS, IRS, and the Secret Service have all done this. DHS signed a $1 billion contract with Palantir to build AI-powered surveillance systems using this purchased data. This bill makes buying your data without a court order illegal for any law enforcement or intelligence agency.",
+    "introduced": "Rep. Warren Davidson (R-OH) with 7 bipartisan co-sponsors; Speaker Johnson and Minority Leader Jeffries both voted yes",
+    "supporters": "ACLU, EFF, 123 Republicans + 93 Democrats in the House, privacy advocacy groups, 130+ civil society organizations",
+    "blockers": "FBI Director Kash Patel, DHS, Senate Intelligence Committee leadership, commercial data broker industry",
+    "window": "Spring-Summer 2026 — Senate floor time before October recess; strongest leverage as part of the mid-June FISA full-deal negotiations. Contact Kansas Senators Marshall and Moran.",
+    "decisions": [
+      {"label": "If Senate passes and it is signed into law","text": "Government agencies can no longer purchase Americans' location, browsing, or communications data from commercial brokers without legal authorization."},
+      {"label": "If attached to the FISA reauthorization deal","text": "Data broker ban closes the key loophole as part of a broader surveillance deal. May be slightly narrowed in negotiation but would still be law."},
+      {"label": "If Senate takes no action this Congress","text": "Government data broker purchases continue. ICE and FBI keep Palantir and Babel Street contracts. Your location history has no warrant protection."}
+    ]
+  },
+  {
+    "id": 4,
+    "level": "federal",
+    "amend": ["1st"],
+    "urgency": "stalled",
+    "policyBias": 60,
+    "issues": ["speech"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Reintroduced in 119th Congress (2025) — Senate Judiciary Committee; previously blocked by Sen. Tom Cotton after Trump called on Republicans to kill this bill",
+    "name": "PRESS Act — Federal Shield Law for Journalists",
+    "desc": "There is no federal law protecting journalists from being forced to reveal their sources or having their phones and email records secretly seized by the government. 49 states have shield laws — Congress does not. This bill would stop the government from secretly subpoenaing your email or phone provider to find out who a journalist talked to, and stop federal courts from jailing reporters who refuse to protect their sources. The House passed it unanimously in 2024.",
+    "introduced": "Sen. Ron Wyden (D-OR), Sen. Mike Lee (R-UT), Sen. Dick Durbin (D-IL); Rep. Jamie Raskin (D-MD) & Rep. Kevin Kiley (R-CA)",
+    "supporters": "120+ news organizations, ACLU, EFF, Society of Professional Journalists, Committee to Protect Journalists, Freedom of the Press Foundation",
+    "blockers": "Sen. Tom Cotton (R-AR), Trump White House — blocked by withholding unanimous consent in December 2024",
+    "window": "Needs a Senate champion willing to force a floor vote. Year-end spending bill is the most realistic vehicle.",
+    "decisions": [
+      {"label": "If Cotton's block is overcome and the bill reaches a floor vote","text": "Federal law prohibits government from secretly seizing journalists' phone and email records. Reporters cannot be jailed for protecting sources. First federal shield law in U.S. history."},
+      {"label": "If attached to year-end must-pass legislation","text": "Shield law becomes law without a standalone vote, avoiding the single-senator block."},
+      {"label": "If it remains stalled through 2026","text": "Government can continue secretly surveilling reporters' communications. No statutory protection for a free press at the federal level."}
+    ]
+  },
+  {
+    "id": 5,
+    "level": "federal",
+    "amend": ["14th","due"],
+    "urgency": "stalled",
+    "policyBias": 12,
+    "issues": ["voting"],
+    "ratifyOffice": "us-senate",
+    "stageDates": ["2025-01","2026-01","2026-02",null,null,null],
+    "stage": 3,
+    "stageNote": "Passed House 218-213 (Feb 2026) — Senate debate began March 17; filibuster holding with no Democratic crossovers; needs 60 votes, Republicans have 53",
+    "name": "H.R. 22 — SAVE America Act (Voter Proof-of-Citizenship)",
+    "desc": "Requires Americans to show a passport, original birth certificate, or naturalization certificate in person to register to vote in federal elections. An estimated 21 million eligible Americans lack ready access to these specific documents, including many elderly voters who were never issued birth certificates. Note: Kansas already passed its own state version (HB 2437) via veto override — if the federal SAVE Act passes too, it stacks these requirements on top of each other.",
+    "introduced": "Rep. Chip Roy (R-TX) in House; Senate champion Sen. Mike Lee (R-UT); top Trump White House priority",
+    "supporters": "Trump White House, Heritage Foundation, all but one House Republican, Senate Majority Leader Thune, both Kansas Senators Marshall and Moran",
+    "blockers": "Senate Democratic caucus (zero crossovers), Sen. Lisa Murkowski (R-AK) voted against proceeding, election officials from both parties",
+    "window": "Senate floor debate ongoing — calls to senators now on whether to break or preserve the filibuster are the highest-leverage action",
+    "decisions": [
+      {"label": "If Senate filibuster holds","text": "Bill dies this Congress. State-level equivalents — including Kansas HB 2437 — remain the active battleground. The fight shifts to courts challenging those state laws."},
+      {"label": "If Republicans attempt to break or circumvent the filibuster","text": "Could pass with 51 votes. New documentation requirements take effect for all federal elections — stacking on top of Kansas's state-level SAVE Kansas Act."},
+      {"label": "If attached to a must-pass vehicle like the budget or NDAA","text": "Would bypass the filibuster entirely. Democrats must oppose the entire vehicle bill to stop it."}
+    ]
+  },
+  {
+    "id": 6,
+    "level": "federal",
+    "amend": ["4th"],
+    "urgency": "stalled",
+    "policyBias": 72,
+    "issues": ["technology","surveillance","policing"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-07",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "House Judiciary Committee — introduced 2025; sitting without a hearing for over a year as DHS, FBI, and TSA expand facial recognition use",
+    "name": "H.R. 4695 — Facial Recognition Act of 2025",
+    "desc": "A facial recognition match alone cannot be the basis for your arrest. Annual accuracy and bias testing required for all government systems. Mass public face surveillance banned. This bill responds to documented wrongful arrests caused by facial recognition errors — errors that studies show are far more common for Black and Brown faces. DHS signed a $1 billion contract with Palantir that includes AI-powered facial recognition. There is nothing in federal law stopping a Kansas police department from building a database of every face that walked past a camera on a public street.",
+    "introduced": "Rep. Ted Lieu (D-CA), Rep. Yvette Clarke (D-NY), Rep. Jimmy Gomez (D-CA)",
+    "supporters": "ACLU, Color of Change, Center for Democracy & Technology, Brennan Center, disability rights groups",
+    "blockers": "DOJ, FBI, DHS, ICE (all actively expanding facial recognition), Republican House majority, TSA",
+    "window": "Needs a committee hearing scheduled — public pressure on the Judiciary Committee chair is the primary near-term lever",
+    "decisions": [
+      {"label": "If hearing is scheduled and full bill passes","text": "Facial recognition match alone cannot justify an arrest. All government systems must pass annual independent bias testing. Mass surveillance of public spaces prohibited nationwide."},
+      {"label": "If a narrower version advances through negotiation","text": "Wrongful-arrest safeguard enacted but no ban on mass surveillance. Agencies keep current systems with new disclosure requirements only."},
+      {"label": "If it remains stalled through January 2027","text": "Dies without a vote. No federal standards for another two years. DHS, FBI, TSA, and local Kansas police continue expanding without legal limits or accuracy requirements."}
+    ]
+  },
+  {
+    "id": 7,
+    "level": "state",
+    "amend": ["due"],
+    "urgency": "months",
+    "policyBias": 11,
+    "issues": ["healthcare"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-01","2026-02","2026-02","2026-02"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) Feb 2026 — ⚖️ INJUNCTION GRANTED May 20, 2026: Douglas County District Judge Carl Folsom III halted enforcement statewide, citing the Kansas Constitution Bill of Rights Section 1 (personal autonomy) and parents' fundamental right to make medical decisions for their children. The judge found the state's witnesses lacked credibility. AG Kobach immediately vowed to appeal.",
+    "name": "KS SB 63 — Gender-Affirming Care Ban for Minors (ENACTED; enforcement halted by court)",
+    "desc": "Kansas law enacted in February 2026 prohibits licensed medical professionals from providing puberty blockers, hormone therapy, or gender-affirming surgical procedures to minors diagnosed with gender dysphoria. However, on May 20, 2026, Douglas County District Judge Carl Folsom III granted a preliminary injunction halting statewide enforcement — meaning gender-affirming care for Kansas minors is currently legal while the legal challenge proceeds. The court's ruling was grounded in the Kansas Constitution's own Bill of Rights (Section 1, personal autonomy) and the longstanding constitutional principle of parental rights to direct children's medical care, rather than federal law. The judge questioned the credibility of the state's expert witnesses. Two mothers of transgender teenagers brought the suit through the ACLU of Kansas after their children were at risk of losing ongoing medical care. AG Kris Kobach immediately announced an appeal.",
+    "introduced": "Senate Republicans; led through Senate Health and Human Services Committee",
+    "supporters": "Kansas Republican legislative supermajorities, Family Policy Alliance of Kansas, Alliance Defending Freedom, AG Kris Kobach (leading the appeal)",
+    "blockers": "Gov. Laura Kelly (vetoed, overridden), ACLU of Kansas, the two plaintiff families, American Academy of Pediatrics, Kansas Medical Society",
+    "window": "⚖️ Injunction in effect — Kansas families can access gender-affirming care in-state while appeal proceeds. AG Kobach's appeal to the Kansas Court of Appeals is the next decision point. If the Court of Appeals stays the injunction pending appeal, enforcement resumes. Monitor ACLU of Kansas case updates at aclukansas.org.",
+    "decisions": [
+      {"label": "⚖️ CURRENT: Injunction in effect — enforcement halted statewide","text": "Douglas County judge ruled May 20 that plaintiffs are likely to prevail on the Kansas Constitution's personal autonomy and parental rights grounds. Gender-affirming care for Kansas minors is legal during the appeal. The state cannot enforce the ban while the injunction stands."},
+      {"label": "If the Kansas Court of Appeals stays the injunction pending Kobach's appeal","text": "Enforcement resumes immediately. Kansas families must again travel out of state for care or delay treatment — potentially for months — while the appeal is litigated. This is the highest-stakes near-term decision point."},
+      {"label": "If the Kansas Supreme Court ultimately upholds the injunction or strikes down the law","text": "The ban is permanently enjoined or struck down. Kansas would become one of the few states where a gender-affirming care ban was defeated in state court on state constitutional grounds — a significant precedent for other states with similar challenges."}
+    ]
+  },
+  {
+    "id": 8,
+    "level": "state",
+    "amend": ["14th","due"],
+    "urgency": "stalled",
+    "policyBias": 10,
+    "issues": ["healthcare"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-01","2026-02","2026-02","2026-02"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) Feb 18, 2026 — ⚖️ CHALLENGE IN COURT: TRO denied March 10, 2026. Evidentiary hearing on full temporary injunction scheduled September 29, 2026, Douglas County District Court (Doe v. Kansas). Law in effect pending September hearing. AG Kobach issued a non-binding informal opinion in May 2026 exempting some state facilities (veterans' skilled nursing rooms) from compliance — drawing criticism that he is selectively enforcing the law he defends in court.",
+    "name": "KS H Sub SB 244 — Transgender Bathroom Ban & ID Rollback (ENACTED; court challenge Sep 29)",
+    "desc": "Kansas now legally defines sex as binary and fixed at birth, requiring all Kansans to use bathrooms, locker rooms, hospital rooms, domestic violence shelter rooms, and prison cells matching their sex assigned at birth in all state and government-funded buildings. The law invalidates previously updated gender markers on Kansas driver's licenses and birth certificates — forcing transgender Kansans who legally changed their documents to revert to assigned-at-birth designations. A $1,000 private right of action allows any person who believes they shared a covered facility with a transgender individual to file suit. The law was advanced using a 'gut-and-go' tactic that stripped an unrelated bill overnight — no public notice, no opportunity for testimony. Governor Kelly called it 'the worst bill of the session' and warned of consequences for Kansas businesses, tourism, hospitals, and domestic violence survivors who are themselves transgender.",
+    "introduced": "Kansas Republican legislative majority; bill language inserted via gut-and-go overnight procedure",
+    "supporters": "Kansas Republican majorities, Kansas Family Voice, Alliance Defending Freedom, Heritage Foundation",
+    "blockers": "Gov. Kelly (vetoed, overridden), ACLU of Kansas, Human Rights Campaign, Kansas medical associations, domestic violence shelter networks who warned transgender survivors face dangerous outcomes under the law",
+    "window": "Law in effect — ACLU of Kansas is evaluating federal constitutional challenges. Transgender Kansans face immediate enforcement in all state-operated facilities. Cities and counties cannot provide alternative local protections.",
+    "decisions": [
+      {"label": "⚖️ CURRENT: Law in effect, evidentiary hearing September 29, 2026","text": "TRO was denied March 10, 2026. Transgender Kansans must use facilities matching birth sex in state and government-funded buildings. Previously updated driver's licenses and birth certificates reverted. The September 29 hearing will determine whether a preliminary injunction suspends the law during full litigation. AG Kobach's informal opinion exempting some veterans' nursing rooms has created inconsistent enforcement."},
+      {"label": "If the September 29 hearing results in a temporary injunction","text": "Enforcement suspended while full litigation proceeds — similar to what happened with SB 63. Transgender Kansans can use facilities consistent with their identity in state buildings during the court process, which could take 1-2 years."},
+      {"label": "If the court denies the injunction and the law is upheld through appeals","text": "Kansas's binary sex definition becomes permanent law for all state-controlled spaces. The $1,000 private lawsuit provision remains enforceable. Kansas becomes one of the most legally restrictive states for transgender residents."}
+    ]
+  },
+  {
+    "id": 9,
+    "level": "state",
+    "amend": ["4th","1st"],
+    "urgency": "stalled",
+    "policyBias": 13,
+    "issues": ["immigration","speech"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-02","2026-03","2026-04","2026-04"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) — Legislature overrode Gov. Kelly's veto April 10, 2026. Passed House 85-38, Senate 31-9. Kansas sheriffs can now enter 287(g) ICE agreements without county commission approval; detain people without a warrant on immigration holds; and arrest anyone who approaches within 25 feet of a first responder who has warned them to step back.",
+    "name": "KS S Sub HB 2372 — ICE Enforcement Expansion & HALO Act Protest Criminalization (ENACTED)",
+    "desc": "Three sweeping changes in one bill. First, the ICE expansion: Kansas sheriffs can now enter 287(g) agreements with Immigration and Customs Enforcement — gaining federal immigration enforcement authority — without approval from their county commissions, stripping locally elected officials of the oversight they previously held. Second, warrantless detention: Kansas sheriffs may hold anyone subject to a federal immigration detainer request — no criminal charge, no judicial warrant, indefinitely — solely to transfer them to ICE custody. Third, the HALO Act: it is now a crime to knowingly approach within 25 feet of any first responder (including ICE agents) after being warned to step back — a direct restriction on citizens' right to observe and record law enforcement activity. The bill also requires Kansas to pay legal costs for officers sued for civil rights violations arising from immigration enforcement and requires the state attorney general to defend them.",
+    "introduced": "House Republicans; conference committee added the HALO Act and ICE detention provisions to the original bill",
+    "supporters": "Kansas Republican legislators, Kansas Sheriffs' Association, Heritage Foundation, Trump administration, Attorney General Kris Kobach",
+    "blockers": "Gov. Kelly (vetoed, overridden), ACLU of Kansas, Kansas students who organized walkouts, Johnson County District Attorney, county commissioners who opposed losing oversight authority, immigrant community organizations",
+    "window": "Law in effect — ACLU evaluating challenges to the warrantless detention provision (4th Amendment) and the 25-foot protest buffer (1st Amendment). Wyandotte County and Douglas County sheriffs have not yet publicly announced 287(g) agreements.",
+    "decisions": [
+      {"label": "NOW LAW — sheriffs can enter ICE agreements without county oversight","text": "Kansas sheriffs have new authority to hold people without criminal charges on immigration detainers. Anyone filming police from fewer than 25 feet away after a warning faces arrest. The Attorney General defends officers sued for immigration enforcement civil rights violations."},
+      {"label": "If courts strike down the 25-foot HALO buffer","text": "The right to record and observe law enforcement is preserved in Kansas. The ICE enforcement and detention provisions remain in effect regardless."},
+      {"label": "If a Kansas sheriff enters a 287(g) agreement","text": "Local law enforcement becomes a direct extension of federal immigration enforcement in that county. Immigrant communities report reduced willingness to report crimes — a documented public safety risk in 287(g) jurisdictions."}
+    ]
+  },
+  {
+    "id": 10,
+    "level": "state",
+    "amend": ["14th"],
+    "urgency": "stalled",
+    "policyBias": 15,
+    "issues": ["voting"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-02","2026-03","2026-04","2026-04"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) — Legislature overrode Kelly's veto April 9, 2026 (House 80-43). The Kansas Secretary of State will now cross-reference voter rolls against the federal SAVE database twice per year. Voters flagged as potential noncitizens face removal if they do not provide proof of citizenship in a set window.",
+    "name": "KS HB 2437 — SAVE Kansas Act: Voter Roll Purges & Registration Restrictions (ENACTED)",
+    "desc": "The SAVE Kansas Act requires the Kansas Secretary of State to cross-reference state voter rolls against the federal Systematic Alien Verification for Entitlements (SAVE) database — a database designed to verify immigration status for benefits programs, not voting — twice per year. Any registered voter whose name appears to match a noncitizen record must be notified and removed if they do not provide proof of citizenship within a set window. The law also restricts voter registration websites to .gov domains (eliminating third-party registration drives that serve rural and low-income Kansans), requires county officials to remove voters from rolls when a funeral home publishes an obituary, and expands private challenges to voter registrations. Kansas previously ran a similar Kobach-era proof-of-citizenship registration requirement that federal courts struck down as unconstitutional — the SAVE database approach is being tested as a workaround. Civil rights organizations warn the SAVE database has significant error rates when matched against voter files, putting naturalized citizens at risk of wrongful removal.",
+    "introduced": "Rep. Pat Proctor (R), Chairman of the House Elections Committee; part of a 17-bill election restriction package",
+    "supporters": "Kansas Republican legislative majority, Secretary of State Scott Schwab, Heritage Foundation",
+    "blockers": "Gov. Kelly (vetoed, overridden), ACLU of Kansas, Kansas League of Women Voters, Democracy Docket (legal challenge pending), naturalized citizen organizations",
+    "window": "Law in effect — legal challenge under the National Voter Registration Act pending. The first SAVE database cross-check could occur before the November 2026 general election. Kansas naturalized citizens should confirm their registration status and keep proof of citizenship accessible.",
+    "decisions": [
+      {"label": "NOW LAW — SAVE database cross-checks begin","text": "The Secretary of State runs voter rolls against the SAVE database before the 2026 general election. Civil rights groups warn thousands of naturalized citizens may receive incorrectly flagged notices and be removed if they do not respond in time. The same official who administered the Kobach-era program administers this one."},
+      {"label": "If federal courts enjoin the SAVE check before November 2026","text": "Voter purge suspended pending litigation. Previous voter rolls used for 2026 elections. Legal battle likely continues through 2027."},
+      {"label": "If enacted without a court challenge prevailing","text": "Kansas voter rolls are purged before the 2026 midterms. The Kobach precedent — where 35,000 Kansans were disenfranchised before courts intervened — is the most relevant warning."}
+    ]
+  },
+  {
+    "id": 11,
+    "level": "state",
+    "amend": ["14th"],
+    "urgency": "stalled",
+    "policyBias": 17,
+    "issues": ["voting"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2025-01","2025-01","2025-02","2025-03","2025-03"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override, March 2025) — ⚖️ CHALLENGE IN COURT: Kansas Appleseed, Loud Light, and Disability Rights Center of Kansas filed suit May 2025. Motion for temporary injunction argued January 27, 2026; ruling has not yet been issued publicly as of May 29, 2026. Law remains in effect for the November 2026 general election pending the court's decision.",
+    "name": "KS SB 4 — Mail Ballot Postmark Grace Period Eliminated (ENACTED)",
+    "desc": "Kansas voters who mail their ballots before the election deadline — but whose ballots are delayed in the postal system through no fault of their own — now have their votes thrown out. SB 4 eliminates the three-day grace period that Kansas maintained with bipartisan support since 2017. Under the old rule, 2,110 ballots counted in the 2024 general election under the grace period; every one of those ballots would have been rejected under the new law. Rural Kansas voters — who depend most on mail service from understaffed post offices in places like Liberal, Dodge City, and Colby — face the highest disenfranchisement risk. The U.S. Postal Service's own guidelines recommend 5-7 days for first-class mail delivery, meaning mail sent before Election Day regularly arrives after it.",
+    "introduced": "Senate Republicans; passed along largely party lines before veto override",
+    "supporters": "Kansas Republican legislative majority, Secretary of State Scott Schwab",
+    "blockers": "Gov. Kelly (vetoed, overridden), ACLU of Kansas, Democracy Docket (active lawsuit), Kansas rural county election clerks",
+    "window": "Law in effect for 2026 elections — Democracy Docket lawsuit active in Kansas courts. Rural and elderly voters who rely on mail voting should plan to return ballots by drop box rather than mail to avoid disenfranchisement under the new rules.",
+    "decisions": [
+      {"label": "NOW LAW — mail ballots must arrive by Election Day close","text": "Ballots postmarked before polls close but arriving later are rejected. The 2,110 voters whose ballots counted under the grace period in 2024 are now at risk of disenfranchisement if the same postal delays occur in 2026."},
+      {"label": "If Democracy Docket lawsuit succeeds before November 2026","text": "Grace period restored for the 2026 general election. Kansas rejoins the majority of states that allow postmark-based mail ballot deadlines."},
+      {"label": "If law remains in effect through the 2026 general election","text": "An estimated 1,500-3,000 Kansas mail ballots could be rejected that would have counted under the prior rule — concentrated among rural, elderly, and disabled voters most dependent on postal delivery."}
+    ]
+  },
+  {
+    "id": 12,
+    "level": "state",
+    "amend": ["due"],
+    "urgency": "stalled",
+    "policyBias": 20,
+    "issues": ["housing"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-02","2026-03","2026-04","2026-04"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) — Legislature's final action before adjourning April 12, 2026. Lawrence's 2023 source-of-income protection ordinance is now preempted by state law. Kansas becomes the only Midwestern state to explicitly prohibit cities from protecting housing voucher holders.",
+    "name": "KS SB 391 — Cities Barred from Protecting Housing Voucher Holders (ENACTED)",
+    "desc": "Lawrence was the only Kansas city with a source-of-income protection ordinance — prohibiting landlords from rejecting rental applicants solely because they use federal Section 8 housing vouchers or other public assistance to pay rent. The ordinance aimed to give low-income families, seniors on fixed incomes, and people with disabilities — who disproportionately rely on vouchers — equal access to the rental market. SB 391 explicitly preempts any Kansas city from maintaining or enacting such source-of-income protections. The Republican-controlled legislature overrode Kelly's veto on the final night of session. Lawrence's ordinance is now legally unenforceable. The mayors of Lawrence, Garden City, and Manhattan, the Kansas Statewide Homeless Coalition, Manhattan Housing Authority, Habitat for Humanity of Kansas, and Kansas Action for Children all opposed the bill. Landlord Tower Properties simultaneously sued Lawrence in federal court over the ordinance — that lawsuit continues regardless of SB 391.",
+    "introduced": "House Republicans; companion bill HB 2504 passed simultaneously; Kansas Apartment Association lobbied extensively",
+    "supporters": "Kansas Apartment Association, Kansas Landlord Association, National Apartment Association, large rental property investment groups",
+    "blockers": "Gov. Kelly (vetoed, overridden), Lawrence Mayor Stuart Boley, mayors of Garden City and Manhattan, Kansas Statewide Homeless Coalition, Habitat for Humanity of Kansas, Kansas Action for Children, Manhattan Housing Authority",
+    "window": "Law in effect — Lawrence is evaluating a constitutional home-rule challenge to SB 391. Tower Properties v. City of Lawrence federal lawsuit continues independently. Kansas voucher holders have no municipal protections; the nearest source-of-income protection is Kansas City, Missouri.",
+    "decisions": [
+      {"label": "NOW LAW — Kansas cities cannot protect housing voucher holders","text": "Lawrence's ordinance is unenforceable. Landlords statewide can legally reject Section 8 voucher applicants — refusing housing to seniors, disabled veterans, and low-income families who receive federal rental assistance."},
+      {"label": "If Lawrence successfully challenges SB 391 under Kansas home-rule authority","text": "Local source-of-income protections restored in Lawrence. Other Kansas cities could enact their own. Outcome depends on Kansas Supreme Court's interpretation of charter city authority."},
+      {"label": "If SB 391 is upheld on its merits","text": "Kansas becomes a model for state-level preemption of local tenant protections. Kansas voucher holders face the most restricted rental market of any Midwestern state."}
+    ]
+  },
+  {
+    "id": 13,
+    "level": "state",
+    "amend": ["14th","due"],
+    "urgency": "urgent",
+    "policyBias": 17,
+    "issues": ["voting"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2025-02","2025-02","2025-02","2025-03",null],
+    "stage": 4,
+    "stageNote": "On the November 3, 2026 ballot — Legislature passed with required 2/3 majority (House 90-28, Feb 2025; Senate 37-3, Mar 2025). Kansas voters will decide in November whether to embed an explicit citizenship voting requirement in the state constitution.",
+    "name": "KS HCR 5004 — Citizenship Voting Requirement Constitutional Amendment (Nov 2026 Ballot)",
+    "desc": "All 50 states already require voters to be U.S. citizens — federal law enforces this. Nevertheless, the Kansas legislature passed HCR 5004 with 2/3 margins to place a constitutional amendment on the November 3, 2026 ballot adding citizenship as an explicit requirement in the Kansas Constitution. Supporters frame it as reinforcing voter confidence; civil rights organizations counter that it provides a constitutional anchor for future voter roll purge programs — including the SAVE Kansas Act's SAVE database cross-checks — that would be harder to challenge in court once embedded in the constitution. Eight similar amendments passed in other states in 2024. Kansas is one of 16 states voting on such amendments in 2026. If approved, the amendment could make it significantly harder to challenge SAVE database purges as violating the state constitution's voting rights provisions.",
+    "introduced": "Rep. Pat Proctor (R), Chairman of House Elections Committee; Sen. Mike Thompson (R)",
+    "supporters": "Kansas Republican legislative majorities (House 90-28, Senate 37-3), Heritage Foundation, Secretary of State Scott Schwab",
+    "blockers": "ACLU of Kansas, League of Women Voters of Kansas, Kansas Democratic Party, naturalized citizen organizations",
+    "window": "November 3, 2026 ballot — voter registration for this election closes October 19, 2026. Early voting begins October 14. A 'No' vote keeps Kansas's current constitutional language and leaves fewer constitutional hooks for future voter purge programs.",
+    "decisions": [
+      {"label": "If voters ratify the amendment (Yes vote)","text": "The citizenship requirement is embedded in the Kansas Constitution, providing a constitutional anchor for SAVE database purges and future voter verification programs that are harder to challenge under state law."},
+      {"label": "If voters reject the amendment (No vote)","text": "Kansas retains current constitutional language. The SAVE Kansas Act's statutory purge mechanisms remain, but without constitutional reinforcement. The voter verification debate continues at the statutory level."},
+      {"label": "If the amendment passes and is challenged in federal court","text": "Federal courts must decide whether the constitutional provision provides a basis for more aggressive voter verification than currently permitted under the National Voter Registration Act."}
+    ]
+  },
+  {
+    "id": 14,
+    "level": "state",
+    "amend": ["due"],
+    "urgency": "stalled",
+    "policyBias": 77,
+    "issues": ["healthcare"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2026-01",null,null,null,null],
+    "stage": 1,
+    "stageNote": "Failed in 2026 session — the HAWK Act (Healthcare Access for Working Kansans) was introduced in both chambers but never received a floor vote under Republican leadership. Kansas remains one of 10 states that have not expanded Medicaid. Federal OBBBA legislation (2025) now mandates work requirements for any future expansion starting 2027.",
+    "name": "KS Medicaid Expansion (HAWK Act) — Stalled for 12th Consecutive Year",
+    "desc": "Kansas is one of the last states in America to refuse Medicaid expansion under the Affordable Care Act — a decision that has persisted through 12 legislative sessions. Approximately 28,000 Kansans fall in the coverage gap: they earn too little to qualify for traditional Medicaid but too little for Marketplace subsidies. These are primarily working adults — home health aides, agricultural laborers, restaurant workers — who go without coverage. Kansas hospitals, particularly the 14 rural critical access hospitals most vulnerable to closure, absorb hundreds of millions in uncompensated care annually. The state would receive an estimated $900 million in additional federal funding over ten years by expanding. Gov. Kelly proposed expansion with a work requirement every session; Republican leadership blocked floor votes annually. Federal legislation in 2025 (OBBBA) now attaches work requirements to expansion for all states starting 2027 — making the longtime Republican objection to expansion without a work requirement moot.",
+    "introduced": "Sen. Pat Pettey (D-Kansas City KS), Rep. Brandon Woodard (D-Wichita); Gov. Kelly supports expansion",
+    "supporters": "Kansas Hospital Association, Kansas Medical Society, AARP Kansas, Kansas Action for Children, rural hospital administrators statewide, Kansas Council of Churches, Governor Kelly",
+    "blockers": "Senate President Ty Masterson (R-Andover), House Speaker Dan Hawkins (R-Wichita), Kansas Chamber of Commerce, Americans for Prosperity Kansas, Republican legislative majorities",
+    "window": "Next opportunity: January 2027 legislative session. Federal OBBBA work requirements take effect 2027 — changing the political calculus. Rural hospital closures in southeast Kansas may force the issue before then.",
+    "decisions": [
+      {"label": "If Kansas expands in the 2027 session with the federal work requirement","text": "28,000 Kansans in the coverage gap gain insurance. Kansas receives an estimated $900M in federal matching funds over ten years. Rural hospitals facing closure from uncompensated care gain financial stability."},
+      {"label": "If Kansas remains a non-expansion state through 2027","text": "Kansas becomes one of fewer than 8 holdout states. Coverage gap persists. Rural hospitals in Ford, Crawford, and Cherokee counties face increased closure risk as uncompensated care burdens grow with no federal relief."},
+      {"label": "If Congress restructures Medicaid before Kansas acts","text": "The expansion formula may change. Kansas may face different financial incentives — or penalties — under a restructured system, potentially making non-expansion more costly than expansion."}
+    ]
+  },
+  {
+    "id": 15,
+    "level": "local",
+    "municipality": "Wichita",
+    "amend": [],
+    "urgency": "stalled",
+    "policyBias": 55,
+    "issues": ["housing","labor"],
+    "ratifyOffice": "city-council",
+    "stageDates": ["2025-12","2026-01","2026-02","2026-03",null],
+    "stage": 4,
+    "stageNote": "❌ DEFEATED by voters March 3, 2026 — The measure failed overwhelmingly: 41,000 votes against, only 9,000 in favor (roughly 82% no). Mayor Wu's January proposal to delay to August 4 was voted down 6-2 by the council. The campaign group (Wichita Forward) announced the end of its campaign the night of the vote. No replacement proposal is active as of May 2026.",
+    "name": "Wichita — 1% Sales Tax Measure (DEFEATED March 3, 2026)",
+    "desc": "On March 3, 2026, Wichita voters decisively rejected a 1% citywide sales tax that would have raised up to $850 million over seven years for public safety, housing and homelessness services, property tax relief, and a downtown performing arts center. The vote was not close: 41,000 against and only about 9,000 in favor — roughly an 82% rejection rate. Mayor Lily Wu had urged the city council in January to delay the vote to August to give more time for outreach and guardrail-setting, but the council voted 6-2 to proceed in March. The housing and homelessness endowment ($150M) that advocates had championed as a first-of-its-kind permanent affordable housing fund in Kansas will not be created. Wichita has the second-highest eviction rate among comparable Midwest cities and still has no dedicated affordable housing fund.",
+    "introduced": "Wichita City Council majority; Wichita Forward led the campaign",
+    "supporters": "Wichita Forward, Wichita Chamber of Commerce, faith-based housing coalitions, Justice Together, Wichita Police Officers Association",
+    "blockers": "Wichita Liberty (fiscal conservative advocacy), anti-tax advocacy groups — the measure failed by a 4.5-to-1 margin",
+    "window": "No active ballot measure — advocates are regrouping. The Wichita city council and Mayor Wu must identify alternative funding mechanisms for affordable housing and homelessness services. The next realistic ballot opportunity would be 2027 or 2028.",
+    "decisions": [
+      {"label": "❌ DEFEATED — measure failed 82%-18% on March 3, 2026","text": "The housing endowment, public safety facilities, and arts center were all rejected. Wichita's housing and homelessness funding remains at current levels with no dedicated source. The city's second-highest-in-region eviction rate continues without a structural funding mechanism."},
+      {"label": "If the city council identifies an alternative funding path","text": "Council could pursue a smaller, more targeted tax (e.g., a dedicated homelessness or housing-only levy), pursue state funding mechanisms, or issue bonds without a voter referendum for specific capital projects. Each option has different tradeoffs on scope and accountability."},
+      {"label": "If a future sales tax measure is placed on the ballot","text": "The 82% rejection rate suggests the current political appetite for a broad tax package is low. Advocates will need to understand whether opposition was to the tax itself, the spending categories, the lack of guardrails, or some combination — before designing a new measure."}
+    ]
+  },
+  {
+    "id": 16,
+    "level": "local",
+    "municipality": "Lawrence",
+    "amend": ["due"],
+    "urgency": "months",
+    "policyBias": 82,
+    "issues": ["housing"],
+    "ratifyOffice": "city-council",
+    "stageDates": ["2026-04",null,null,null,null],
+    "stage": 1,
+    "stageNote": "Post-override response — Lawrence's city attorney is evaluating legal options to challenge SB 391 following the veto override on April 12, 2026. Tower Properties v. City of Lawrence federal lawsuit continues separately. City Council considering a non-enforcement resolution and possible home-rule legal challenge.",
+    "name": "Lawrence — Legal Defense of Source-of-Income Housing Ordinance vs. SB 391",
+    "desc": "Lawrence was the only Kansas city with a source-of-income protection ordinance — prohibiting landlords from rejecting tenants because they pay with federal housing vouchers. The legislature's April 12, 2026 veto override of SB 391 now explicitly preempts that ordinance, rendering it unenforceable. Lawrence's city attorney is evaluating whether the home-rule provisions of the Kansas Constitution — which give charter cities authority to govern local affairs — provide grounds to challenge the preemption as exceeding state authority. Separately, Tower Properties, a Lawrence landlord that refused to rent to voucher holders, sued the city in federal court in January 2026 over the ordinance; that lawsuit continues independently of SB 391. Approximately 1,200 Lawrence households currently use federal housing vouchers and 340 households are on the waiting list. Mayor Stuart Boley led a coalition of Kansas city mayors in opposing SB 391.",
+    "introduced": "City Attorney Toni Wheeler; Mayor Stuart Boley; Douglas County Tenant Advocacy Coalition",
+    "supporters": "City of Lawrence, Douglas County Tenant Advocacy Coalition, Lawrence Community Shelter, Kansas Statewide Homeless Coalition, Lawrence school district (affordable housing affects enrollment stability), University of Kansas student government",
+    "blockers": "Tower Properties (federal lawsuit), Kansas Apartment Association, SB 391 itself as a legal barrier, Kansas Attorney General Kris Kobach likely to defend SB 391",
+    "window": "Summer-Fall 2026 — City Council must decide whether to fund a legal challenge before the state election. Any ordinance Lawrence passes cannot reinstate source-of-income protections until SB 391 is struck down or repealed.",
+    "decisions": [
+      {"label": "If Lawrence files a constitutional home-rule challenge to SB 391","text": "State courts must rule on whether the Legislature's preemption violates the home-rule powers of Kansas charter cities. A favorable ruling for Lawrence could allow other Kansas cities to pass similar source-of-income ordinances."},
+      {"label": "If Lawrence does not challenge SB 391 in court","text": "The 1,200+ Lawrence households using housing vouchers lose the city's legal protection against discrimination. Voucher holders in all Kansas cities have no municipal recourse — only the federal Fair Housing Act, which does not cover source-of-income discrimination."},
+      {"label": "If Tower Properties wins its federal lawsuit","text": "Lawrence faces potential financial liability for the period its ordinance was enforced against the landlord. SB 391's passage does not moot the damages claim for that enforcement period."}
+    ]
+  },
+  {
+    "id": 17,
+    "level": "local",
+    "municipality": "Johnson County",
+    "amend": [],
+    "urgency": "months",
+    "policyBias": 62,
+    "issues": ["healthcare","policing"],
+    "ratifyOffice": "county-board",
+    "stageDates": ["2026-02","2026-03",null,null,null],
+    "stage": 2,
+    "stageNote": "Finance Committee approved March 2026 — full Board of County Commissioners considering expanded funding in the FY2027 budget framework; vote expected August 2026. OPCAT co-responder currently Overland Park-only; expansion to all 19 Johnson County cities is the pending decision.",
+    "name": "Johnson County — Mental Health Crisis Co-Responder Expansion & Wellness Hubs",
+    "desc": "Johnson County's Overland Park Crisis Action Team (OPCAT) — which pairs licensed mental health co-responders with police officers for crisis calls — handled 2,800 calls in 2025, diverting 62% of those calls away from emergency rooms and jail. Research shows co-responder models reduce psychiatric hospitalization by 34% and repeat crisis calls by 27%, while cutting per-incident cost by an average of $8,400 compared to full police-and-emergency response. OPCAT currently operates only in Overland Park. The county is evaluating two expansions: a countywide OPCAT deployment serving all 19 Johnson County cities, and a network of Community Wellness Hubs — low-barrier mental health access points in libraries, community centers, and houses of worship — to address the 14-month average wait time for non-crisis mental health services at Johnson County Mental Health Center. Both require a BOCC vote as part of the FY2027 budget framework.",
+    "introduced": "Johnson County Mental Health Center Director; Overland Park Public Safety Director; BOCC Commissioner Charlotte O'Hara",
+    "supporters": "Johnson County Mental Health Center, Overland Park Police Department, Johnson County medical community, KU Medical Center, faith community network, Shawnee and Lenexa city managers",
+    "blockers": "BOCC fiscal conservatives concerned about long-term staffing costs and recurring budget obligations; some suburban police chiefs who prefer police-only crisis response; 2026 state budget cuts to mental health funding reduce available state matching funds",
+    "window": "August 2026 BOCC budget vote — commissioners' offices are the primary contact point. Residents in Prairie Village, Shawnee, Lenexa, Olathe, and other non-Overland Park cities have the most to gain from countywide expansion.",
+    "decisions": [
+      {"label": "If BOCC approves full expansion and Wellness Hub network","text": "OPCAT co-responder pairs deploy countywide across all 19 Johnson County cities. 14 Community Wellness Hubs open across the county. Wait times for non-crisis mental health services projected to drop from 14 months to under 3 months."},
+      {"label": "If BOCC approves OPCAT expansion only without Wellness Hubs","text": "Co-responder capacity grows to serve the full county. But the preventive layer that reduces crisis volume before 911 calls are made is not funded. OPCAT call volume is projected to continue growing."},
+      {"label": "If BOCC delays past the August budget vote","text": "Expansion waits until the FY2028 budget cycle. OPCAT remains Overland Park-only through 2027. Residents in 18 other Johnson County cities depend on police-only response to mental health crises."}
+    ]
+  },
+  {
+    "id": 18,
+    "level": "local",
+    "municipality": "Kansas City KS",
+    "amend": ["4th","due"],
+    "urgency": "urgent",
+    "policyBias": 78,
+    "issues": ["immigration","policing"],
+    "ratifyOffice": "county-board",
+    "stageDates": ["2026-04",null,null,null,null],
+    "stage": 1,
+    "stageNote": "Post-override, decision pending as of May 2026 — the Wyandotte County Sheriff has not entered a 287(g) ICE agreement, citing resource constraints and the need to evaluate implications. Wyandotte County passed a Safe and Welcoming ordinance in 2022 limiting ICE cooperation (later overridden by the state). The Unified Government Commission is considering a non-cooperation resolution.",
+    "name": "Wyandotte County — Sheriff's ICE 287(g) Agreement Decision Under HB 2372",
+    "desc": "Kansas City, Kansas is one of the most diverse cities in Kansas — approximately 35% Hispanic, with a large immigrant population that sustains the food processing, meatpacking, and service economy in Wyandotte County. The Unified Government of Wyandotte County has historically limited cooperation with ICE. S Sub HB 2372's veto override now allows — but does not require — Kansas sheriffs to enter 287(g) agreements with ICE without county commission approval, removing the check that the Wyandotte County Commission previously held. Wyandotte County Sheriff Daniel Ash has not yet publicly committed to entering such an agreement. Community organizations, Catholic Diocese of Kansas City in Kansas, the KCKS Unified School District — which would see enrollment drops if deportation activity increases — and Centro Hispano de Kansas are pressing the Sheriff to publicly decline. State officials and the Kansas Attorney General have signaled that non-cooperating counties may face scrutiny under the new law. The state will now pay legal costs for officers who enter 287(g) agreements and face civil rights lawsuits — creating a financial incentive to participate.",
+    "introduced": "Wyandotte County Sheriff (decision pending); Unified Government Commission",
+    "supporters": "KCKS immigrant community organizations, Unified Government Commission majority, KCKS Unified School District, Catholic Diocese of Kansas City in Kansas, Centro Hispano de Kansas, faith communities",
+    "blockers": "Attorney General Kris Kobach's office, state immigration enforcement advocates, the new state legal liability protections that create financial incentives for sheriff participation",
+    "window": "NOW — Sheriff's decision could come any time. Community members can contact the Wyandotte County Sheriff's office and the Unified Government Commission directly. The Commission can vote on a formal non-cooperation resolution that, while not legally binding on the Sheriff under HB 2372, creates public accountability.",
+    "decisions": [
+      {"label": "If Sheriff Ash publicly commits to not entering a 287(g) agreement","text": "Kansas City KS remains a community where immigrants feel safer reporting crimes and accessing services. KCKS school enrollment stabilizes. Research in comparable jurisdictions shows 287(g)-free counties have lower crime reporting gaps in immigrant communities."},
+      {"label": "If Sheriff Ash enters a 287(g) agreement","text": "Wyandotte County deputies gain federal immigration enforcement authority. Research in 287(g) jurisdictions shows immediate drops in crime reporting, school attendance, and healthcare utilization in immigrant communities. Local employers in meat processing and food service face labor shortages."},
+      {"label": "If the Unified Government Commission passes a non-cooperation resolution","text": "The resolution is not legally binding on the Sheriff under HB 2372 but creates political accountability and signals to immigrant families that elected officials object. The Sheriff's discretion remains final under the new state law."}
+    ]
+  },
+  {
+    "id": 19,
+    "level": "state",
+    "amend": ["due"],
+    "urgency": "stalled",
+    "policyBias": 15,
+    "issues": ["healthcare","labor"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-02","2026-03","2026-04","2026-04"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) — Senate 29-10, House 84-39 overrode Gov. Kelly's veto April 2026. New documentation and work requirements for SNAP, Medicaid, childcare subsidies, and TANF take effect July 1, 2026. State fiscal analysis projects the law requires 204 new eligibility workers at $5M added annual cost.",
+    "name": "KS HB 2731 — SNAP & Medicaid Benefits Verification Tightening (ENACTED)",
+    "desc": "Kansas now requires anyone applying for or renewing SNAP food benefits, Medicaid health coverage, childcare subsidies, or TANF cash assistance to submit additional documents verifying income, household size, and residency — replacing a self-reporting system with a document-intensive process. The law also raises the age at which able-bodied adults without dependents must meet SNAP work requirements from 49 to 64, extending mandatory employment or job training requirements to thousands more food-assistance recipients, and bans state agencies from granting waivers to those requirements without legislative approval. Medicaid eligibility must now be verified every three months instead of annually, and coverage must end immediately when a death is reported. More than 40 advocacy organizations testified against the bill, warning the administrative burden will cause eligible Kansans to lose benefits through paperwork failure — not actual ineligibility. The state's own fiscal analysis says compliance requires 204 new government employees at $5 million in added annual cost. This law operates alongside federal OBBBA requirements that have already removed an estimated 21,000+ Kansans from SNAP.",
+    "introduced": "Senate Republicans; Senate Social Services Budget Committee",
+    "supporters": "Kansas Republican legislative majority, Americans for Prosperity Kansas, Kansas Chamber of Commerce",
+    "blockers": "Gov. Kelly (vetoed, overridden), Kansas Action for Children, Kansas Appleseed, Kansas Food Bank Warehouse, 40+ advocacy organizations, Kansas Health Institute, Kansas Medical Society",
+    "window": "Effective July 1, 2026 — Kansans currently receiving SNAP, Medicaid, TANF, or childcare assistance should confirm their paperwork is current with their caseworker before that date. Legal challenges based on due process grounds expected in fall 2026.",
+    "decisions": [
+      {"label": "NOW LAW — new verification requirements effective July 1, 2026","text": "SNAP, Medicaid, TANF, and childcare applicants must submit additional documentation rather than self-attest eligibility. KHI estimates thousands of eligible Kansans will lose benefits due to paperwork barriers rather than actual ineligibility — concentrated among children, elderly, and disabled recipients."},
+      {"label": "If advocacy organizations file a due process legal challenge","text": "Courts examine whether the verification burden creates constitutionally inadequate process for removing government benefits. A successful challenge could suspend or revise the law's most burdensome provisions — particularly the quarterly Medicaid verification requirement."},
+      {"label": "If federal OBBBA and state HB 2731 requirements conflict during implementation","text": "Kansas may need to reconcile overlapping federal and state verification timelines and documentation formats. Duplicate eligibility checks could increase administrative cost further without improving accuracy of the benefit rolls."}
+    ]
+  },
+  {
+    "id": 20,
+    "level": "state",
+    "amend": [],
+    "urgency": "stalled",
+    "policyBias": 21,
+    "issues": ["education"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-01","2026-02","2026-03","2026-04"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) — Legislature narrowly overrode Kelly's veto April 9, 2026. Kansas joins 28 other states in the Trump administration's federal school choice tax credit scholarship program. Effective January 1, 2027 — donors receive a dollar-for-dollar federal tax credit up to $1,700 for contributions to private school scholarship funds.",
+    "name": "KS HB 2468 — Federal School Choice Tax Credit Opt-In (ENACTED)",
+    "desc": "Kansas now participates in the federal school choice tax credit scholarship program. Starting January 1, 2027, individuals who donate to approved scholarship-granting organizations (SGOs) that fund private school tuition can receive a dollar-for-dollar nonrefundable federal tax credit — reducing their federal tax bill by $1 for every $1 donated, up to $1,700. The private and religious schools receiving these scholarships are not required to meet Kansas public school accountability, curriculum, or special education standards. Governor Kelly vetoed the bill, arguing Kansas should fully fund public schools and special education before redirecting tax dollars to private institutions. Fourteen Republicans crossed party lines to oppose the bill in the House, citing public school funding impacts. Kansas already has a state-level scholarship tax credit program available to families below 250% of the federal poverty level; this new federal program stacks on top of it. Kansas now joins 28 other states opting in.",
+    "introduced": "House Republicans; Kansas Catholic Conference and private school associations led advocacy",
+    "supporters": "Kansas Republican legislative majority, Kansas Catholic Conference, Kansas Association of Christian Schools, Heritage Foundation, American Federation for Children",
+    "blockers": "Gov. Kelly (vetoed, overridden), Kansas National Education Association, Kansas Association of School Boards, 14 Republican dissenters",
+    "window": "Effective January 1, 2027 — Scholarship-granting organizations in Kansas are registering to participate. Public school advocates monitoring whether donor dollars shift from public school foundation funds to private school SGOs.",
+    "decisions": [
+      {"label": "NOW LAW — federal school choice tax credits begin Jan 1, 2027","text": "Private school donors receive federal tax credits up to $1,700. Scholarship organizations distribute funds to qualifying students at private and religious schools not subject to Kansas public school accountability standards. Kansas joins 28 other states in the program."},
+      {"label": "If the program draws substantial donor dollars from public school foundations","text": "Charitable giving that previously supported public school booster clubs shifts toward SGOs. Public school advocates in suburban Kansas districts — where private school enrollment is concentrated — are tracking fundraising trends."},
+      {"label": "If federal courts limit the program on religious funding grounds","text": "IRS implementation rules or Establishment Clause challenges could restrict the program before it fully launches in 2027, particularly the portion flowing to religious schools."}
+    ]
+  },
+  {
+    "id": 21,
+    "level": "state",
+    "amend": ["1st"],
+    "urgency": "stalled",
+    "policyBias": 11,
+    "issues": ["healthcare","speech"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-02","2026-03","2026-03","2026-03"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (veto override) — Legislature overrode Kelly's veto within hours of her signing it on March 27, 2026. Crisis pregnancy centers in Kansas are now shielded from any government regulation requiring abortion referrals or disclosures about services not offered. Centers gain standing to sue governments that attempt to regulate their speech or practices.",
+    "name": "KS HB 2635 — Pregnancy Center CARE Act (ENACTED via veto override)",
+    "desc": "The Pregnancy Center Autonomy and Rights of Expression (CARE) Act shields Kansas crisis pregnancy centers (CPCs) from any government regulation requiring them to refer patients for abortions or abortion-inducing drugs, or preventing them from providing materials on pregnancy, childbirth, and parenting. CPCs offer free pregnancy tests, ultrasounds, and baby supplies — but are frequently not licensed medical clinics and do not offer abortion, contraception, or comprehensive reproductive health referrals. Critics note CPCs sometimes do not clearly disclose what services they do not provide. The CARE Act also allows CPCs to sue any government entity, organization, or individual that attempts to regulate their speech or practices, and gives Kansas legislators the explicit right to intervene in those lawsuits as parties. Governor Kelly vetoed the bill; the Republican legislature overrode her within hours. Kansas has at least 35 crisis pregnancy centers statewide — outnumbering abortion providers roughly 10 to 1.",
+    "introduced": "House Federal and State Affairs Committee; Kansas Family Voice and Alliance Defending Freedom led advocacy",
+    "supporters": "Kansas Republican legislative majorities, Kansas Family Voice, Alliance Defending Freedom, Kansas Catholic Conference, National Institute of Family and Life Advocates (NIFLA)",
+    "blockers": "Gov. Kelly (vetoed, overridden), Planned Parenthood Great Plains, ACLU of Kansas, Kansas medical associations",
+    "window": "Law in effect — patients seeking full pregnancy options counseling should call 1-800-230-PLAN or visit their county health department. Reproductive rights organizations are evaluating whether the CARE Act's restrictions on required disclosures conflict with federal consumer protection or state medical licensing requirements.",
+    "decisions": [
+      {"label": "NOW LAW — crisis pregnancy centers shielded from regulation","text": "Pregnancy centers cannot be required by any Kansas government entity to refer for abortions or disclose what services they do not offer. Centers can sue governments or organizations that attempt to regulate their speech or practices. Kansas legislators can intervene in those lawsuits."},
+      {"label": "If reproductive rights organizations challenge the CARE Act","text": "Courts must weigh whether Kansas can shield health-adjacent organizations from disclosure requirements. The Supreme Court's NIFLA v. Becerra (2018) limits compelled disclosure, but state approaches vary — Kansas courts may interpret the CARE Act's scope differently from federal standards."},
+      {"label": "If CPC presence expands significantly in rural Kansas","text": "Rural Kansans — who already travel 60+ miles on average to reach an abortion provider — may more frequently encounter CPCs without clear disclosure that abortion referrals are unavailable, particularly as this law discourages regulatory oversight of center communications."}
+    ]
+  },
+  {
+    "id": 22,
+    "level": "state",
+    "amend": [],
+    "urgency": "months",
+    "policyBias": 53,
+    "issues": ["environment"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01","2025-03","2025-04","2025-04","2025-06"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (signed by Gov. Kelly, 2025 Session) — Bipartisan 16-member Water Program Task Force is active and holding stakeholder meetings across Kansas. Final recommendations on a long-term water investment program and dedicated funding source due January 2027. Parts of southwest Kansas have fewer than 25 years of viable Ogallala Aquifer water remaining.",
+    "name": "KS S Sub HB 2172 — Kansas Water Program Task Force & Ogallala Crisis Planning (ENACTED)",
+    "desc": "Kansas is quietly facing one of its most serious long-term threats: the Ogallala Aquifer — the underground reservoir that irrigates 90% of Kansas cropland and supplies drinking water to hundreds of communities — is being depleted faster than it can recharge. In parts of southwest Kansas, the aquifer has fewer than 25 years of usable water remaining. More than 150 Kansas communities have nitrate levels in drinking water at or above the acceptable limit. S Sub HB 2172 establishes a 16-member bipartisan Water Program Task Force — Republican and Democratic legislators, state officials, and public appointees — charged with evaluating Kansas's current and future water supply, recommending a long-term water investment program similar to the state's 10-year transportation plan, and identifying a dedicated state funding source for the State Water Plan Fund (currently capped at $35M annually, far below what is needed). Recommendations go to the Governor and Legislature in January 2027. Gov. Kelly separately signed HB 2462, which authorizes Kansas to develop rules allowing recycled wastewater to become a new potable water source — a technology already deployed in water-scarce states like Arizona and Colorado.",
+    "introduced": "Bipartisan; Rep. Shannon Francis (R) and House Water Committee; Sen. Elaine Bowers (R) — unanimous or near-unanimous in both chambers",
+    "supporters": "Governor Kelly (signed), Kansas Water Authority, Kansas Farm Bureau, Kansas Municipal Utilities, Kansas Association of Conservation Districts, Kansas Livestock Association — rare broad bipartisan coalition",
+    "blockers": "No significant organized opposition; internal debate centers on whether agricultural users or municipalities bear the larger share of a dedicated funding mechanism",
+    "window": "January 2027 — task force submits final recommendations to the Governor and Legislature. Southwest Kansas farmers, water districts, and communities facing aquifer depletion should engage with task force public input sessions in fall 2026. The Legislature must then pass a funding mechanism — and that vote is where the real political fight begins.",
+    "decisions": [
+      {"label": "If the task force recommends a dedicated water fund and the Legislature acts in 2027","text": "Kansas creates a sustained, adequately funded water conservation and infrastructure investment program for the first time. Western Kansas communities gain a state-backed funding stream for water infrastructure as the Ogallala continues to decline."},
+      {"label": "If the Legislature receives the report but fails to create a dedicated funding mechanism","text": "Aquifer depletion continues at current pace without a funded state response. Southwest Kansas agricultural communities face increasingly acute water shortages. The task force becomes a political exercise without legislative follow-through."},
+      {"label": "If federal drought or water infrastructure funding becomes available","text": "Kansas can access USDA or Bureau of Reclamation water infrastructure co-investment funds — but federal programs typically require a state matching plan, which this task force is designed to produce. Acting on recommendations unlocks federal co-investment."}
+    ]
+  },
+  {
+    "id": 23,
+    "level": "local",
+    "municipality": "Kansas City KS",
+    "amend": [],
+    "urgency": "months",
+    "policyBias": 50,
+    "issues": ["labor","housing"],
+    "ratifyOffice": "mayor",
+    "stageDates": ["2026-03","2026-03","2026-03","2026-04","2026-04"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (HB 2466 signed by Gov. Kelly, April 13, 2026) — KC Chiefs officially relocating from Missouri to Wyandotte County; $3B domed stadium in KCKS slated for 2031. STAR bonds approved up to $1.8B. Community benefits agreement negotiations underway. Land acquisition and displacement protections are the live near-term questions.",
+    "name": "Wyandotte County / KCKS — KC Chiefs $3B Stadium: Community Impact & Displacement",
+    "desc": "The Kansas City Chiefs are officially moving from Missouri to a new $3 billion domed stadium in Wyandotte County, Kansas, opening for the 2031 NFL season. HB 2466 created the Kansas Sports Facilities Authority and extended the STAR bonds program. The Chiefs are seeking $1.8 billion in STAR bonds — public financing backed by future sales tax revenues generated near the stadium — with the remainder privately financed. Construction begins 2027. Wyandotte County is one of Kansas's most diverse and lower-income counties, with a median household income just over $60,000. Residents at packed public hearings raised repeated concerns about housing displacement, rising property taxes, and whether local businesses would benefit from construction contracts. Research from stadium developments nationally consistently shows rising housing costs and displacement of longtime low-income residents within 3-5 miles of new venues. Lt. Governor David Toland acknowledged the state is 'at the very beginning of a long process' and said officials must ensure residents 'aren't priced out.'",
+    "introduced": "Gov. Kelly and KC Chiefs announced agreement December 2025; HB 2466 introduced by House Commerce Committee March 2026",
+    "supporters": "Kansas City Chiefs, Governor Kelly, KCKS Mayor Tyrone Garner, Lt. Governor David Toland, construction labor unions (20,000+ projected construction jobs), Wyandotte County business community",
+    "blockers": "Wyandotte County residents who raised housing displacement concerns at packed public hearings, fiscal conservatives who oppose public stadium financing, affordable housing advocates, Missouri officials concerned about economic loss",
+    "window": "NOW through 2027 — community benefits agreement negotiations are the active lever. Wyandotte County residents should engage with the Unified Government Commission to advocate for anti-displacement protections, local hiring requirements, and affordable housing set-asides. Land acquisition begins in 2026.",
+    "decisions": [
+      {"label": "If a strong Community Benefits Agreement (CBA) is negotiated and enforced","text": "Wyandotte County residents gain enforceable protections: local hiring minimums for construction jobs, anti-displacement housing measures, affordable housing set-asides near the stadium footprint, and small business contracting requirements. Economic benefit is shared across income levels."},
+      {"label": "If no meaningful CBA is executed before groundbreaking","text": "Development proceeds without displacement protections. Research from comparable stadium projects (Atlanta, Las Vegas, Buffalo) shows housing costs rise 15-25% within two miles within three years of opening. Longtime KCKS residents — predominantly Hispanic and Black families — face displacement without legal recourse."},
+      {"label": "If the STAR bond revenue projections prove overly optimistic","text": "State and county STAR bonds backed by projected sales tax revenues may fall short, requiring additional public funding. Comparable STAR bond projects in the Legends Outlets area of Wyandotte County have faced revenue shortfalls, creating budget pressures on local services."}
+    ]
+  },
+  {
+    "id": 24,
+    "level": "state",
+    "amend": ["due"],
+    "urgency": "stalled",
+    "policyBias": 81,
+    "issues": ["housing"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2025-01",null,null,null,null],
+    "stage": 1,
+    "stageNote": "Died in 2026 session — never received a floor vote under Republican leadership. Kansas has the third-fastest eviction filing rate in the country and is one of only two states with no statewide habitability code for rental properties. The same session that killed SB 100 enacted SB 391, stripping Lawrence's source-of-income protections.",
+    "name": "KS SB 100 — Fair Chance Housing & Homelessness Reduction Act (Stalled / Died)",
+    "desc": "SB 100 would have limited how landlords could use past eviction records and unpaid rental debt when screening rental applicants. Kansas has the third-fastest eviction filing rate in the country. An eviction record — even one from a dismissed case, a landlord error, or a decade-old dispute — permanently follows a tenant on background screening reports and is used to automatically reject housing applicants across the state. The bill would not have prohibited landlords from considering eviction history — it would have required them to use it as one factor among many, not an automatic disqualifier. SB 100 died without a committee hearing in the Republican-controlled legislature. The same 2026 session enacted SB 391, which stripped Lawrence's source-of-income protection ordinance, and passed seven veto overrides targeting voting, immigration, and trans rights. Kansas is also one of only two states with no statewide habitability code — meaning landlords have no legal obligation to maintain livable conditions in rental properties in most of the state.",
+    "introduced": "Sen. Oletha Faust-Goudeau (D-Wichita); companion bill introduced in the House",
+    "supporters": "Kansas Statewide Homeless Coalition, Topeka Tenants, Lawrence Community Shelter, Kansas Appleseed, ACLU of Kansas, reentry organizations",
+    "blockers": "Senate Republican leadership, Kansas Apartment Association, Kansas Landlord Association — bill never received a committee hearing",
+    "window": "Next opportunity: January 2027 legislative session. Kansas's eviction crisis worsened in 2026. Advocates are tracking which legislators may be persuadable in 2027 given the scale of housing instability in Wichita, Topeka, and KCKS.",
+    "decisions": [
+      {"label": "If SB 100 or a successor bill advances in the 2027 session","text": "Kansas landlords must consider past eviction records as one factor among many rather than an automatic bar. Formerly evicted Kansans — many of whom lost housing due to COVID-era economic hardship, domestic violence, or landlord error — gain a meaningful path back into stable rental housing."},
+      {"label": "If Kansas passes no fair chance housing protection","text": "Eviction records continue to permanently bar Kansans from rental housing statewide. Combined with no habitability code, no source-of-income protections, and no eviction screening limits, Kansas becomes one of the least tenant-protective states in the country."},
+      {"label": "If a Kansas city enacts a local fair chance ordinance","text": "A local ordinance immediately faces risk of state preemption under the same legislative majority that stripped Lawrence's source-of-income protections via SB 391. Any local fair chance ordinance needs to survive a likely preemption challenge before providing durable protection."}
+    ]
+  },
+  {
+    "id": 25,
+    "level": "state",
+    "amend": [],
+    "urgency": "year",
+    "policyBias": 52,
+    "issues": ["education","technology"],
+    "ratifyOffice": "governor",
+    "stageDates": ["2026-01","2026-01","2026-02","2026-03","2026-04"],
+    "stage": 5,
+    "stageNote": "✅ ENACTED (signed by Gov. Kelly, April 2026) — Every Kansas public school district and accredited private school must adopt a written policy governing student personal electronic device use by July 1, 2027. Schools may implement stricter restrictions — including full phone-free school days — at their own discretion.",
+    "name": "KS HB 2299 — School Personal Device Policy Mandate (ENACTED)",
+    "desc": "Kansas law now requires every public school district and accredited private school to adopt a written policy governing how students may use personal electronic communication devices — smartphones, smartwatches, and tablets — by July 1, 2027. The law sets a floor: schools must have a policy. It does not prescribe what the policy must contain, leaving individual districts to decide whether to implement limited-use periods, phone-free classrooms, or full phone-free school days. The movement toward phone-free schools has accelerated nationally after a wave of research documenting the relationship between constant smartphone access and adolescent mental health decline, social media addiction, cyberbullying, and reduced academic performance. Kansas joins more than 30 states that took some legislative action on school phone policies in 2025-2026. The Kansas State Department of Education will track implementation. Bipartisan support allowed Gov. Kelly to sign without controversy — a rare outcome in the 2026 session.",
+    "introduced": "House Education Committee; bipartisan; Sen. Cindy Holscher (D) co-sponsored in the Senate",
+    "supporters": "Gov. Kelly (signed), Kansas State Department of Education, Kansas Association of School Boards, Kansas PTA, school mental health advocates, parents' organizations",
+    "blockers": "Limited opposition; some civil liberties concerns about overly restrictive implementations; some parents oppose full phone bans for emergency contact reasons",
+    "window": "July 1, 2027 — school districts must adopt written policies. Parents and students can participate in local school board policy development now. Districts implementing stricter phone-free policies should establish clear exception procedures for emergency communication.",
+    "decisions": [
+      {"label": "If most districts adopt meaningful phone-free class time policies","text": "Kansas students gain structured time away from social media during the school day. Research from New York City and Nova Scotia shows phone-free policies reduce cyberbullying incidents by 30-40% and improve academic engagement — particularly for students with anxiety disorders."},
+      {"label": "If most districts adopt minimal policies that change little in practice","text": "The law's mandate is technically met but has no measurable impact. Districts that simply write down existing informal practices comply without creating the structured phone-free environments researchers associate with positive mental health outcomes."},
+      {"label": "If a school district implements a full phone-free policy and faces legal challenge","text": "Courts must assess whether an absolute phone ban during school hours conflicts with student due process rights or parents' right to emergency contact. No Kansas court has ruled on this issue; several districts are seeking legal guidance before implementing stricter approaches."}
+    ]
+  }
+];
+const active = {level:'all',timing:'all',impact:'all',issue:'all',policy:'all',office:'all',city:'all',search:''};
+function policyBarStyle(b){if(b>=38&&b<=62)return'background:#6600CC';return'background:linear-gradient(to right,var(--bar-lib) '+b+'%,var(--bar-con) '+b+'%)';}
+function policyCategory(b){if(b>=63)return'liberal';if(b<=37)return'conservative';return'center';}
+function renderPipeline(bill){var stages=bill.level==='federal'?FEDERAL_STAGES:bill.level==='local'?LOCAL_STAGES:KANSAS_STAGES;var isStalled=bill.urgency==='stalled';var dates=bill.stageDates||[];var dots=stages.map(function(label,i){var cls='pipe-step';if(i<bill.stage)cls+=' done';if(i===bill.stage&&!isStalled)cls+=' curr';if(i===bill.stage&&isStalled)cls+=' stalled';var dateHtml=dates[i]?'<div class="pipe-date">'+dates[i]+'</div>':'';return'<div class="'+cls+'"><div class="pipe-dot"></div><div class="pipe-label">'+label+dateHtml+'</div></div>';}).join('');return'<div class="pipeline-section"><div class="pipeline-head">Legislative path</div><div class="pipeline">'+dots+'</div><div class="stage-note">'+bill.stageNote+'</div></div>';}
+function matches(b){if(active.search){var q=active.search.toLowerCase();var hay=(b.name+' '+b.desc+' '+(b.municipality||'')).toLowerCase();if(hay.indexOf(q)===-1)return false;}if(active.level!=='all'&&b.level!==active.level)return false;if(active.city!=='all'&&b.level==='local'&&b.municipality!==active.city)return false;var timingVal=active.timing==='session'?'year':active.timing;if(active.timing!=='all'&&b.urgency!==timingVal)return false;if(active.impact!=='all'){var f=active.impact;if(f==='4th'&&b.amend.indexOf('4th')===-1)return false;if(f==='1st'&&b.amend.indexOf('1st')===-1)return false;if(f==='due'&&b.amend.indexOf('due')===-1&&b.amend.indexOf('14th')===-1)return false;}if(active.issue!=='all'&&b.issues.indexOf(active.issue)===-1)return false;if(active.policy!=='all'&&policyCategory(b.policyBias)!==active.policy)return false;if(active.office!=='all'&&b.ratifyOffice!==active.office)return false;return true;}
+async function copyCard(id,btn){var b=bills.find(function(x){return x.id===id;});if(!b)return;var divider='—'.repeat(55);var offMeta=OFFICE_META[b.ratifyOffice]||{label:b.ratifyOffice};var lines=[b.name,divider,b.desc,'','LEGISLATIVE STATUS',b.stageNote,'','PUBLIC INFLUENCE WINDOW',b.window,'','INTRODUCED BY',b.introduced,'','KEY SUPPORTERS',b.supporters,'','KEY BLOCKERS',b.blockers,'','WHAT IS BEING DECIDED'].concat(b.decisions.map(function(d){return'  → '+d.label+' — '+d.text;})).concat(['',divider,'Level: '+b.level+(b.municipality?' ('+b.municipality+')':'')+'  | Timing: '+b.urgency+' | Currently with: '+offMeta.label]);try{await navigator.clipboard.writeText(lines.join('\n'));btn.classList.add('copied');btn.title='Copied!';setTimeout(function(){btn.classList.remove('copied');btn.title='Copy card to clipboard';},1400);}catch(e){btn.title='Copy failed';}}
+var container=document.getElementById('bills');var countEl=document.getElementById('count');
+function render(){var filtered=bills.filter(matches);countEl.textContent=filtered.length+' item'+(filtered.length!==1?'s':'')+' shown';if(!filtered.length){container.innerHTML='<div class="empty">No bills match these filters.</div>';return;}container.innerHTML=filtered.map(function(b){var lvlTag=b.level==='federal'?'<span class="tag tag-fed">🇺🇸 Federal</span>':b.level==='local'?'<span class="tag tag-local">📍 '+b.municipality+'</span>':'<span class="tag tag-ks">Kansas</span>';var urgTag=b.urgency==='urgent'?'<span class="tag tag-now">Act now</span>':b.urgency==='months'?'<span class="tag tag-months">Months</span>':b.urgency==='stalled'?'<span class="tag tag-stalled">Stalled</span>':'<span class="tag tag-year">Session</span>';var amendBadges=b.amend.map(function(a){return'<span class="amend-tag">'+a+'</span>';}).join('');var decisionsHtml=b.decisions.map(function(d){return'<div class="decision-item"><span class="decision-label">'+d.label+'</span> — '+d.text+'</div>';}).join('');var offMeta=OFFICE_META[b.ratifyOffice]||{label:b.ratifyOffice,dotCls:'od-com'};return'<div class="bill"><div class="policy-bar" style="'+policyBarStyle(b.policyBias)+'"><span class="policy-bar-label">Policy direction</span></div><div class="card-top-tags">'+lvlTag+urgTag+'</div><button class="copy-btn" onclick="copyCard('+b.id+',this)" title="Copy card to clipboard"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><div class="bill-name">'+b.name+amendBadges+'</div><div class="bill-desc">'+b.desc+'</div>'+renderPipeline(b)+'<div class="meta-grid"><div><div class="lbl">Public influence window</div><div class="val">'+b.window+'</div></div><div><div class="lbl">Introduced by</div><div class="val">'+b.introduced+'</div></div><div><div class="lbl">Key supporters</div><div class="val">'+b.supporters+'</div></div><div class="full-width"><div class="lbl">Key blockers</div><div class="val">'+b.blockers+'</div></div></div><div class="deciding-divider"><span>What is being decided</span></div><div class="decisions">'+decisionsHtml+'</div><div class="office-badge"><div class="office-dot '+offMeta.dotCls+'"></div>'+offMeta.label+'</div>'+(SOURCE_URLS[b.id]?'<div class="source-link"><a href="'+SOURCE_URLS[b.id]+'" target="_blank" rel="noopener noreferrer">Official source ↗</a></div>':'')+'</div>';}).join('');}
+document.getElementById('searchInput').addEventListener('input',function(){active.search=this.value.trim();render();});
+document.getElementById('filterGroups').addEventListener('click',function(e){var chip=e.target.closest('[data-group]');if(!chip)return;var group=chip.dataset.group;var val=chip.dataset.f;active[group]=val;document.querySelectorAll('[data-group="'+group+'"]').forEach(function(c){c.classList.toggle('active',c.dataset.f===val);});render();});
+render();
+</script>
+</body>
+</html>

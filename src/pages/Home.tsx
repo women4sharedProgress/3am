@@ -877,11 +877,11 @@ export default function Home() {
             </button>
           )}
 
-          {/* LawTracker — blue left / red right diagonal */}
+          {/* LawTrackers hub — blue left / red right diagonal */}
           <button
             className="home-main-card"
-            onClick={() => navigate('/tracker')}
-            aria-label="LawTracker — browse active legislation"
+            onClick={() => navigate('/lawtrackers')}
+            aria-label="LawTrackers — federal and state legislation"
           >
             <div aria-hidden="true" style={{
               position: 'absolute', inset: 0, background: '#003F87',
@@ -891,8 +891,8 @@ export default function Home() {
               position: 'absolute', inset: 0, background: '#CC0000',
               clipPath: 'polygon(80% 0%, 100% 0%, 100% 100%, 20% 100%)',
             }} />
-            <span className="home-card-label">LawTracker</span>
-            <span className="home-card-desc">Browse active legislation</span>
+            <span className="home-card-label">LawTrackers</span>
+            <span className="home-card-desc">Federal &amp; state</span>
           </button>
 
           {/* Alert Settings (logged-in only) */}

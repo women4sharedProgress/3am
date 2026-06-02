@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { crowdVerify, crowdFlag, adminBillSave } from '../lib/authApi'
 import AdminBillEdit from './AdminBillEdit'
+import VerifierNoteBlock from './VerifierNoteBlock'
 
 const AMEND_TOOLTIPS: Record<string, string> = {
   '4th':          '4th Amendment',
@@ -334,6 +335,14 @@ export default function BillCard({ bill, onUpdate }: { bill: Bill; onUpdate?: (b
           <div className="deciding-divider"><span>What is being decided</span></div>
 
           <Decisions decisions={localBill.decisions} />
+
+          {/* Tier 3+ verifier note — private, admin-readable, aggregatable */}
+          {(user?.tier ?? 0) >= 3 && (
+            <VerifierNoteBlock
+              billId={localBill.id}
+              isAdmin={isAdmin}
+            />
+          )}
 
           <div className="card-footer-row">
             <div className="office-badge">

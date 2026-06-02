@@ -46,9 +46,12 @@ function downloadCsv(bills: Bill[]) {
 }
 
 
-export default function TrackerPage() {
+export default function TrackerPage({ stateCode }: { stateCode?: string } = {}) {
   const navigate = useNavigate()
-  const { bills: rawBills, loading, error } = useBills(['MI', 'KS', 'US'])
+  const statesToLoad = stateCode === 'MI' ? ['MI']
+                     : stateCode === 'KS' ? ['KS']
+                     : ['US']
+  const { bills: rawBills, loading, error } = useBills(statesToLoad)
   const [bills, setBills] = useState<Bill[]>(rawBills)
   const [active, setActive]       = useState<ActiveFilters>(DEFAULT_FILTERS)
 
@@ -81,8 +84,15 @@ export default function TrackerPage() {
     setActive(prev => ({ ...prev, [group]: value }))
   }
 
+  const stateLabel = stateCode === 'MI' ? 'Michigan'
+                   : stateCode === 'KS' ? 'Kansas'
+                   : 'Federal'
+  const filePrefix = stateCode === 'MI' ? 'Michigan_National_Tracker'
+                   : stateCode === 'KS' ? 'KSLawtracker'
+                   : 'Fedtracker'
+
   async function fetchAllBills(): Promise<Bill[]> {
-    const { data } = await supabase.from('bills').select('*').in('state', ['MI', 'KS', 'US']).order('id')
+    const { data } = await supabase.from('bills').select('*').in('state', statesToLoad).order('id')
     return (data as Bill[]) ?? []
   }
 
@@ -92,7 +102,7 @@ export default function TrackerPage() {
       const d = new Date()
       const today = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
       const allBills = await fetchAllBills()
-      const html = generateHtml(allBills, 'Michigan', today)
+      const html = generateHtml(allBills, stateLabel, today)
       const blob = new Blob([html], { type: 'text/html' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -100,7 +110,7 @@ export default function TrackerPage() {
       const DD = String(d.getDate()).padStart(2, '0')
       const Mon = d.toLocaleDateString('en-US', { month: 'short' })
       const YY = String(d.getFullYear()).slice(2)
-      a.download = `Michigan_National_Tracker_${DD}_${Mon}_${YY}.html`
+      a.download = `${filePrefix}_${DD}_${Mon}_${YY}.html`
       a.click()
       URL.revokeObjectURL(url)
     } finally {
@@ -137,7 +147,7 @@ export default function TrackerPage() {
         background: 'var(--color-bg-secondary)',
         borderBottom: '1px solid var(--color-border-light)',
       }}>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button
             onClick={() => navigate('/')}
             style={{
@@ -153,6 +163,15 @@ export default function TrackerPage() {
               <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
           </button>
+          <span style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: '.06em',
+            textTransform: 'uppercase', color: 'var(--color-text-tertiary)',
+            padding: '3px 8px', borderRadius: 10,
+            background: 'var(--color-bg-neutral)',
+            whiteSpace: 'nowrap',
+          }}>
+            {stateLabel} LawTracker
+          </span>
           <button
             onClick={handleDownload}
             disabled={busy}
@@ -182,20 +201,29 @@ export default function TrackerPage() {
             </svg>
             {copied ? 'Copied!' : 'Copy Link'}
           </button>
-          <a
-            href="https://www.legislature.mi.gov/bills"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ ...BTN, textDecoration: 'none' }}
-            aria-label="Michigan Legislature bills"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            MI Legislature
-          </a>
+          {/* State-specific legislature link */}
+          {stateCode === 'MI' && (
+            <a href="https://www.legislature.mi.gov/bills" target="_blank" rel="noopener noreferrer"
+              style={{ ...BTN, textDecoration: 'none' }} aria-label="Michigan Legislature bills">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              MI Legislature
+            </a>
+          )}
+          {stateCode === 'KS' && (
+            <a href="https://www.kslegislature.gov/li/b2025_26/measures/bills/" target="_blank" rel="noopener noreferrer"
+              style={{ ...BTN, textDecoration: 'none' }} aria-label="Kansas Legislature bills">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              KS Legislature
+            </a>
+          )}
           <a
             href="https://www.congress.gov/browse-legislation/bills"
             target="_blank"

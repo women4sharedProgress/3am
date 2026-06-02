@@ -135,3 +135,28 @@ export function adminFeedbackList() {
 export function adminFeedbackComplete(id: number, completed = true) {
   return post('admin-feedback-complete', { id, completed })
 }
+
+// ── Verifier notes (tier 3+) ──────────────────────────────────────────────
+
+export function verifierNoteSave(bill_id: number, note: string) {
+  return post('verifier-note-save', { bill_id, note })
+}
+
+async function get(path: string) {
+  try {
+    const res = await fetch(`${BASE}/${path}`, {
+      method: 'GET', credentials: 'include',
+    })
+    return res.json()
+  } catch {
+    return { ok: false, error: 'Network error; check your connection.' }
+  }
+}
+
+export function verifierNotesList(bill_id: number) {
+  return get(`verifier-notes-list?bill_id=${bill_id}`)
+}
+
+export function verifierNotesSummary() {
+  return get('verifier-notes-list?mode=summary')
+}

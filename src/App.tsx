@@ -24,6 +24,7 @@ import PatchesUpdates         from './pages/PatchesUpdates'
 import AccountTier            from './pages/AccountTier'
 import TierRequests           from './pages/TierRequests'
 import AdminPanel             from './pages/AdminPanel'
+import LawTrackers            from './pages/LawTrackers'
 
 export default function App() {
   const { user } = useAuth()
@@ -32,7 +33,10 @@ export default function App() {
     {user && <FeedbackButton />}
     <Routes>
       <Route path="/"                        element={<Home />} />
+      <Route path="/lawtrackers"             element={<LawTrackers />} />
       <Route path="/tracker"                 element={<TrackerPage />} />
+      <Route path="/tracker/michigan"        element={<TrackerPage stateCode="MI" />} />
+      <Route path="/tracker/kansas"          element={<TrackerPage stateCode="KS" />} />
       <Route path="/login"                   element={<Login />} />
       <Route path="/register"               element={<Register />} />
       <Route path="/settings"               element={<Settings />} />

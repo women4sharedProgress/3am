@@ -1,17 +1,13 @@
 -- supabase/migrations/023_ks_support.sql
 -- Rename level 'michigan' → 'state' for multi-state support and add Kansas.
 
--- 1. Rename existing MI state bills
+-- 1. Drop old CHECK constraint before updating data
+ALTER TABLE bills DROP CONSTRAINT IF EXISTS bills_level_check;
+
+-- 2. Rename existing MI state bills
 UPDATE bills SET level = 'state' WHERE level = 'michigan';
 
--- 2. If a CHECK constraint exists on level, drop and recreate it
-DO $$
-BEGIN
-  -- Drop old constraint if present (name may vary)
-  ALTER TABLE bills DROP CONSTRAINT IF EXISTS bills_level_check;
-EXCEPTION WHEN others THEN NULL;
-END $$;
-
+-- 3. Re-add CHECK constraint with updated values
 ALTER TABLE bills
   ADD CONSTRAINT bills_level_check
   CHECK (level IN ('federal', 'state', 'local'));
