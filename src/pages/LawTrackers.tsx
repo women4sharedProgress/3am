@@ -172,8 +172,6 @@ function StateCard({ s, onClick }: { s: StateEntry; onClick: () => void }) {
   const sen2Color = pc(s.senator2.party)
   const gradient  = `linear-gradient(to bottom, ${govColor} 0%, ${govColor} 33.33%, ${sen1Color} 33.33%, ${sen1Color} 66.66%, ${sen2Color} 66.66%, ${sen2Color} 100%)`
 
-  const partyLabel = (p: Party) => p === 'D' ? 'Dem' : p === 'R' ? 'Rep' : 'Ind'
-
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
       {/* Thirds card */}
@@ -181,7 +179,7 @@ function StateCard({ s, onClick }: { s: StateEntry; onClick: () => void }) {
         onClick={onClick}
         aria-label={`${s.name} LawTracker`}
         style={{
-          width: 82, height: 88, borderRadius: 12,
+          width: 88, height: 88, borderRadius: 16,
           border: 'none', cursor: 'pointer', padding: 0,
           position: 'relative', overflow: 'hidden',
           display: 'flex', flexDirection: 'column',
@@ -214,16 +212,6 @@ function StateCard({ s, onClick }: { s: StateEntry; onClick: () => void }) {
           textShadow: '0 1px 4px rgba(0,0,0,.8)',
         }}>
           Tracker
-        </span>
-        {/* Party legend: Gov · S1 · S2 */}
-        <span style={{
-          position: 'relative', zIndex: 2,
-          fontFamily: "'Quicksand', sans-serif", fontWeight: 600,
-          fontSize: 9, color: 'rgba(255,255,255,.85)',
-          textShadow: '0 1px 3px rgba(0,0,0,.9)',
-          letterSpacing: '.03em',
-        }}>
-          G:{partyLabel(s.governor.party)} · S:{partyLabel(s.senator1.party)} · S:{partyLabel(s.senator2.party)}
         </span>
       </button>
 
@@ -343,32 +331,6 @@ export default function LawTrackers() {
           ))}
         </div>
 
-        {/* Party colour legend */}
-        <div style={{
-          display: 'flex', gap: 20, marginTop: 8,
-          fontFamily: "'Nunito', sans-serif", fontSize: 11,
-          color: 'var(--color-text-tertiary)',
-        }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, background: DEM, display: 'inline-block' }} />
-            Democrat
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, background: REP, display: 'inline-block' }} />
-            Republican
-          </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 2, background: IND, display: 'inline-block' }} />
-            Independent
-          </span>
-        </div>
-        <p style={{
-          fontFamily: "'Nunito', sans-serif", fontSize: 10,
-          color: 'var(--color-text-tertiary)', margin: 0, textAlign: 'center',
-          maxWidth: 340,
-        }}>
-          Card thirds: top = Governor · middle = Senior Senator · bottom = Junior Senator
-        </p>
       </div>
     </div>
   )

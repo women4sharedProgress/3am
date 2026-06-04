@@ -224,31 +224,33 @@ export default function TrackerPage({ stateCode }: { stateCode?: string } = {}) 
               KS Legislature
             </a>
           )}
-          <a
-            href="https://www.congress.gov/browse-legislation/bills"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ ...BTN, textDecoration: 'none' }}
-            aria-label="Congress.gov bills"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            Congress.gov
-          </a>
+          {!stateCode && (
+            <a
+              href="https://www.congress.gov/browse-legislation/bills"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ ...BTN, textDecoration: 'none' }}
+              aria-label="Congress.gov bills"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Congress.gov
+            </a>
+          )}
         </div>
         <ThemeToggle />
       </div>
 
       <Header
-        stateName="Michigan & Kansas"
+        stateName={stateLabel}
         bills={visibleBills}
         onSearch={q => handleFilterChange('search', q)}
       />
 
-      <FilterGroups active={active} onChange={handleFilterChange} committees={committees} />
+      <FilterGroups active={active} onChange={handleFilterChange} committees={committees} stateCode={stateCode} />
 
       {loading && <div className="loading">Loading bills…</div>}
       {error   && <div className="empty">Error loading bills: {error}</div>}

@@ -6,6 +6,7 @@ interface FilterGroupsProps {
   onChange: (group: keyof ActiveFilters, value: string) => void
   hideTiming?: boolean
   committees?: string[]
+  stateCode?: string
 }
 
 function Chip({ group, value, active, label, children, onChange }: {
@@ -27,32 +28,29 @@ function Chip({ group, value, active, label, children, onChange }: {
   )
 }
 
-export default function FilterGroups({ active, onChange, hideTiming, committees }: FilterGroupsProps) {
+export default function FilterGroups({ active, onChange, hideTiming, committees, stateCode }: FilterGroupsProps) {
+  const isFederal = !stateCode   // national tracker — federal bills only
+  const isMI = stateCode === 'MI'
+  const isKS = stateCode === 'KS'
+
   return (
     <div className="filter-groups">
 
-      <div className="filter-group">
-        <span className="fg-label">Level</span>
-        <div className="chips">
-          <Chip group="level" value="all"     active={active.level} onChange={onChange}>All</Chip>
-          <Chip group="level" value="federal" active={active.level} onChange={onChange}>🇺🇸 Federal</Chip>
-          <Chip group="level" value="state"   active={active.level} onChange={onChange}>State</Chip>
-          <Chip group="level" value="local"   active={active.level} onChange={onChange}>📍 Local</Chip>
-        </div>
-      </div>
-
-      {(active.level === 'all' || active.level === 'state') && (
-        <div className="filter-group filter-group-city">
-          <span className="fg-label fg-indent">↳ State</span>
+      {/* Level — national tracker shows only Federal so hide the group entirely;
+          state trackers hide the Federal chip */}
+      {!isFederal && (
+        <div className="filter-group">
+          <span className="fg-label">Level</span>
           <div className="chips">
-            <Chip group="state" value="all" active={active.state} onChange={onChange}>All states</Chip>
-            <Chip group="state" value="MI"  active={active.state} onChange={onChange}>Michigan</Chip>
-            <Chip group="state" value="KS"  active={active.state} onChange={onChange}>Kansas</Chip>
+            <Chip group="level" value="all"   active={active.level} onChange={onChange}>All</Chip>
+            <Chip group="level" value="state" active={active.level} onChange={onChange}>State</Chip>
+            <Chip group="level" value="local" active={active.level} onChange={onChange}>📍 Local</Chip>
           </div>
         </div>
       )}
 
-      {active.level === 'local' && (
+      {/* City sub-filter — only for state trackers when level=local */}
+      {!isFederal && active.level === 'local' && (
         <div className="filter-group filter-group-city">
           <span className="fg-label fg-indent">↳ City</span>
           <div className="chips">
@@ -64,7 +62,8 @@ export default function FilterGroups({ active, onChange, hideTiming, committees 
         </div>
       )}
 
-      {(active.level === 'federal' || active.level === 'state') && committees && committees.length > 0 && (
+      {/* Committee sub-filter */}
+      {committees && committees.length > 0 && (isFederal || active.level === 'federal' || active.level === 'state') && (
         <div className="filter-group filter-group-city">
           <span className="fg-label fg-indent">↳ Committee</span>
           <div className="chips">
@@ -127,17 +126,38 @@ export default function FilterGroups({ active, onChange, hideTiming, committees 
       <div className="filter-group">
         <span className="fg-label">Currently with</span>
         <div className="chips">
-          <Chip group="office" value="all"          active={active.office} onChange={onChange}>All</Chip>
-          <Chip group="office" value="us-senate"    active={active.office} onChange={onChange}><span className="chip-dot" />U.S. Senate</Chip>
-          <Chip group="office" value="governor"     active={active.office} onChange={onChange}><span className="chip-dot" />Governor</Chip>
-          <Chip group="office" value="mi-senate"    active={active.office} onChange={onChange}><span className="chip-dot" />Michigan Senate</Chip>
-          <Chip group="office" value="mi-house"     active={active.office} onChange={onChange}><span className="chip-dot" />Michigan House</Chip>
-          <Chip group="office" value="ks-senate"    active={active.office} onChange={onChange}><span className="chip-dot" />Kansas Senate</Chip>
-          <Chip group="office" value="ks-house"     active={active.office} onChange={onChange}><span className="chip-dot" />Kansas House</Chip>
+          <Chip group="office" value="all"       active={active.office} onChange={onChange}>All</Chip>
+          {/* Federal offices — national tracker only */}
+          {isFederal && (
+            <Chip group="office" value="us-senate" active={active.office} onChange={onChange}><span className="chip-dot" />U.S. Senate</Chip>
+          )}
+          {/* State executive — state trackers only */}
+          {!isFederal && (
+            <Chip group="office" value="governor" active={active.office} onChange={onChange}><span className="chip-dot" />Governor</Chip>
+          )}
+          {/* Michigan chambers — MI tracker only */}
+          {isMI && (
+            <>
+              <Chip group="office" value="mi-senate" active={active.office} onChange={onChange}><span className="chip-dot" />Michigan Senate</Chip>
+              <Chip group="office" value="mi-house"  active={active.office} onChange={onChange}><span className="chip-dot" />Michigan House</Chip>
+            </>
+          )}
+          {/* Kansas chambers — KS tracker only */}
+          {isKS && (
+            <>
+              <Chip group="office" value="ks-senate" active={active.office} onChange={onChange}><span className="chip-dot" />Kansas Senate</Chip>
+              <Chip group="office" value="ks-house"  active={active.office} onChange={onChange}><span className="chip-dot" />Kansas House</Chip>
+            </>
+          )}
           <Chip group="office" value="committee"    active={active.office} onChange={onChange}><span className="chip-dot" />In Committee</Chip>
-          <Chip group="office" value="mayor"        active={active.office} onChange={onChange}><span className="chip-dot" />With Mayor / Exec</Chip>
-          <Chip group="office" value="city-council" active={active.office} onChange={onChange}><span className="chip-dot" />City Council</Chip>
-          <Chip group="office" value="county-board" active={active.office} onChange={onChange}><span className="chip-dot" />County Board</Chip>
+          {/* Local offices — state trackers only */}
+          {!isFederal && (
+            <>
+              <Chip group="office" value="mayor"        active={active.office} onChange={onChange}><span className="chip-dot" />With Mayor / Exec</Chip>
+              <Chip group="office" value="city-council" active={active.office} onChange={onChange}><span className="chip-dot" />City Council</Chip>
+              <Chip group="office" value="county-board" active={active.office} onChange={onChange}><span className="chip-dot" />County Board</Chip>
+            </>
+          )}
         </div>
       </div>
 
