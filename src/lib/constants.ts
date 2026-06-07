@@ -30,12 +30,10 @@ export const ISSUE_LABELS: Record<string, string> = {
   housing:      'Housing',
 }
 
-export const CITY_FILTERS = [
-  'Detroit', 'Ann Arbor', 'Grand Rapids', 'Lansing',
-  'Flint', 'Kalamazoo', 'Kent County',
-  'Wichita', 'Kansas City', 'Topeka', 'Overland Park',
-  'Lawrence', 'Olathe', 'Johnson County',
-]
+export const CITY_FILTERS: Record<string, string[]> = {
+  MI: ['Detroit', 'Ann Arbor', 'Grand Rapids', 'Lansing', 'Flint', 'Kalamazoo', 'Kent County'],
+  KS: ['Wichita', 'Kansas City', 'Topeka', 'Overland Park', 'Lawrence', 'Olathe', 'Johnson County'],
+}
 
 export const STATE_NAMES: Record<string, string> = {
   MI: 'Michigan',

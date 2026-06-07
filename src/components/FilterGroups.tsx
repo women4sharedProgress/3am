@@ -55,7 +55,7 @@ export default function FilterGroups({ active, onChange, hideTiming, committees,
           <span className="fg-label fg-indent">↳ City</span>
           <div className="chips">
             <Chip group="city" value="all" active={active.city} onChange={onChange}>All cities</Chip>
-            {CITY_FILTERS.map(city => (
+            {(stateCode ? (CITY_FILTERS[stateCode] ?? []) : []).map(city => (
               <Chip key={city} group="city" value={city} active={active.city} onChange={onChange}>{city}</Chip>
             ))}
           </div>
