@@ -51,7 +51,7 @@ const STATES: StateEntry[] = [
     senator2: { surname: 'Moran',    party: 'R' },
     voterInfo: {
       label: 'KS Voter Info',
-      url:   'https://sos.ks.gov/elections/elections_main.html',
+      url:   'https://sos.ks.gov/elections/voter-information.html',
       bg:    '#FFE066',
       text:  '#1a1200',
     },
