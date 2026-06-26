@@ -26,7 +26,7 @@ When asked to refresh this file:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Federal Legislation Tracker — 29 May 26</title>
+<title>Federal Legislation Tracker — 26 Jun 26</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -228,19 +228,19 @@ const bills = [
     "policyBias": 22,
     "issues": ["surveillance"],
     "ratifyOffice": "us-senate",
-    "stageDates": ["2023-10","2026-01","2026-04-30",null,null,null],
+    "stageDates": ["2023-10","2026-01","2026-04-30","2026-06-12",null,null],
     "stage": 3,
-    "stageNote": "45-day extension signed April 30 — hard deadline approximately June 14, 2026. Congress returned from recess May 11-12. Active negotiations ongoing as of late May between reformers (warrant requirement) and intelligence community (clean renewal). No deal announced as of May 29 — roughly 16 days remain.",
-    "name": "FISA Section 702 — 45-Day Extension; Full Deal Due Mid-June",
-    "desc": "The government collects foreign targets' communications abroad — but those sweeps also capture thousands of Americans' texts, emails, and calls each year. The FBI ran 7,413 warrantless searches of American data in 2025 alone, up 35% in one year. Congress has now passed two short-term patches — a 10-day stopgap April 17, then a 45-day extension April 30 — after the House's 3-year renewal was blocked by the Senate because Speaker Johnson attached an unrelated CBDC ban. The core fight: reform advocates (led by Wyden and Lee) want a warrant requirement for any search of Americans' data; intelligence agencies and the White House want a clean long-term renewal with no new constraints. Approximately June 14 is the hard expiration.",
+    "stageNote": "⚠️ EXPIRED June 12, 2026 — first lapse since 702 was enacted in 2008. Senate vote to advance reauthorization failed 47-52 (~June 5); seven Republicans joined all Democrats except Sen. Fetterman (D-PA) after Trump appointed Bill Pulte (no intelligence background) as acting DNI, triggering a Democratic blockade over politicization concerns. The House also failed to pass even a short-term extension. SURVEILLANCE CONTINUES: existing FISA Court certifications issued March 2026 remain legally valid through approximately March 2027 — telecom and tech companies continue cooperating under those directives. Trump nominated Jay Clayton as permanent DNI; Senate Democratic reaction will determine whether reauthorization restarts. July-August 2026 reauthorization window expected. The GSRA (S. 4082) is now the primary reform vehicle.",
+    "name": "FISA Section 702 — Expired June 12, 2026; Reauthorization Pending",
+    "desc": "The government collects foreign targets' communications abroad — but those sweeps also capture thousands of Americans' texts, emails, and calls each year. The FBI ran 7,413 warrantless searches of American data in 2025 alone, up 35% in one year. Congress passed two short-term patches — a 10-day stopgap April 17, then a 45-day extension April 30. Both chambers failed to reach a deal before the June 12 expiration. The Senate vote collapsed when Trump appointed Bill Pulte (no intelligence background) as acting DNI — Democrats refused to reauthorize surveillance authority under a director they said could weaponize the database for political targeting. The statutory authority has now lapsed for the first time since 2008. Surveillance does not stop: FISA Court certifications issued in March 2026 keep existing collection legally operative through approximately March 2027. The core fight remains: reform advocates want a warrant requirement for any search of Americans' data; the intelligence community wants a clean long-term renewal without new constraints.",
     "introduced": "House Leadership / Trump White House (clean extension); Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT) leading reform coalition",
-    "supporters": "Trump White House, Speaker Johnson, CIA Director Ratcliffe, FBI Director Patel, Senate Majority Leader Thune — all want an 18-month clean renewal",
-    "blockers": "Rep. Andy Biggs (R-AZ), Rep. Thomas Massie (R-KY), Sen. Ron Wyden (D-OR), Sen. Mike Lee (R-UT), Progressive Caucus — demanding warrant requirements",
-    "window": "~June 14, 2026 — roughly 16 days left. Calls to your senators on warrant requirements are the highest-leverage action right now. Both chambers are back in session.",
+    "supporters": "Trump White House, Speaker Johnson, CIA Director Ratcliffe, FBI Director Patel, Senate Majority Leader Thune — want a clean long-term renewal",
+    "blockers": "Senate Democratic caucus (triggered by Pulte DNI appointment); Sen. Ron Wyden (D-OR), Sen. Mike Lee (R-UT), seven Republican senators who voted no on June 5 — all demanding warrant requirements or DNI change",
+    "window": "July-August 2026 reauthorization window. Jay Clayton's DNI nomination is the key variable. Contact your senators on warrant requirements and FISA Court transparency. The GSRA (S. 4082) is the active reform text.",
     "decisions": [
-      {"label": "If Senate passes a clean long-term renewal without warrant protections","text": "FBI and NSA keep all existing powers. Warrantless searches of Americans' data continue at 7,000+ per year. The constitutional fight is deferred until the next reauthorization cycle."},
-      {"label": "If reformers force a warrant amendment into the deal","text": "A judge must approve any search of Americans' data collected under 702. Most significant 4th Amendment protection for digital communications in a decade."},
-      {"label": "If no deal is reached by mid-June and 702 lapses","text": "FISA Court certifications may keep existing collection technically alive — but without statutory clarity, telecom providers may halt cooperation. A third short-term patch is the likely fallback."}
+      {"label": "If Clayton is confirmed as DNI and Democrats return to negotiations","text": "Reauthorization resumes — likely July or August 2026. The GSRA's warrant requirement and data broker ban become the central bargaining chips. A deal with some reforms is the most likely outcome if the political logjam breaks."},
+      {"label": "If reformers force a warrant amendment into the reauthorization deal","text": "A judge must approve any search of Americans' data collected under 702. Most significant 4th Amendment protection for digital communications in a decade."},
+      {"label": "If no reauthorization passes before FISA Court certifications expire in March 2027","text": "702 collection ends entirely — telecom and tech companies' legal basis for cooperation lapses. Intelligence agencies lose access to a key foreign intelligence tool. The political pressure to pass something becomes overwhelming."}
     ]
   },
   {
@@ -252,7 +252,7 @@ const bills = [
     "ratifyOffice": "committee",
     "stageDates": ["2026-03",null,null,null,null,null],
     "stage": 1,
-    "stageNote": "Senate Judiciary Committee — bipartisan; introduced March 2026; the strongest reform vehicle for FISA negotiations before the ~June 14 deadline",
+    "stageNote": "Senate Judiciary Committee — bipartisan; introduced March 2026. With 702 now expired (June 12), this is the primary legislative vehicle for any reauthorization deal. No committee vote yet — the Clayton DNI nomination and Democratic return to negotiations are the key variables. July-August 2026 reauthorization window expected.",
     "name": "S. 4082 — Government Surveillance Reform Act (GSRA)",
     "desc": "The most comprehensive bipartisan surveillance reform bill in Congress. It would require a judge to approve any search of Americans' communications collected under FISA 702; ban the government from buying your location history and browsing data from commercial companies without a warrant; and require the secret FISA Court to publish its legal rulings in redacted form so the public knows how the law is being interpreted. Sen. Wyden and Sen. Lee are the lead sponsors — the same bipartisan pair that has led every major surveillance reform effort since 2013.",
     "introduced": "Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT); Rep. Warren Davidson (R-OH) & Rep. Zoe Lofgren (D-CA)",
@@ -274,7 +274,7 @@ const bills = [
     "ratifyOffice": "us-senate",
     "stageDates": ["2023-05","2023-11","2026-04",null,null,null],
     "stage": 3,
-    "stageNote": "Passed House 219-199 with strong bipartisan support (April 2026) — now in Senate; no floor vote scheduled as of May 2026; strongest leverage as part of the mid-June FISA full-deal negotiations",
+    "stageNote": "Passed House 219-199 with strong bipartisan support (April 2026) — now in Senate; no floor vote scheduled as of June 2026. Note: the GSRA (S. 4082) incorporates most of this bill's data broker ban language — if GSRA passes as the 702 reauthorization vehicle, the data broker provisions become law through that deal rather than this standalone bill.",
     "name": "Fourth Amendment Is Not For Sale Act (H.R. 4842)",
     "desc": "Right now the government can skip the entire warrant process by simply buying your location history, browsing records, and personal data from data broker companies using taxpayer money. FBI, ICE, DHS, IRS, and the Secret Service have all done this. DHS signed a $1 billion contract with Palantir to build AI-powered surveillance systems using this purchased data. This bill makes buying your data without a court order illegal for any law enforcement or intelligence agency — closing what privacy advocates call the 'data broker loophole' in the 4th Amendment. Speaker Johnson and Minority Leader Jeffries both voted yes in the House.",
     "introduced": "Rep. Warren Davidson (R-OH) with bipartisan co-sponsors; Speaker Johnson and Minority Leader Jeffries both voted yes",
@@ -318,17 +318,17 @@ const bills = [
     "ratifyOffice": "us-senate",
     "stageDates": ["2025-01","2026-01","2026-02",null,null,null],
     "stage": 3,
-    "stageNote": "Passed House 218-213 (Feb 2026) — Senate debate began March 17; filibuster holding with no Democratic crossovers; needs 60 votes, Republicans have 53; companion state-level laws advancing in Florida, Utah, and South Dakota",
-    "name": "H.R. 22 — SAVE America Act (Voter Proof-of-Citizenship)",
+    "stageNote": "Passed House 218-213 (Feb 2026, one Democrat crossing over) — Senate blocked as amendment to the FY2026 DHS appropriations bill in June 2026; four Republicans joined Democrats to defeat it. Effectively dead for this session without filibuster reform. Trump has now escalated to demanding passage of the more extreme SAVE America Act — a new bill adding photo ID to vote, DHS voter roll surveillance, and mail ballot restrictions — as a condition for signing any other legislation including the bipartisan ROAD to Housing Act.",
+    "name": "H.R. 22 — SAVE Act (Voter Proof-of-Citizenship) — Senate Blocked",
     "desc": "Requires Americans to show a passport, original birth certificate, or naturalization certificate in person to register to vote in federal elections. An estimated 21 million eligible Americans lack ready access to these specific documents, including many elderly voters who were never issued birth certificates. Civil rights organizations warn the bill is designed to create barriers for populations that historically vote Democratic — low-income voters, voters of color, seniors, and young voters. The Senate filibuster currently blocks it with all Democrats opposing and Sen. Lisa Murkowski voting against proceeding. State-level versions are advancing in multiple states simultaneously.",
     "introduced": "Rep. Chip Roy (R-TX) in House; Senate champion Sen. Mike Lee (R-UT); top Trump White House priority",
     "supporters": "Trump White House, Heritage Foundation, all but one House Republican, Senate Majority Leader Thune",
     "blockers": "Senate Democratic caucus (zero crossovers), Sen. Lisa Murkowski (R-AK) voted against proceeding, election officials from both parties",
-    "window": "Senate floor debate ongoing — calls to senators now on whether to break or preserve the filibuster are the highest-leverage action. 60-vote threshold is the current barrier.",
+    "window": "SAVE Act is effectively dead for this Congress. The new fight is the SAVE America Act — Trump is conditioning all bill signings on its passage including the ROAD to Housing Act. Senate does not have 60 votes for either version. Monitor whether Trump's veto threat forces a deal or collapses bipartisan legislation.",
     "decisions": [
-      {"label": "If Senate filibuster holds","text": "Bill dies this Congress. State-level equivalents — including Kansas HB 2437 — remain the active battleground. The fight shifts to courts challenging those state laws."},
-      {"label": "If Republicans attempt to break or circumvent the filibuster","text": "Could pass with 51 votes. New documentation requirements take effect for all federal elections ahead of the 2026 midterms."},
-      {"label": "If attached to a must-pass vehicle like the budget or NDAA","text": "Would bypass the filibuster entirely. Democrats must oppose the entire vehicle bill to stop it."}
+      {"label": "If Senate filibuster holds on both SAVE Act and SAVE America Act","text": "Both bills die this Congress. State-level voter ID and proof-of-citizenship laws remain the active battleground. Trump's legislative hostage-taking collapses without a Senate path forward."},
+      {"label": "If Trump's SAVE America Act pressure breaks Democratic unity on other must-pass bills","text": "Voter restriction provisions could be attached to a must-pass vehicle, bypassing the filibuster. Democrats must oppose the entire vehicle to stop it."},
+      {"label": "If Trump formally vetoes the ROAD to Housing Act over this dispute","text": "Both chambers passed the housing bill by well over two-thirds — a veto override is arithmetically possible, which would be the first override of Trump's second term."}
     ]
   },
   {
@@ -450,7 +450,7 @@ const bills = [
     "ratifyOffice": "committee",
     "stageDates": ["2025-01",null,null,null,null,null],
     "stage": 1,
-    "stageNote": "Introduced January 2025; Senate Finance Committee; superseded in practical effect by the OBBBA's passage July 4, 2025, which enacted the Medicaid cuts S. 523 was designed to prevent. Focus has shifted to legal challenges and 2026 Senate elections.",
+    "stageNote": "Introduced January 2025; Senate Finance Committee; superseded in practical effect by the OBBBA's passage July 4, 2025, which enacted the Medicaid cuts S. 523 was designed to prevent. Focus has shifted to legal challenges (see H.R. 1) and 2026 Senate elections. A federal judge issued a preliminary injunction blocking the OBBBA's Medicaid defund of Planned Parenthood specifically — a 22-state AG coalition lawsuit is also active on that provision.",
     "name": "S. 523 — Protect Medicaid Act of 2025",
     "desc": "Senate Bill 523 would have prohibited changes to Medicaid through the budget reconciliation process — the same process Republicans used in July 2025 to cut Medicaid by an estimated $900 billion over 10 years through the One Big Beautiful Bill Act. The bill was introduced in January 2025 as a preemptive defense; the Republican majority passed the OBBBA through reconciliation anyway, signing it July 4, 2025. S. 523 now serves as a marker bill — a statement of Democratic legislative intent and a model for future Medicaid restoration legislation if the Senate flips in 2026. The OBBBA cuts include work requirements (starting January 2027), quarterly eligibility verification, elimination of retroactive enrollment, and a projected loss of 10 million Americans from Medicaid coverage by 2034.",
     "introduced": "Sen. Ron Wyden (D-OR) leading; all Senate Democrats co-sponsoring",
@@ -472,7 +472,7 @@ const bills = [
     "ratifyOffice": "courts",
     "stageDates": ["2025-01","2025-03","2025-05","2025-06","2025-07","2025-07"],
     "stage": 6,
-    "stageNote": "✅ SIGNED July 4, 2025 (51-50 Senate vote). ⚖️ LEGAL CHALLENGES ACTIVE: 20+ state AGs sued over Medicaid Spending Clause violations July 2025. First Circuit lifted Planned Parenthood Medicaid injunctions September 2025 — defunding proceeds nationwide. Medicaid work requirements begin January 2027; states implementing verification systems now.",
+    "stageNote": "✅ SIGNED July 4, 2025 (51-50 Senate vote). ⚖️ LEGAL CHALLENGES ACTIVE: Federal judge issued preliminary injunction blocking Medicaid defund of Planned Parenthood specifically (June 2026); 22-state AG coalition lawsuit on that provision ongoing. 25-state AG coalition sued over OBBBA student loan limits (Maryland federal court, pending). Medicaid work requirement final rules due June 1, 2026 — January 1, 2027 implementation; no court has issued a nationwide injunction blocking work requirements yet; states must begin outreach by October 1, 2026. Supreme Court's 2026 ruling narrowing nationwide injunctions limits the scope of any court orders to specific plaintiffs. No court has struck down the OBBBA as a whole.",
     "name": "One Big Beautiful Bill Act (H.R. 1) — Medicaid Cuts & Healthcare Provisions (Enacted; Challenged in Court)",
     "desc": "The One Big Beautiful Bill Act, signed July 4, 2025, enacted the largest cuts to Medicaid in the program's history — an estimated $900 billion over 10 years — along with deep cuts to SNAP food assistance and new restrictions on Planned Parenthood's ability to receive Medicaid reimbursement. The law passed 51-50 in the Senate with the Vice President casting the tie-breaking vote. Key healthcare provisions: Medicaid work requirements for most adults (starting January 2027); quarterly eligibility verification (up from annually); elimination of retroactive Medicaid enrollment; defunding of Planned Parenthood from Medicaid; and an estimated 10 million people losing coverage by 2034. The law also allocated $170 billion in new immigration enforcement funding. Within weeks of signing, 20+ state AGs filed suit alleging the Medicaid defunding provision is unconstitutional under the Spending Clause. In September 2025, the First Circuit Appeals Court lifted lower-court injunctions protecting Planned Parenthood's Medicaid funding, allowing the defunding to proceed nationwide.",
     "introduced": "House Republican leadership; all Republicans + 0 Democrats; passed 51-50 in Senate; signed by President Trump July 4, 2025",
@@ -516,7 +516,7 @@ const bills = [
     "ratifyOffice": "committee",
     "stageDates": ["2025-01",null,null,null,null,null],
     "stage": 1,
-    "stageNote": "House bill H.R. 6356 in Judiciary Committee; Senate companion S. 3308 in Commerce Committee; no hearings scheduled; FTC has launched limited AI bias enforcement actions under existing law while the comprehensive statute remains pending",
+    "stageNote": "House bill H.R. 6356 in Judiciary Committee; Senate companion S. 3308 in Commerce Committee; no hearings scheduled. Major competing development: on June 4, 2026, Reps. Obernolte (R-CA) and Trahan (D-MA) released a 269-page discussion draft of the Great American Artificial Intelligence Act of 2026 — the first attempt at a comprehensive federal AI governance framework. Key controversy: it would preempt state AI laws for three years. 130+ civil society groups, ACLU, AFL-CIO, and Public Citizen oppose the preemption provision. Not yet formally introduced. This is now the dominant AI legislation story in Congress.",
     "name": "H.R. 6356 / S. 3308 — Artificial Intelligence Civil Rights Act of 2025",
     "desc": "Artificial intelligence systems are now used to decide who gets a job interview, who qualifies for a mortgage, what credit terms you're offered, whether your insurance claim is approved, and whether you receive prior authorization for a medical procedure — but there is no federal law requiring these systems to be tested for bias before deployment. Documented studies have found AI hiring tools systematically discriminate against women and people of color; AI credit models penalize people in lower-income zip codes regardless of individual creditworthiness; and AI healthcare prior-authorization tools have denied care to Black patients at higher rates than white patients with equivalent medical conditions. This bill requires developers and deployers of AI systems making consequential decisions about housing, employment, credit, education, and healthcare to conduct bias testing before deployment, report results publicly, and provide individuals a private right of action when discriminatory AI causes harm. Federal agencies must also audit AI systems they currently use.",
     "introduced": "Rep. Yvette Clarke (D-NY); Sen. Ed Markey (D-MA); 50+ co-sponsors in both chambers",
@@ -538,7 +538,7 @@ const bills = [
     "ratifyOffice": "committee",
     "stageDates": ["2025-04",null,null,null,null,null],
     "stage": 1,
-    "stageNote": "Introduced April 2025; Senate Banking Committee; no hearing scheduled; the OBBBA's SNAP and Medicaid cuts are increasing financial pressure on low-income households and worsening housing instability, raising the stakes for housing assistance reform",
+    "stageNote": "Introduced April 2025; Senate Banking Committee; no hearing scheduled. Related development: the 21st Century ROAD to Housing Act (H.R. 6644) — a separate, more supply-focused bipartisan bill — passed the Senate 85-5 and House 358-32 in June 2026, but Trump canceled the signing ceremony, conditioning his signature on passage of the SAVE America Act. That bill is now in a constitutional standoff: if Trump takes no action for 10 days (excluding Sundays) while Congress is in session, it becomes law without his signature; both chambers passed it by well over two-thirds, making an override also possible.",
     "name": "S. 1477 — Housing for All Act of 2025",
     "desc": "The U.S. has a shortage of approximately 7 million housing units. Only about 25% of households who are income-eligible for federal housing assistance — Section 8 vouchers and public housing — actually receive it; there is simply not enough funding. In major cities, eligible families wait 10+ years for a voucher. S. 1477 would make Section 8 housing vouchers an entitlement (like Medicaid) — every household at or below 30% of area median income would be guaranteed a voucher if they qualify. The bill also authorizes $50 billion for a Housing Infrastructure Trust Fund to build 1.5 million new affordable units over 10 years, and conditions federal infrastructure funding on jurisdictions permitting affordable housing near transit and employment centers — a federal zoning reform lever.",
     "introduced": "Sen. Elizabeth Warren (D-MA); Sen. Jeff Merkley (D-OR); Rep. Alexandria Ocasio-Cortez (D-NY) House companion",
@@ -571,6 +571,50 @@ const bills = [
       {"label": "If enacted as written","text": "All unauthorized arrivals detained or returned to a neighboring country while cases are pending. Would require detention facilities for hundreds of thousands beyond current 40,000-bed capacity. International asylum treaty compliance is disputed."},
       {"label": "If partially enacted through spending riders","text": "Detention funding increased and some release categories restricted without a full statutory mandatory-detention mandate. The OBBBA approach — funding detention expansion — becomes the operative policy without an absolute bar on release."},
       {"label": "If courts find the mandatory detention provisions violate due process","text": "Courts restore individualized bond hearings. The Zadvydas v. Davis (2001) precedent — limiting indefinite detention of removable individuals — becomes the controlling floor. The bill's operational reach is limited without legislation requiring it."}
+    ]
+  },
+  {
+    "id": 17,
+    "amend": ["4th"],
+    "urgency": "stalled",
+    "policyBias": 72,
+    "issues": ["surveillance","immigration","policing"],
+    "ratifyOffice": "committee",
+    "stageDates": ["2026-02",null,null,null,null,null],
+    "stage": 1,
+    "stageNote": "Introduced February 5, 2026 by Sen. Markey, Sen. Merkley, Sen. Wyden, and Rep. Jayapal. Senate Commerce Committee and House Judiciary Committee. No hearing scheduled. Endorsed by EFF, EPIC, ACLU, and others. No floor action under Republican majority.",
+    "name": "ICE Out of Our Faces Act (S. 3779) — Biometric Surveillance Ban",
+    "desc": "The Trump administration has rapidly expanded ICE and CBP's use of facial recognition and other biometric identification systems — matching faces from social media, DMV databases, and street cameras to identify and detain people. There is currently no federal law restricting immigration enforcement's use of biometrics. Documented cases include misidentification and wrongful detention based on facial recognition matches. S. 3779 would ban ICE and CBP from acquiring, accessing, or using facial recognition technology and other biometric identification systems entirely — and requires permanent deletion of all biometric data these agencies have already collected. Unlike the broader Facial Recognition Act of 2025 (H.R. 4695), this bill targets immigration enforcement specifically, where biometric use is most expansive and least regulated.",
+    "introduced": "Sen. Ed Markey (D-MA), Sen. Jeff Merkley (D-OR), Sen. Ron Wyden (D-OR); Rep. Pramila Jayapal (D-WA)",
+    "supporters": "EFF, EPIC, ACLU, National Immigration Law Center, civil liberties and immigrant rights organizations",
+    "blockers": "Republican House and Senate majorities; Trump administration; DHS; ICE; CBP — all actively expanding biometric surveillance as a core enforcement strategy",
+    "window": "2025-2026 — no legislative path under current majority. Monitor ICE and CBP biometric contract expansions and any FOIA litigation by EFF or ACLU revealing the scope of existing databases. The bill creates pressure for oversight hearings even if it cannot pass.",
+    "decisions": [
+      {"label": "If enacted","text": "ICE and CBP lose access to facial recognition and all biometric identification systems. All biometric data collected by these agencies must be permanently deleted. The most far-reaching biometric restriction on any federal agency in U.S. history."},
+      {"label": "If a narrower version limits use rather than banning it outright","text": "Accuracy and bias testing required before use; prohibition on using biometric match alone as basis for arrest. Closer to the Facial Recognition Act of 2025 model — weaker but more politically viable."},
+      {"label": "If no legislation passes","text": "ICE and CBP continue expanding biometric surveillance without legal restrictions. Documented misidentification cases increase as the databases grow. No federal floor on accuracy standards or deletion requirements."}
+    ]
+  },
+  {
+    "id": 18,
+    "amend": [],
+    "urgency": "urgent",
+    "policyBias": 52,
+    "issues": ["housing"],
+    "ratifyOffice": "us-president",
+    "stageDates": ["2025-06","2025-09","2026-06-23","2026-06-22",null,null],
+    "stage": 4,
+    "stageNote": "Passed Senate 85-5 (June 22, 2026) and House 358-32 (June 23, 2026) — both well above the two-thirds threshold for a veto override. Trump canceled the signing ceremony June 24, conditioning his signature on Congress passing the SAVE America Act. Constitutional standoff: if Congress is in session and Trump takes no action for 10 days (excluding Sundays), the bill becomes law without his signature. The 10-day clock is running. A formal veto would likely be overridden given the margins in both chambers.",
+    "name": "21st Century ROAD to Housing Act (H.R. 6644) — Awaiting Presidential Action",
+    "desc": "The largest federal housing affordability bill in decades. Passed the Senate 85-5 and the House 358-32 — extraordinary bipartisan margins that include only five Republican no votes (Johnson, Lee, Paul, Scott, Tuberville). The bill boosts housing supply by reforming federal permitting requirements, limits institutional investors from purchasing certain single-family homes to reduce competition for first-time buyers, and creates new programs to increase affordable housing near transit and employment centers. Trump signed most of his major legislative priorities this term with Republican-only votes — this bill passed with 85% of both chambers. He then used it as a political hostage: canceling the signing ceremony and announcing he will not sign any legislation until Congress passes the SAVE America Act voter restriction bill, which does not have 60 Senate votes.",
+    "introduced": "Bipartisan; led by Senate Banking Committee; passed 85-5 in Senate, 358-32 in House",
+    "supporters": "85 senators, 358 House members, National Association of Realtors, housing industry, urban and suburban mayors, first-time homebuyer advocates",
+    "blockers": "Trump White House — conditioning signature on unrelated SAVE America Act passage; five Senate no votes: Ron Johnson, Mike Lee, Rand Paul, Rick Scott, Tommy Tuberville",
+    "window": "Immediate — the 10-day constitutional clock is running. If Trump does not act and Congress remains in session, the bill becomes law automatically. A formal veto could be overridden by the existing margins in both chambers. Contact your representatives to demand the President sign or that Congress proceed to an override vote.",
+    "decisions": [
+      {"label": "If Trump signs or the 10-day clock expires without a veto","text": "Bill becomes law. Federal housing supply reforms, institutional investor limits, and affordable housing programs take effect. Largest housing affordability legislation enacted in decades."},
+      {"label": "If Congress overrides a Trump veto","text": "Bill becomes law without the President's signature — first veto override of Trump's second term. Would be a significant demonstration that bipartisan supermajorities can still govern despite executive resistance."},
+      {"label": "If Trump's veto threat holds and Congress does not override","text": "The ROAD to Housing Act dies. Trump's strategy of conditioning bill signings on unrelated demands succeeds — setting a precedent for future legislative hostage-taking. Housing affordability legislation is set back significantly."}
     ]
   }
 ];
