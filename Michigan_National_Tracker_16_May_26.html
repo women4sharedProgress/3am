@@ -32,7 +32,7 @@ and save the file with today's date in the filename:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Michigan & National Legislation Tracker — 16 May 26</title>
+<title>Michigan & National Legislation Tracker — 26 Jun 26</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -114,30 +114,30 @@ const bills = [
       "2023-10",
       "2026-01",
       "2026-04-30",
-      null,
+      "2026-06-12",
       null,
       null
     ],
     "stage": 3,
-    "stageNote": "45-day clean extension signed by President Trump April 30 — new hard deadline mid-June 2026. House passed a 3-year renewal (235-191, Apr 29) loaded with a CBDC ban that Senate Majority Leader Thune declared dead on arrival. Senate passed a clean 45-day extension instead (unanimous). Senate on recess through May 11 — full reauthorization negotiations resume week of May 12.",
-    "name": "FISA Section 702 — 45-Day Extension Signed; Full Deal Due Mid-June",
-    "desc": "The government collects foreign targets' communications abroad — but those sweeps also capture thousands of Americans' texts, emails, and calls each year. The FBI ran 7,413 warrantless searches of American data in 2025 alone, up 35% in one year. Congress has now extended 702 twice in short-term patches — a 10-day stopgap April 17, then a 45-day clean extension April 30 — after the House's 3-year renewal was blocked by the Senate because Speaker Johnson attached a Central Bank Digital Currency ban. Both chambers are now home for recess. The full reform-vs-clean-renewal fight resumes in May.",
+    "stageNote": "⚠️ EXPIRED June 12, 2026 — first lapse since 702 was enacted in 2008. Senate vote to advance reauthorization failed 47-52 (~June 5); seven Republicans joined all Democrats except Sen. Fetterman (D-PA) after Trump appointed Bill Pulte (no intelligence background) as acting DNI, triggering a Democratic blockade over politicization concerns. The House also failed to pass even a short-term extension. SURVEILLANCE CONTINUES: existing FISA Court certifications issued March 2026 remain legally valid through approximately March 2027 — telecom and tech companies continue cooperating under those directives. Trump nominated Jay Clayton as permanent DNI; Senate Democratic reaction will determine whether reauthorization restarts. July-August 2026 reauthorization window expected. The GSRA (S. 4082) is now the primary reform vehicle.",
+    "name": "FISA Section 702 — Expired June 12, 2026; Reauthorization Pending",
+    "desc": "The government collects foreign targets' communications abroad — but those sweeps also capture thousands of Americans' texts, emails, and calls each year. The FBI ran 7,413 warrantless searches of American data in 2025 alone, up 35% in one year. Congress passed two short-term patches — a 10-day stopgap April 17, then a 45-day extension April 30. Both chambers failed to reach a deal before the June 12 expiration. The Senate vote collapsed when Trump appointed Bill Pulte (no intelligence background) as acting DNI — Democrats refused to reauthorize surveillance authority under a director they said could weaponize the database for political targeting. The statutory authority has now lapsed for the first time since 2008. Surveillance does not stop: FISA Court certifications issued in March 2026 keep existing collection legally operative through approximately March 2027.",
     "introduced": "House Leadership / Trump White House (clean extension); Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT) leading reform coalition",
-    "supporters": "Trump White House, Speaker Johnson, CIA Director Ratcliffe, FBI Director Patel, Senate Majority Leader Thune — all want an 18-month clean renewal",
-    "blockers": "Rep. Andy Biggs (R-AZ), Rep. Thomas Massie (R-KY), Sen. Ron Wyden (D-OR), Sen. Lee (R-UT), Progressive Caucus — demanding warrant requirements",
-    "window": "Mid-June 2026 — Senate and House both return from recess May 11-12. The 45-day extension runs through approximately June 14. Sen. Wyden and Intelligence Committee Chairman Cotton jointly demanded DNI Gabbard declassify a secret FISA Court opinion before the Senate votes on a full deal. Calls to senators on warrant requirements are the highest-leverage action.",
+    "supporters": "Trump White House, Speaker Johnson, CIA Director Ratcliffe, FBI Director Patel, Senate Majority Leader Thune — want a clean long-term renewal",
+    "blockers": "Senate Democratic caucus (triggered by Pulte DNI appointment); Sen. Ron Wyden (D-OR), Sen. Mike Lee (R-UT), seven Republican senators who voted no on June 5 — all demanding warrant requirements or DNI change",
+    "window": "July-August 2026 reauthorization window. Jay Clayton's DNI nomination is the key variable. Contact your senators on warrant requirements. The GSRA (S. 4082) is the active reform text.",
     "decisions": [
       {
-        "text": "FBI and NSA keep all existing powers. Warrantless searches of Americans' data continue at 7,000+ per year. The constitutional fight is deferred until the next reauthorization cycle.",
-        "label": "If Senate passes a clean long-term renewal without warrant protections"
+        "text": "Reauthorization resumes — likely July or August 2026. The GSRA's warrant requirement and data broker ban become the central bargaining chips. A deal with some reforms is the most likely outcome if the political logjam breaks.",
+        "label": "If Clayton is confirmed as DNI and Democrats return to negotiations"
       },
       {
-        "text": "A judge must approve any search of Americans' data collected under 702. Most significant 4th Amendment protection for digital communications in a decade. FISA Court legal opinion declassified could be the catalyst.",
-        "label": "If reformers force a warrant amendment into the deal"
+        "text": "A judge must approve any search of Americans' data collected under 702. Most significant 4th Amendment protection for digital communications in a decade.",
+        "label": "If reformers force a warrant amendment into the reauthorization deal"
       },
       {
-        "text": "FISA Court certifications may keep existing collection technically alive — but without statutory clarity, telecom providers may halt cooperation. A third short-term patch becomes the likely fallback.",
-        "label": "If no deal is reached by mid-June and 702 lapses again"
+        "text": "702 collection ends entirely — telecom and tech companies' legal basis for cooperation lapses. Intelligence agencies lose access to a key foreign intelligence tool. The political pressure to pass something becomes overwhelming.",
+        "label": "If no reauthorization passes before FISA Court certifications expire in March 2027"
       }
     ]
   },
@@ -162,7 +162,7 @@ const bills = [
       null
     ],
     "stage": 1,
-    "stageNote": "Senate Judiciary Committee — bipartisan; introduced March 2026; being pushed as the vehicle for FISA reform before the April 30 deadline",
+    "stageNote": "Senate Judiciary Committee — bipartisan; introduced March 2026. With 702 now expired (June 12), this is the primary legislative vehicle for any reauthorization deal. No committee vote yet — the Clayton DNI nomination and Democratic return to negotiations are the key variables. July-August 2026 reauthorization window expected.",
     "name": "S. 4082 — Government Surveillance Reform Act (GSRA)",
     "desc": "The most comprehensive bipartisan surveillance reform bill in Congress. It would require a judge to approve any search of Americans' communications collected under FISA 702; ban the government from buying your location history and browsing data from commercial companies without a warrant; and require the secret FISA Court to publish its legal rulings in redacted form so the public knows how the law is being interpreted.",
     "introduced": "Sen. Ron Wyden (D-OR) & Sen. Mike Lee (R-UT); Rep. Warren Davidson (R-OH) & Rep. Zoe Lofgren (D-CA)",
@@ -206,7 +206,7 @@ const bills = [
       null
     ],
     "stage": 3,
-    "stageNote": "Passed House 219-199 with strong bipartisan support — now in Senate; no floor vote scheduled as of April 2026",
+    "stageNote": "Passed House 219-199 with strong bipartisan support — now in Senate; no floor vote scheduled as of June 2026. The GSRA (S. 4082) now incorporates most of this bill's data broker ban language — if GSRA passes as the 702 reauthorization vehicle, the data broker provisions become law through that deal.",
     "name": "Fourth Amendment Is Not For Sale Act",
     "desc": "Right now the government can skip the entire warrant process by simply buying your location history, browsing records, and personal data from data broker companies using taxpayer money. FBI, ICE, DHS, IRS, and the Secret Service have all done this. DHS signed a $1 billion contract with Palantir to build AI-powered surveillance systems using this purchased data. This bill makes buying your data without a court order illegal for any law enforcement or intelligence agency.",
     "introduced": "Rep. Warren Davidson (R-OH) with 7 bipartisan co-sponsors; Speaker Johnson and Minority Leader Jeffries both voted yes",
@@ -293,8 +293,8 @@ const bills = [
       null
     ],
     "stage": 3,
-    "stageNote": "Passed House 218-213 (Feb 2026) — Senate debate began March 17; filibuster holding with no Democratic crossovers; needs 60 votes, Republicans have 53",
-    "name": "H.R. 22 — SAVE America Act (Voter Proof-of-Citizenship)",
+    "stageNote": "Passed House 218-213 (Feb 2026) — Senate blocked as amendment to the FY2026 DHS appropriations bill in June 2026; four Republicans joined Democrats to defeat it. Effectively dead for this session without filibuster reform. Trump has now escalated to demanding passage of the more extreme SAVE America Act — adding photo ID to vote, DHS voter roll surveillance, and mail ballot restrictions — as a condition for signing any other legislation including the bipartisan ROAD to Housing Act. Michigan's state-level equivalent (HB 4765) passed the Michigan House April 14, 2026 on a party-line vote and is now in the Michigan Senate Government Operations Committee.",
+    "name": "H.R. 22 — SAVE Act (Voter Proof-of-Citizenship) — Senate Blocked",
     "desc": "Requires Americans to show a passport, original birth certificate, or naturalization certificate in person to register to vote in federal elections. An estimated 21 million eligible Americans lack ready access to these specific documents, including many elderly Black voters who were never issued birth certificates.",
     "introduced": "Rep. Chip Roy (R-TX) in House; Senate champion Sen. Mike Lee (R-UT); top Trump White House priority",
     "supporters": "Trump White House, Heritage Foundation, all but one House Republican, Senate Majority Leader Thune",
@@ -381,7 +381,7 @@ const bills = [
       null
     ],
     "stage": 2,
-    "stageNote": "Senate Civil Rights Committee voted to report SBs 508 & 510 to full Senate — SB 509 still in committee; no full Senate floor vote yet as of April 2026",
+    "stageNote": "SBs 508 & 510 referred to full Senate Committee of the Whole (March 25-26, 2026) — SB 509 still in committee; no full Senate floor vote as of June 2026. League of Women Voters has an active action alert urging members to contact senators, confirming the floor vote has not yet occurred. Calls to your Michigan senators are the highest-leverage action.",
     "name": "MI SBs 508-510 — ICE Enforcement Limits Package",
     "desc": "Three linked bills that draw constitutional lines around how ICE can operate in Michigan. SB 508 bans immigration enforcement at schools, hospitals, churches, and courthouses unless there is a warrant or imminent danger. SB 509 requires a court warrant before any Michigan government entity can hand over personal information for immigration enforcement. SB 510 bans law enforcement officers from wearing masks while interacting with the public in non-undercover situations. All three respond to documented tactics that constitutional law experts say violate the 4th Amendment and due process.",
     "introduced": "Sen. Mary Cavanagh (D-Redford Twp.) — SB 508; Sen. Stephanie Chang (D-Detroit) — SB 509; Sen. Jeremy Moss (D-Bloomfield) — SB 510",
@@ -425,7 +425,7 @@ const bills = [
       null
     ],
     "stage": 3,
-    "stageNote": "Passed Michigan Senate 22-15 with bipartisan support (March 19, 2026) — now in House Judiciary Committee; AG Dana Nessel and Gov. Whitmer are actively pushing for House passage",
+    "stageNote": "Passed Michigan Senate on March 19, 2026 — referred to House Judiciary Committee March 19; no House hearing or vote as of June 2026. AG Dana Nessel and Gov. Whitmer are actively pushing for House passage.",
     "name": "MI SB 502 — Anti-Terrorism Statute Intent Requirement",
     "desc": "Michigan's current anti-terrorism law allows someone to be charged based on how their words were perceived by others — even if they were joking, using hyperbole, or making a heated political statement. This bill adds an intent requirement: prosecutors must prove you knowingly or recklessly made a terrorist threat, not just that a listener felt threatened. This directly addresses First and Fourteenth Amendment concerns about vague laws criminalizing protected speech.",
     "introduced": "Sen. Sue Shink (D-Northfield Twp.) & Sen. Rosemary Bayer (D-Beverly Hills)",
@@ -510,7 +510,7 @@ const bills = [
       null
     ],
     "stage": 2,
-    "stageNote": "Passed out of Senate Civil Rights, Judiciary & Public Safety Committee — awaiting House vote before December 31, 2026",
+    "stageNote": "SBs 333, 334, and 336 moved out of Senate Civil Rights Committee; referred to Senate Committee of the Whole — no full Senate floor vote as of June 2026. Remaining bills in the 11-bill package still in committee. House must also act before December 31, 2026.",
     "name": "MI SBs 333-343 — Police S.T.A.T. Package",
     "desc": "An 11-bill package that would set statewide minimum standards for police conduct in Michigan. Key provisions: use-of-force must be objectively reasonable; officers must attempt de-escalation; strict limits on no-knock warrants; mandatory body cameras with anti-tampering enforcement; and a legal duty to intervene if you witness a fellow officer using excessive force. Michigan has over 600 law enforcement agencies — each currently sets its own standards, or none.",
     "introduced": "Sen. Stephanie Chang (SB 333, use of force), Sen. Erika Geiss (SB 336, no-knock warrants), Sen. Sylvia Santana (SBs 337-338, body cameras)",
@@ -544,17 +544,17 @@ const bills = [
     "issues": [
       "voting"
     ],
-    "ratifyOffice": "committee",
+    "ratifyOffice": "mi-senate",
     "stageDates": [
       "2026-03",
-      null,
-      null,
+      "2026-03",
+      "2026-04-14",
       null,
       null
     ],
-    "stage": 1,
-    "stageNote": "Introduced March 2026 — House Elections Committee; can pass the Republican-majority House; will not pass Democratic-controlled Senate under current alignment",
-    "name": "MI HB 4765 — Proof of Citizenship for Voter Registration",
+    "stage": 3,
+    "stageNote": "PASSED Michigan House April 14, 2026 on a party-line vote (all Republicans for, all Democrats against) — now in Michigan Senate Committee on Government Operations. Senate Majority Leader Brinks and Senate Democrats have indicated it is very unlikely to receive a Senate floor vote in the Democratic-controlled Senate.",
+    "name": "MI HB 4765 — Proof of Citizenship for Voter Registration — Passed House",
     "desc": "Requires Michigan voters to show a passport, birth certificate, or naturalization document in person to register to vote. Michigan's Deputy Secretary of State warned that standard state driver's licenses — which most people use for ID — would not be accepted under this bill. Voters needing an Enhanced Driver's License would face extra fees. The 14th Amendment's equal protection clause prohibits placing different financial burdens on citizens' voting rights based on what documents they happen to have.",
     "introduced": "Rep. Jason Woolford (R-Howell) — aligned with the federal SAVE America Act push",
     "supporters": "Michigan House Republicans, voter ID advocacy groups, aligned with Trump White House priority",
@@ -595,7 +595,7 @@ const bills = [
       null
     ],
     "stage": 1,
-    "stageNote": "House Judiciary Committee pending — bipartisan sponsors; no hearing scheduled as of April 2026",
+    "stageNote": "House Judiciary Committee — bipartisan sponsors; no hearing scheduled as of June 2026. No movement since introduction.",
     "name": "MI HBs 5474-5477 — Returning Citizens ID Package",
     "desc": "Requires Michigan's Department of Corrections to give every person a driver's license or state ID on the day they are released from prison. Without valid ID, a formerly incarcerated person cannot legally get a job, rent an apartment, open a bank account, or register to vote. The state releases people and then makes it nearly impossible for them to legally reintegrate. Bipartisan sponsors frame this as a 14th Amendment equal protection issue.",
     "introduced": "Rep. Luke Meerman (R-Coopersville), Rep. Kimberly Edwards (D-Eastpointe), Rep. Mike McFall (D-Hazel Park), Rep. Donavan McKinney (D-Detroit)",
@@ -717,7 +717,7 @@ const bills = [
       null
     ],
     "stage": 3,
-    "stageNote": "Passed Michigan Senate 26-11 (February 2026) — House Natural Resources Committee; Michigan must file allocation plan with federal EPA by September 2026 to preserve $200M in federal matching funds",
+    "stageNote": "Passed Michigan Senate 26-11 (February 2026) — House Natural Resources Committee; no House vote as of June 2026. Note: the EPA is rolling back PFAS standards and proposing to push compliance deadlines to 2031 (June 2026 proposed rule), which may affect the federal matching fund timeline. The September 2026 EPA allocation deadline should be monitored closely given federal regulatory changes.",
     "name": "MI SB 147 — PFAS Contamination Remediation Fund",
     "desc": "Michigan has the most PFAS-contaminated sites of any state — over 11,500 locations across 82 counties. PFAS (forever chemicals used in firefighting foam and thousands of consumer products) contaminate drinking water and cause thyroid disease, kidney cancer, and developmental disorders in children. Michigan received $450 million from the 3M PFAS settlement, but without legislation designating the funds, they sit in the general fund. SB 147 dedicates the settlement funds to a Remediation Account and creates a statewide testing program for private wells — where 1 in 5 Michigan residents get their drinking water.",
     "introduced": "Sen. Rosemary Bayer (D-Beverly Hills), Sen. Jon Bumstead (R-Newaygo) — bipartisan",
@@ -759,7 +759,7 @@ const bills = [
       null
     ],
     "stage": 3,
-    "stageNote": "Passed Michigan Senate 20-17 along party lines (January 2026) — House Insurance & Financial Services Committee; Governor Whitmer has pledged to sign",
+    "stageNote": "Passed Michigan Senate (January 2026) — voted out of House committee June 17, 2026; now awaiting full House floor vote. Governor Whitmer announced a separate executive program forgiving $74M in medical debt for 72,000 Michiganders (June 22, 2026), maintaining political pressure for the legislative package. House floor vote imminent.",
     "name": "MI SBs 200-203 — Medical Debt Credit Reporting Prohibition",
     "desc": "Michigan has 1.8 million residents with medical debt on their credit reports — disproportionately low-income workers, seniors, and people of color. This package bans credit reporting agencies from including medical debt on Michigan residents' credit reports, stops creditors from using medical debt as a factor in housing or employment decisions, extends the statute of limitations for disputing fraudulent medical billing, and requires hospitals to notify patients of financial assistance programs before sending bills to collection.",
     "introduced": "Sen. Sarah Anthony (D-Lansing), Sen. Mallory McMorrow (D-Royal Oak)",
@@ -839,7 +839,7 @@ const bills = [
       null
     ],
     "stage": 3,
-    "stageNote": "Passed Michigan House 56-53 (November 2025) — Senate Energy & Environment Committee hearing scheduled May 2026; Gov. Whitmer has made this a 2026 priority",
+    "stageNote": "Passed Michigan House 56-53 (November 2025) — Senate Energy & Environment Committee. ⚠️ MAJOR DEVELOPMENT: The Republican-controlled Michigan House separately passed HBs 5710-5711 in May 2026 to REPEAL Michigan's clean energy mandate (votes of 58-47 and 57-48). Senate Majority Leader Brinks stated there is 'no chance' either repeal bill gets a Senate vote — the Democratic-controlled Senate is the firewall. Clean energy implementation remains the Senate's priority; the repeal fight is a direct attack on Michigan's 2040 clean energy law.",
     "name": "MI HB 4450 — Clean Energy Standards Implementation",
     "desc": "Michigan's 2023 Clean Energy Act set a goal of 100% clean electricity by 2040 — but did not fully fund the transition or set binding interim benchmarks. HB 4450 implements that framework: requires utilities to reach 60% renewable generation by 2030, 80% by 2035, and 100% by 2040; creates a $250M annual Clean Energy Transition Fund to support workers displaced from fossil fuel jobs; and requires the Michigan Public Service Commission to approve only new generating capacity that is carbon-zero. Michigan currently gets about 15% of electricity from renewables.",
     "introduced": "Rep. Jenn Hill (D-Marquette), Rep. Donni Steele (R-Lake Orion)",
@@ -912,16 +912,16 @@ const bills = [
     "issues": [
       "housing"
     ],
-    "ratifyOffice": "mi-senate",
+    "ratifyOffice": "mi-house",
     "stageDates": [
       "2025-10",
       "2025-12",
       "2026-02",
-      null,
+      "2026-06-19",
       null
     ],
-    "stage": 3,
-    "stageNote": "Passed Michigan House 63-45 (February 2026) — Senate Housing & Human Services Committee; bipartisan support in the Senate expected but final vote not yet scheduled",
+    "stage": 4,
+    "stageNote": "Passed Michigan House (February 2026) — Senate Housing & Human Services Committee advanced the package June 2-3, 2026; full Michigan Senate passed the housing tax credit bills the week of June 19, 2026. Now in House Regulatory Reform Committee for concurrence. Bipartisan support confirmed — Senate passage is the major development since May.",
     "name": "MI HBs 4100-4103 — Affordable Housing Workforce Tax Credit Package",
     "desc": "Michigan needs 186,000 housing units to meet current demand, with a 20-year deficit concentrated in communities of color and low-income areas. This four-bill package creates a Michigan Affordable Housing Tax Credit matching the federal Low-Income Housing Tax Credit dollar-for-dollar; allows counties to establish local housing trust funds with state matching; expands the state definition of homelessness to qualify more people for housing assistance; and restricts landlords from using algorithmic rent-pricing software to coordinate rents — a practice the DOJ sued RealPage for in 2024.",
     "introduced": "Rep. Felicia Brabec (D-Ann Arbor), Rep. John Fitzgerald (D-Grand Rapids), Rep. Donni Steele (R-Lake Orion)",
@@ -1089,7 +1089,7 @@ const bills = [
       null
     ],
     "stage": 1,
-    "stageNote": "House Judiciary Committee — introduced February 2026; bipartisan sponsors; no hearing scheduled as of April 2026",
+    "stageNote": "House Judiciary Committee — bipartisan sponsors; no hearing scheduled as of June 2026. The related bipartisan SB 909 (by Sen. Chang and Sen. Damoose) would lower the evidentiary standard for wrongful conviction claims and is the more active vehicle in the Senate.",
     "name": "MI HBs 4820-4822 — Wrongful Conviction Compensation Reform",
     "desc": "Michigan currently caps wrongful conviction compensation at $50,000 per year of wrongful imprisonment — a limit set in 2016 and never adjusted for inflation. Michigan Innocence Clinic has exonerated 57 people since 2009; the average time wrongfully imprisoned was 14.8 years. This package raises the cap to $100,000 per year; creates an immediate $25,000 emergency fund payable within 30 days of exoneration; provides automatic Medicaid enrollment for 5 years post-exoneration; and creates a legal presumption that the state has liability in cases reversed by a court based on actual innocence.",
     "introduced": "Rep. Emily Dievendorf (D-Lansing), Rep. Gina Johnsen (R-Lake Odessa) — bipartisan",
@@ -1427,7 +1427,7 @@ const bills = [
       null
     ],
     "stage": 4,
-    "stageNote": "Passed Grand Rapids City Commission 5-2 (March 2026) — on Mayor Bliss's desk; she has expressed support but has not yet signed; 30-day signature window",
+    "stageNote": "Passed Grand Rapids City Commission 5-2 (March 2026) — referred to Mayor David LaGrand (mayor since January 2025; Mayor Bliss left office end of 2024). The 30-day signature window from March has elapsed — status of mayoral action (sign, veto, or return to commission) not confirmed as of June 2026.",
     "name": "Grand Rapids — Just Cause Eviction & Tenant Bill of Rights",
     "desc": "Grand Rapids has seen a 40% increase in eviction filings since 2021, coinciding with a 28% increase in average rents. Landlords are not currently required to give a reason for eviction — a 'no-fault' eviction can remove a family with 30 days notice regardless of payment history. This ordinance requires landlords to document a 'just cause' before evicting a tenant — covering nonpayment, lease violations, illegal activity, or legitimate owner move-in — and prohibits 'no-cause' lease non-renewals. It also requires relocation assistance equal to two months' rent for any tenant displaced by an owner move-in conversion, and mandates that all new leases be provided in both English and Spanish.",
     "introduced": "Commissioner Jon O'Connor, Commissioner Milinda Ysasi",
@@ -1639,7 +1639,7 @@ const bills = [
       null
     ],
     "stage": 4,
-    "stageNote": "Passed Detroit City Council 7-2 (February 2026) — on Mayor Sheffield's desk; he has expressed support but has not yet signed as of April 2026",
+    "stageNote": "Passed Detroit City Council 7-2 (February 2026) — on Mayor Mary Sheffield's desk; Sheffield became Detroit's 76th mayor and first woman mayor in January 2026. No confirmed signing as of June 2026; community pressure campaign is active.",
     "name": "Detroit — Cannabis Social Equity Licensing Priority Ordinance",
     "desc": "Detroit currently has 94 licensed cannabis dispensaries. Fewer than 10% are Black-owned — despite 79% of Detroit's population being Black and the city's residents having experienced some of the highest marijuana arrest rates in Michigan during prohibition. This ordinance creates a Cannabis Social Equity Priority Pool: 40% of all new dispensary and provisioning center licenses issued in the next 5 years are reserved for applicants who lived in high-arrest ZIP codes for at least 5 years during the War on Drugs period; reduces application and licensing fees by 75% for equity applicants; and creates a Detroit Cannabis Business Development Fund with $2M in seed money for equity licensees.",
     "introduced": "Council Member Mary Waters, Council Member Angela Whitfield-Calloway",
