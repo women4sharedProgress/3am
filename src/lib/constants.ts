@@ -8,6 +8,8 @@ export const OFFICE_META: Record<string, { label: string; dotCls: string }> = {
   'mi-house':     { label: 'Michigan House',         dotCls: 'od-mih'    },
   'ks-senate':    { label: 'Kansas Senate',          dotCls: 'od-mis'    },
   'ks-house':     { label: 'Kansas House',           dotCls: 'od-mih'    },
+  'pa-senate':    { label: 'Pennsylvania Senate',    dotCls: 'od-mis'    },
+  'pa-house':     { label: 'Pennsylvania House',     dotCls: 'od-mih'    },
   'committee':    { label: 'In Committee',           dotCls: 'od-com'    },
   'us-senate':    { label: 'U.S. Senate',            dotCls: 'od-uss'    },
   'president':    { label: 'President',              dotCls: 'od-pres'   },
@@ -38,4 +40,5 @@ export const CITY_FILTERS: Record<string, string[]> = {
 export const STATE_NAMES: Record<string, string> = {
   MI: 'Michigan',
   KS: 'Kansas',
+  PA: 'Pennsylvania',
 }

@@ -50,6 +50,7 @@ export default function TrackerPage({ stateCode }: { stateCode?: string } = {}) 
   const navigate = useNavigate()
   const statesToLoad = stateCode === 'MI' ? ['MI']
                      : stateCode === 'KS' ? ['KS']
+                     : stateCode === 'PA' ? ['PA']
                      : ['US']
   const { bills: rawBills, loading, error } = useBills(statesToLoad)
   const [bills, setBills] = useState<Bill[]>(rawBills)
@@ -86,9 +87,11 @@ export default function TrackerPage({ stateCode }: { stateCode?: string } = {}) 
 
   const stateLabel = stateCode === 'MI' ? 'Michigan'
                    : stateCode === 'KS' ? 'Kansas'
+                   : stateCode === 'PA' ? 'Pennsylvania'
                    : 'Federal'
   const filePrefix = stateCode === 'MI' ? 'Michigan_National_Tracker'
                    : stateCode === 'KS' ? 'KSLawtracker'
+                   : stateCode === 'PA' ? 'PALawtracker'
                    : 'Fedtracker'
 
   async function fetchAllBills(): Promise<Bill[]> {
@@ -222,6 +225,17 @@ export default function TrackerPage({ stateCode }: { stateCode?: string } = {}) 
                 <line x1="10" y1="14" x2="21" y2="3"/>
               </svg>
               KS Legislature
+            </a>
+          )}
+          {stateCode === 'PA' && (
+            <a href="https://www.legis.state.pa.us/cfdocs/legis/home/bills/" target="_blank" rel="noopener noreferrer"
+              style={{ ...BTN, textDecoration: 'none' }} aria-label="Pennsylvania Legislature bills">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              PA Legislature
             </a>
           )}
           {!stateCode && (

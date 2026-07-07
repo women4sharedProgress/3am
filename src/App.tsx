@@ -37,6 +37,7 @@ export default function App() {
       <Route path="/tracker"                 element={<TrackerPage />} />
       <Route path="/tracker/michigan"        element={<TrackerPage stateCode="MI" />} />
       <Route path="/tracker/kansas"          element={<TrackerPage stateCode="KS" />} />
+      <Route path="/tracker/pennsylvania"    element={<TrackerPage stateCode="PA" />} />
       <Route path="/login"                   element={<Login />} />
       <Route path="/register"               element={<Register />} />
       <Route path="/settings"               element={<Settings />} />

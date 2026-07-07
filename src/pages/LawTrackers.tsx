@@ -62,6 +62,26 @@ const STATES: StateEntry[] = [
       text:  '#FFE066',
     },
   },
+  {
+    code: 'PA',
+    name: 'Pennsylvania',
+    path: '/tracker/pennsylvania',
+    governor: { surname: 'Shapiro',   party: 'D' },
+    senator1: { surname: 'McCormick', party: 'R' },
+    senator2: { surname: 'Fetterman', party: 'D' },
+    voterInfo: {
+      label: 'PA Voter Info',
+      url:   'https://www.vote.pa.gov/',
+      bg:    '#003087',
+      text:  '#ffffff',
+    },
+    polling: {
+      label: 'PA District & Polling',
+      url:   'https://www.pavoterservices.pa.gov/Pages/voterregistrationstatus.aspx',
+      bg:    '#BF0A30',
+      text:  '#ffffff',
+    },
+  },
 ]
 
 // ── Sub-components ────────────────────────────────────────────────────────
