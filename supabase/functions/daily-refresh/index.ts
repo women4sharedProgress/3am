@@ -3,12 +3,14 @@
  * Runs at 3 AM US Eastern (8:00 UTC EST / 7:00 UTC EDT).
  *
  * 1. Federal bills   — refresh existing + discover new from Congress.gov
- * 2. Michigan bills  — refresh existing + discover new from LegiScan
+ * 2. State bills     — refresh existing + discover new from LegiScan
+ *                      (states configured via LEGISCAN_STATES secret, e.g. "MI,PA")
  * 3. Representatives — sync current members from Congress.gov
  *
  * Secrets (set via `supabase secrets set KEY=value`):
  *   CONGRESS_API_KEY          — Congress.gov API key
- *   LEGISCAN_API_KEY          — LegiScan API key (optional; MI bills skip if absent)
+ *   LEGISCAN_API_KEY          — LegiScan API key (optional; state bills skip if absent)
+ *   LEGISCAN_STATES           — comma-separated state codes (default: MI)
  *   SUPABASE_URL              — injected automatically
  *   SUPABASE_SERVICE_ROLE_KEY — injected automatically
  */
@@ -20,6 +22,9 @@ const secretKey   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const CONGRESS_API_KEY  = Deno.env.get('CONGRESS_API_KEY') ?? ''
 const LEGISCAN_API_KEY  = Deno.env.get('LEGISCAN_API_KEY') ?? ''
+const LEGISCAN_STATES = (Deno.env.get('LEGISCAN_STATES') ?? 'MI')
+  .split(',').map(s => s.trim().toUpperCase()).filter(Boolean)
+
 const CONGRESS_API_BASE = 'https://api.congress.gov/v3'
 const LEGISCAN_API_BASE = 'https://api.legiscan.com'
 
@@ -83,9 +88,10 @@ function mapFederalStage(latestActionText: string): number {
   return 0
 }
 
-// ── Michigan (LegiScan) stage mapping ─────────────────────────────────────────
-// MICHIGAN_STAGES = ['Introduced','Committee','First chamber','Second chamber','Governor']
+// ── State (LegiScan) stage mapping ────────────────────────────────────────────
+// STATE_STAGES = ['Introduced','Committee','First chamber','Second chamber','Governor']
 // stage === 5 means enacted
+// LegiScan status codes are universal across all states.
 
 function mapMichiganStage(legiScanStatus: number): number {
   switch (legiScanStatus) {
@@ -120,17 +126,17 @@ function parseCommittee(actionText: string): string | null {
 
 // ── Ratify office inference ───────────────────────────────────────────────────
 
-function inferRatifyOffice(stage: number, level: 'federal' | 'michigan'): string {
+function inferRatifyOffice(stage: number, level: string): string {
   if (level === 'federal') {
-    if (stage <= 1) return 'committee'
-    if (stage === 2) return 'committee'
+    if (stage <= 2) return 'committee'
     if (stage === 3) return 'us-senate'
     return 'president'
   }
-  // michigan
+  // level is a state code, e.g. 'MI', 'PA'
+  const p = level.toLowerCase()
   if (stage <= 1) return 'committee'
-  if (stage === 2) return 'mi-senate'
-  if (stage === 3) return 'mi-house'
+  if (stage === 2) return `${p}-senate`
+  if (stage === 3) return `${p}-house`
   return 'governor'
 }
 
@@ -501,13 +507,13 @@ async function legiScanGet(op: string, params: Record<string, string | number>):
   return res.json()
 }
 
-async function getMiMasterList(): Promise<LegiScanMasterItem[]> {
-  // Get active MI session
-  const sessData = await legiScanGet('getSessionList', { state: 'MI' }) as { sessions: Array<{ session_id: number; year_start: number; year_end: number; sine_die: number }> }
-  const sessions = (sessData as { sessions: Array<{ session_id: number; year_start: number; year_end: number; sine_die: number }> }).sessions ?? []
+async function getStateMasterList(state: string): Promise<LegiScanMasterItem[]> {
+  // Get active session for this state
+  const sessData = await legiScanGet('getSessionList', { state }) as { sessions: Array<{ session_id: number; year_start: number; year_end: number; sine_die: number }> }
+  const sessions = sessData.sessions ?? []
   // Find most recent active session
   const active = sessions.filter(s => !s.sine_die).sort((a, b) => b.year_start - a.year_start)[0]
-  if (!active) throw new Error('No active MI session found')
+  if (!active) throw new Error(`No active ${state} session found`)
 
   const masterData = await legiScanGet('getMasterList', { id: active.session_id }) as { masterlist: Record<string, unknown> }
   const masterList = masterData.masterlist ?? {}
@@ -532,36 +538,37 @@ function formatMiBillName(billNumber: string, title: string): string {
   return title ? `${num} — ${title}` : num
 }
 
-// ── Michigan bills refresh ────────────────────────────────────────────────────
+// ── State bills refresh ───────────────────────────────────────────────────────
 
-async function refreshMichiganBills(
+async function refreshStateBills(
   supabase: ReturnType<typeof createClient>,
+  state: string,
 ): Promise<{ updated: number; pending: number; skipped: number; error?: string }> {
   if (!LEGISCAN_API_KEY) {
-    console.warn('[bills/michigan] LEGISCAN_API_KEY not set — skipping.')
+    console.warn(`[bills/${state}] LEGISCAN_API_KEY not set — skipping.`)
     return { updated: 0, pending: 0, skipped: 0, error: 'LEGISCAN_API_KEY not configured' }
   }
 
   let masterList: LegiScanMasterItem[]
   try {
-    masterList = await getMiMasterList()
+    masterList = await getStateMasterList(state)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.error('[bills/michigan] getMasterList failed:', msg)
+    console.error(`[bills/${state}] getMasterList failed:`, msg)
     return { updated: 0, pending: 0, skipped: 0, error: msg }
   }
 
   // Build lookup: bill_id → master item
   const byId = new Map(masterList.map(item => [item.bill_id, item]))
 
-  // Fetch existing MI bills from DB
+  // Fetch existing bills for this state from DB
   const { data: dbBills, error: dbErr } = await supabase
     .from('bills')
     .select('id, name, pull_source, verified, stage, stage_dates, stage_note, committee')
-    .eq('state', 'MI')
+    .eq('state', state)
 
   if (dbErr) {
-    console.error('[bills/michigan] DB fetch error:', dbErr.message)
+    console.error(`[bills/${state}] DB fetch error:`, dbErr.message)
     return { updated: 0, pending: 0, skipped: 0, error: dbErr.message }
   }
 
@@ -602,7 +609,7 @@ async function refreshMichiganBills(
       const update: Record<string, unknown> = { last_pulled_at: now, raw_pull_data: masterItem }
       if (diff) update.pending_changes = diff
       const { error } = await supabase.from('bills').update(update).eq('id', bill.id)
-      if (error) console.error(`[bills/michigan] verified update error (id=${bill.id}):`, error.message)
+      if (error) console.error(`[bills/${state}] verified update error (id=${bill.id}):`, error.message)
       else if (diff) pending++
     } else {
       const { error } = await supabase
@@ -615,37 +622,38 @@ async function refreshMichiganBills(
           last_pulled_at: now,
         })
         .eq('id', bill.id)
-      if (error) console.error(`[bills/michigan] update error (id=${bill.id}):`, error.message)
+      if (error) console.error(`[bills/${state}] update error (id=${bill.id}):`, error.message)
       else updated++
     }
 
     await new Promise(r => setTimeout(r, 150))
   }
 
-  console.log(`[bills/michigan] updated=${updated} pending=${pending} skipped=${skipped}`)
+  console.log(`[bills/${state}] updated=${updated} pending=${pending} skipped=${skipped}`)
   return { updated, pending, skipped }
 }
 
-// ── Michigan bill discovery ───────────────────────────────────────────────────
+// ── State bill discovery ──────────────────────────────────────────────────────
 
-async function discoverNewMichiganBills(
+async function discoverNewStateBills(
   supabase: ReturnType<typeof createClient>,
+  state: string,
 ): Promise<{ discovered: number; skipped: number; error?: string }> {
   if (!LEGISCAN_API_KEY) return { discovered: 0, skipped: 0, error: 'LEGISCAN_API_KEY not configured' }
 
   let masterList: LegiScanMasterItem[]
   try {
-    masterList = await getMiMasterList()
+    masterList = await getStateMasterList(state)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     return { discovered: 0, skipped: 0, error: msg }
   }
 
-  // Get existing MI pull_sources to detect new bills
+  // Get existing pull_sources for this state to detect new bills
   const { data: existing } = await supabase
     .from('bills')
     .select('pull_source')
-    .eq('state', 'MI')
+    .eq('state', state)
 
   const existingSources = new Set(
     (existing ?? []).map((r: { pull_source: string | null }) => r.pull_source).filter(Boolean)
@@ -672,8 +680,8 @@ async function discoverNewMichiganBills(
     const pullSource = `${LEGISCAN_API_BASE}/?op=getBill&id=${item.bill_id}`
 
     const { error } = await supabase.from('bills').insert({
-      state:            'MI',
-      level:            'michigan',
+      state:            state,
+      level:            'state',
       name:             formatMiBillName(item.number, item.title),
       introduced:       fullBill.introduced_date || null,
       stage,
@@ -684,7 +692,7 @@ async function discoverNewMichiganBills(
       urgency:          'months',
       policy_bias:      50,
       amend:            [],
-      ratify_office:    inferRatifyOffice(stage, 'michigan'),
+      ratify_office:    inferRatifyOffice(stage, state),
       bill_desc:        '',
       decisions:        [],
       supporters:       '',
@@ -698,10 +706,10 @@ async function discoverNewMichiganBills(
     })
 
     if (error) {
-      console.error(`[discover/michigan] Insert error for ${item.number}:`, error.message)
+      console.error(`[discover/${state}] Insert error for ${item.number}:`, error.message)
       skipped++
     } else {
-      console.log(`[discover/michigan] Added: ${item.number} — ${item.title}`)
+      console.log(`[discover/${state}] Added: ${item.number} — ${item.title}`)
       existingSources.add(pullSource)
       discovered++
     }
@@ -709,7 +717,7 @@ async function discoverNewMichiganBills(
     await new Promise(r => setTimeout(r, 300))
   }
 
-  console.log(`[discover/michigan] discovered=${discovered} skipped=${skipped}`)
+  console.log(`[discover/${state}] discovered=${discovered} skipped=${skipped}`)
   return { discovered, skipped }
 }
 
@@ -866,16 +874,19 @@ Deno.serve(async (_req: Request) => {
   const supabase = createClient(supabaseUrl, secretKey)
 
   // Refresh existing bills first, then discover new ones
-  const [federalResult, michiganResult, repResult] = await Promise.all([
+  const [federalResult, repResult] = await Promise.all([
     refreshFederalBills(supabase),
-    refreshMichiganBills(supabase),
     refreshRepresentatives(supabase),
   ])
 
-  const [federalDiscovery, michiganDiscovery] = await Promise.all([
-    discoverNewFederalBills(supabase),
-    discoverNewMichiganBills(supabase),
-  ])
+  const stateBills: Record<string, { updated: number; pending: number; skipped: number; error?: string }> = {}
+  const stateDiscovery: Record<string, { discovered: number; skipped: number; error?: string }> = {}
+  for (const st of LEGISCAN_STATES) {
+    stateBills[st] = await refreshStateBills(supabase, st)
+    stateDiscovery[st] = await discoverNewStateBills(supabase, st)
+  }
+
+  const federalDiscovery = await discoverNewFederalBills(supabase)
 
   // Fire-and-forget: trigger notification generation
   fetch(`${supabaseUrl}/functions/v1/notify-send`, {
@@ -900,11 +911,10 @@ Deno.serve(async (_req: Request) => {
   if (federalDiscovery.discovered > 0) {
     summaryParts.push(`${federalDiscovery.discovered} new federal bill${federalDiscovery.discovered !== 1 ? 's' : ''} discovered`)
   }
-  if (!michiganResult.error && michiganResult.updated > 0) {
-    summaryParts.push(`${michiganResult.updated} MI bill${michiganResult.updated !== 1 ? 's' : ''} updated`)
-  }
-  if (michiganDiscovery.discovered > 0) {
-    summaryParts.push(`${michiganDiscovery.discovered} new MI bill${michiganDiscovery.discovered !== 1 ? 's' : ''} discovered`)
+  for (const st of LEGISCAN_STATES) {
+    const r = stateBills[st], d = stateDiscovery[st]
+    if (!r.error && r.updated > 0) summaryParts.push(`${r.updated} ${st} bill${r.updated !== 1 ? 's' : ''} updated`)
+    if (d.discovered > 0) summaryParts.push(`${d.discovered} new ${st} bill${d.discovered !== 1 ? 's' : ''} discovered`)
   }
   if (!repResult.error) {
     summaryParts.push(`${repResult.upserted} representatives synced`)
@@ -919,8 +929,8 @@ Deno.serve(async (_req: Request) => {
     details: {
       federal_bills:      federalResult,
       federal_discovery:  federalDiscovery,
-      michigan_bills:     michiganResult,
-      michigan_discovery: michiganDiscovery,
+      state_bills:        stateBills,
+      state_discovery:    stateDiscovery,
       representatives:    repResult,
     },
   }).then(({ error: pnErr }) => {
@@ -933,8 +943,8 @@ Deno.serve(async (_req: Request) => {
       refreshed_at:       ts,
       federal_bills:      federalResult,
       federal_discovery:  federalDiscovery,
-      michigan_bills:     michiganResult,
-      michigan_discovery: michiganDiscovery,
+      state_bills:        stateBills,
+      state_discovery:    stateDiscovery,
       representatives:    repResult,
     }),
     {
