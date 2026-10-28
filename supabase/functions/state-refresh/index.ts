@@ -17,7 +17,8 @@
  * (pg_cron does). Deployed with --no-verify-jwt, so this check is what stops
  * strangers from triggering runs and burning API quota.
  *
- * Secrets: LEGISCAN_API_KEY, NY_OPENLEG_API_KEY, STATE_BATCH_SIZE (default 3)
+ * Secrets: STATE_REFRESH_SECRET (= the vault SUPABASE_SERVICE_ROLE_KEY), LEGISCAN_API_KEY,
+ *          NY_OPENLEG_API_KEY, STATE_BATCH_SIZE (default 3)
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -32,7 +33,12 @@ const TIME_BUDGET_MS = 110_000          // stop starting new states after this
 const RERUN_AFTER_HOURS = 20            // a state is "due" once per night
 
 Deno.serve(async (req: Request) => {
-  if (req.headers.get('Authorization') !== `Bearer ${serviceKey}`) {
+  // Accept the built-in service key OR STATE_REFRESH_SECRET (an Edge Function
+  // secret holding the same key that's in the vault). Newer Supabase projects
+  // give functions a different-format service key than the legacy eyJ... one.
+  const auth = req.headers.get('Authorization') ?? ''
+  const allowed = [serviceKey, Deno.env.get('STATE_REFRESH_SECRET')].filter(Boolean).map(k => `Bearer ${k}`)
+  if (!allowed.includes(auth)) {
     return new Response('Unauthorized', { status: 401 })
   }
 
