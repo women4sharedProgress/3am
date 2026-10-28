@@ -449,8 +449,8 @@ export const STATE_SOURCES: Record<string, StateSource> = {
     billUrl: 'https://app.leg.wa.gov/billinfo/',
     tier: 'easy',
     format: 'api-soap',
-    status: 'todo',
-    notes: 'Official SOAP/REST web services (wslwebservices.leg.wa.gov) - one of the best',
+    status: 'built',
+    notes: 'Official web services (wslwebservices.leg.wa.gov), no key. Built Oct 28 2026 - adapters/wa.ts',
   },
   WV: {
     name: 'West Virginia Legislature',

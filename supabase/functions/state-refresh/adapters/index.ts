@@ -9,8 +9,10 @@
 import type { StateAdapter } from '../lib/types.ts'
 import { legiscan } from './legiscan.ts'
 import { ny } from './ny.ts'
+import { wa } from './wa.ts'
 
 export const ADAPTERS: Record<string, StateAdapter> = {
   [legiscan.id]: legiscan,
   [ny.id]: ny,
+  [wa.id]: wa,
 }

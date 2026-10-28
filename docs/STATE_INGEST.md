@@ -47,10 +47,21 @@ You get back how many bills were fetched, plus 5 sample bills.
 | `supabase/functions/state-refresh/index.ts` | Nightly runner (picks states, logs results) |
 | `.../lib/store.ts` | Writes to `bills` (verified-card rules live here) |
 | `.../lib/normalize.ts` | Shared helpers and keyword rules |
+| `.../lib/xml.ts` | Shared XML reader (used by WA and other XML states) |
+| `.../lib/sources.ts` | Master list of all 50 state sources and build status |
 | `.../adapters/legiscan.ts` | LegiScan backup source |
 | `.../adapters/<state>.ts` | One file per state's own source |
 | `.../adapters/index.ts` | List of available adapters |
 | `supabase/migrations/025_state_sources.sql` | Control table and nightly schedule |
+| `supabase/migrations/026_wa_source.sql` | Points WA at its official source (off until dry run) |
+
+## States on their own official source
+| State | Adapter | Key needed |
+|---|---|---|
+| NY | `ny` | `NY_OPENLEG_API_KEY` |
+| WA | `wa` | none |
+
+All other states use `legiscan` until their adapter is built.
 
 ## Secrets
 `LEGISCAN_API_KEY`, `NY_OPENLEG_API_KEY`, and optionally `STATE_BATCH_SIZE` (default 3 states per call).
